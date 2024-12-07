@@ -53,6 +53,12 @@ const userSchema = new mongoose.Schema(
 				ref: "User",
 			},
 		],
+		contests: [
+			{
+				type: mongoose.Schema.Types.ObjectId,
+				ref: "Contest",
+			},
+		],
 	},
 	{ timestamps: true }
 );

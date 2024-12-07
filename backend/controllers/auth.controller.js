@@ -21,7 +21,9 @@ export const signup = async (req, res) => {
 		}
 
 		if (password.length < 6) {
-			return res.status(400).json({ message: "Password must be at least 6 characters" });
+			return res
+				.status(400)
+				.json({ message: "Password must be at least 6 characters" });
 		}
 
 		const salt = await bcrypt.genSalt(10);
@@ -36,7 +38,9 @@ export const signup = async (req, res) => {
 
 		await user.save();
 
-		const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: "3d" });
+		const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
+			expiresIn: "3d",
+		});
 
 		res.cookie("jwt-linkedin", token, {
 			httpOnly: true, // prevent XSS attack
@@ -64,7 +68,6 @@ export const login = async (req, res) => {
 	try {
 		const { username, password } = req.body;
 
-		// Check if user exists
 		const user = await User.findOne({ username });
 		if (!user) {
 			return res.status(400).json({ message: "Invalid credentials" });
@@ -77,7 +80,9 @@ export const login = async (req, res) => {
 		}
 
 		// Create and send token
-		const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: "3d" });
+		const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
+			expiresIn: "3d",
+		});
 		await res.cookie("jwt-linkedin", token, {
 			httpOnly: true,
 			maxAge: 3 * 24 * 60 * 60 * 1000,
