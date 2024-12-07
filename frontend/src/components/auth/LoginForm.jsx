@@ -3,6 +3,7 @@ import { useState } from "react";
 import { axiosInstance } from "../../lib/axios";
 import toast from "react-hot-toast";
 import { Loader } from "lucide-react";
+import { FaEmpire } from "react-icons/fa";
 
 const LoginForm = () => {
 	const [username, setUsername] = useState("");
