@@ -1,4 +1,3 @@
-import { sendConnectionAcceptedEmail } from "../emails/emailHandlers.js";
 import ConnectionRequest from "../models/connectionRequest.model.js";
 import Notification from "../models/notification.model.js";
 import User from "../models/user.model.js";
@@ -9,7 +8,9 @@ export const sendConnectionRequest = async (req, res) => {
 		const senderId = req.user._id;
 
 		if (senderId.toString() === userId) {
-			return res.status(400).json({ message: "You can't send a request to yourself" });
+			return res
+				.status(400)
+				.json({ message: "You can't send a request to yourself" });
 		}
 
 		if (req.user.connections.includes(userId)) {
@@ -23,7 +24,9 @@ export const sendConnectionRequest = async (req, res) => {
 		});
 
 		if (existingRequest) {
-			return res.status(400).json({ message: "A connection request already exists" });
+			return res
+				.status(400)
+				.json({ message: "A connection request already exists" });
 		}
 
 		const newRequest = new ConnectionRequest({
@@ -54,19 +57,27 @@ export const acceptConnectionRequest = async (req, res) => {
 
 		// check if the req is for the current user
 		if (request.recipient._id.toString() !== userId.toString()) {
-			return res.status(403).json({ message: "Not authorized to accept this request" });
+			return res
+				.status(403)
+				.json({ message: "Not authorized to accept this request" });
 		}
 
 		if (request.status !== "pending") {
-			return res.status(400).json({ message: "This request has already been processed" });
+			return res
+				.status(400)
+				.json({ message: "This request has already been processed" });
 		}
 
 		request.status = "accepted";
 		await request.save();
 
 		// if im your friend then ur also my friend ;)
-		await User.findByIdAndUpdate(request.sender._id, { $addToSet: { connections: userId } });
-		await User.findByIdAndUpdate(userId, { $addToSet: { connections: request.sender._id } });
+		await User.findByIdAndUpdate(request.sender._id, {
+			$addToSet: { connections: userId },
+		});
+		await User.findByIdAndUpdate(userId, {
+			$addToSet: { connections: request.sender._id },
+		});
 
 		const notification = new Notification({
 			recipient: request.sender._id,
@@ -81,13 +92,8 @@ export const acceptConnectionRequest = async (req, res) => {
 		const senderEmail = request.sender.email;
 		const senderName = request.sender.name;
 		const recipientName = request.recipient.name;
-		const profileUrl = process.env.CLIENT_URL + "/profile/" + request.recipient.username;
-
-		try {
-			await sendConnectionAcceptedEmail(senderEmail, senderName, recipientName, profileUrl);
-		} catch (error) {
-			console.error("Error in sendConnectionAcceptedEmail:", error);
-		}
+		const profileUrl =
+			process.env.CLIENT_URL + "/profile/" + request.recipient.username;
 	} catch (error) {
 		console.error("Error in acceptConnectionRequest controller:", error);
 		res.status(500).json({ message: "Server error" });
@@ -102,11 +108,15 @@ export const rejectConnectionRequest = async (req, res) => {
 		const request = await ConnectionRequest.findById(requestId);
 
 		if (request.recipient.toString() !== userId.toString()) {
-			return res.status(403).json({ message: "Not authorized to reject this request" });
+			return res
+				.status(403)
+				.json({ message: "Not authorized to reject this request" });
 		}
 
 		if (request.status !== "pending") {
-			return res.status(400).json({ message: "This request has already been processed" });
+			return res
+				.status(400)
+				.json({ message: "This request has already been processed" });
 		}
 
 		request.status = "rejected";
@@ -123,10 +133,10 @@ export const getConnectionRequests = async (req, res) => {
 	try {
 		const userId = req.user._id;
 
-		const requests = await ConnectionRequest.find({ recipient: userId, status: "pending" }).populate(
-			"sender",
-			"name username profilePicture headline connections"
-		);
+		const requests = await ConnectionRequest.find({
+			recipient: userId,
+			status: "pending",
+		}).populate("sender", "name username profilePicture headline connections");
 
 		res.json(requests);
 	} catch (error) {

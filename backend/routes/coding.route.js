@@ -4,6 +4,7 @@ import {
 	statisticsData,
 	addContest,
 	deleteContest,
+	getCurrentContest,
 	getUserContest,
 } from "../controllers/coding.controller.js";
 import { protectRoute } from "../middleware/auth.middleware.js";
@@ -14,5 +15,5 @@ Router.get("/statistics", protectRoute, statisticsData);
 Router.post("/add-contest", protectRoute, addContest);
 Router.delete("/delete-contest/:contest_id", protectRoute, deleteContest);
 Router.get("/get-use-contest", protectRoute, getUserContest);
-
+Router.get("/getOngoingContest", protectRoute, getCurrentContest);
 export default Router;

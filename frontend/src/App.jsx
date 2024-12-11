@@ -42,7 +42,6 @@ function App() {
 	return (
 		<Layout>
 			<ReactQueryDevtools />
-			{console.log(authUser)}
 			<Routes>
 				<Route
 					path="/"

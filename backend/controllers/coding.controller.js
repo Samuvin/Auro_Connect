@@ -93,7 +93,6 @@ export const addContest = async (req, res) => {
 
 export const deleteContest = async (req, res) => {
 	try {
-		console.log(req.params);
 		const contest_remove = req.params.contest_id;
 		const user = await User.findById(req.user._id);
 		user.contests = user.contests.filter((e) => e != contest_remove);
@@ -107,14 +106,28 @@ export const deleteContest = async (req, res) => {
 export const getUserContest = async (req, res) => {
 	try {
 		const user = req.user;
-		console.log(user);
 		const data = await User.findById(user._id).populate("contests");
-		console.log(data);
 		res.status(200).json({
 			staus: "success",
 			data: data.contests,
 		});
 	} catch (err) {
 		res.status(500).json({ message: "Server error", error: err.message });
+	}
+};
+
+export const getCurrentContest = async (req, res) => {
+	try {
+		const user = req.user;
+		const now = new Date().toISOString();
+		const userWishlist = await User.findById(user._id).populate("contests");
+		const ongoingContests = userWishlist.contests.filter((contest) => {
+			const startDate = new Date(contest.start).toISOString();
+			const endDate = new Date(contest.end).toISOString();
+			return startDate <= now && now <= endDate;
+		});
+		res.status(200).json({ status: "success", data: ongoingContests });
+	} catch (err) {
+		res.status(500).json({ staus: "failed", message: "Server error" });
 	}
 };

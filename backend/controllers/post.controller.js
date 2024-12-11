@@ -5,7 +5,9 @@ import { sendCommentNotificationEmail } from "../emails/emailHandlers.js";
 
 export const getFeedPosts = async (req, res) => {
 	try {
-		const posts = await Post.find({ author: { $in: [...req.user.connections, req.user._id] } })
+		const posts = await Post.find({
+			author: { $in: [...req.user.connections, req.user._id] },
+		})
 			.populate("author", "name username profilePicture headline")
 			.populate("comments.user", "name profilePicture")
 			.sort({ createdAt: -1 });
@@ -58,19 +60,22 @@ export const deletePost = async (req, res) => {
 
 		// check if the current user is the author of the post
 		if (post.author.toString() !== userId.toString()) {
-			return res.status(403).json({ message: "You are not authorized to delete this post" });
+			return res
+				.status(403)
+				.json({ message: "You are not authorized to delete this post" });
 		}
 
 		// delete the image from cloudinary as well!
 		if (post.image) {
-			await cloudinary.uploader.destroy(post.image.split("/").pop().split(".")[0]);
+			await cloudinary.uploader.destroy(
+				post.image.split("/").pop().split(".")[0]
+			);
 		}
 
 		await Post.findByIdAndDelete(postId);
 
 		res.status(200).json({ message: "Post deleted successfully" });
 	} catch (error) {
-		console.log("Error in delete post controller", error.message);
 		res.status(500).json({ message: "Server error" });
 	}
 };
@@ -123,7 +128,9 @@ export const createComment = async (req, res) => {
 					content
 				);
 			} catch (error) {
-				console.log("Error in sending comment notification email:", error);
+				res
+					.status(200)
+					.json({ status: "failed", message: "Internal Server Down" });
 			}
 		}
 
@@ -142,7 +149,9 @@ export const likePost = async (req, res) => {
 
 		if (post.likes.includes(userId)) {
 			// unlike the post
-			post.likes = post.likes.filter((id) => id.toString() !== userId.toString());
+			post.likes = post.likes.filter(
+				(id) => id.toString() !== userId.toString()
+			);
 		} else {
 			// like the post
 			post.likes.push(userId);

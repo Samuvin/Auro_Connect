@@ -34,7 +34,6 @@ const CalendarComponent = () => {
 			return response.data;
 		},
 		onSuccess: (data) => {
-			console.log("Success response:", data);
 			toast.success(data?.message || "Contest added successfully");
 			queryClient.invalidateQueries({ queryKey: ["wishlistcontest"] });
 		},

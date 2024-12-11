@@ -39,7 +39,6 @@ const WishList = () => {
 		queryKey: ["wishlistcontest"],
 		queryFn: async () => {
 			const response = await axiosInstance.get("/coding/get-use-contest");
-			console.log(response.data);
 			return response.data;
 		},
 	});
@@ -94,10 +93,12 @@ const WishList = () => {
 							{contest.duration}
 						</p>
 						<p className="text-gray-800">
-							<span className="font-semibold">Start:</span> {contest.start}
+							<span className="font-semibold">Start:</span>{" "}
+							{new Date(contest.start).toLocaleString()}
 						</p>
 						<p className="text-gray-800">
-							<span className="font-semibold">End:</span> {contest.end}
+							<span className="font-semibold">End:</span>{" "}
+							{new Date(contest.end).toLocaleString()}
 						</p>
 						<p className="text-gray-800">
 							<span className="font-semibold">Host:</span> {contest.host}
