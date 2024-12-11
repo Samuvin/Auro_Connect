@@ -12,10 +12,6 @@ const CurrentContest = () => {
 
 	const [showModal, setShowModal] = useState(false);
 
-	if (isLoading) {
-		return <div className="text-center text-blue-600">Loading...</div>;
-	}
-
 	if (isError) {
 		return (
 			<div className="text-center text-red-600">Error: {error.message}</div>
@@ -28,7 +24,6 @@ const CurrentContest = () => {
 
 	return (
 		<>
-			{/* Notification Button */}
 			<div className="fixed bottom-10 right-10">
 				<button
 					onClick={toggleModal}

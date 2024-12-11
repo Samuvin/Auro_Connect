@@ -28,7 +28,7 @@ if (process.env.NODE_ENV !== "production") {
 	);
 }
 
-app.use(express.json({ limit: "5mb" })); // parse JSON request bodies
+app.use(express.json({ limit: "5mb" }));
 app.use(cookieParser());
 
 app.use("/api/v1/auth", authRoutes);
@@ -46,6 +46,16 @@ if (process.env.NODE_ENV === "production") {
 	});
 }
 
-app.listen(PORT, () => {
-	connectDB();
-});
+const startServer = async () => {
+	try {
+		await connectDB();
+		console.log("Database connected successfully");
+		app.listen(PORT, () => {
+			console.log(`Server is listening on PORT ${PORT}`);
+		});
+	} catch (error) {
+		console.error("Failed to start the server:", error.message);
+	}
+};
+
+startServer();

@@ -1,7 +1,6 @@
 import cloudinary from "../lib/cloudinary.js";
 import Post from "../models/post.model.js";
 import Notification from "../models/notification.model.js";
-import { sendCommentNotificationEmail } from "../emails/emailHandlers.js";
 
 export const getFeedPosts = async (req, res) => {
 	try {
@@ -117,23 +116,7 @@ export const createComment = async (req, res) => {
 			});
 
 			await newNotification.save();
-
-			try {
-				const postUrl = process.env.CLIENT_URL + "/post/" + postId;
-				await sendCommentNotificationEmail(
-					post.author.email,
-					post.author.name,
-					req.user.name,
-					postUrl,
-					content
-				);
-			} catch (error) {
-				res
-					.status(200)
-					.json({ status: "failed", message: "Internal Server Down" });
-			}
 		}
-
 		res.status(200).json(post);
 	} catch (error) {
 		console.error("Error in createComment controller:", error);
