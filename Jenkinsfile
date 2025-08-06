@@ -32,12 +32,12 @@ node {
   }
   
   // Simplified Slack notification function
-  def sendSlackNotification = { channel, message, color = 'good' ->
+  def sendSlackNotification = { channel, slackMessage, color = 'good' ->
     try {
       slackSend(
         channel: channel,
         color: color,
-        message: message
+        message: slackMessage
       )
       echo "✅ Slack notification sent successfully"
       return true
