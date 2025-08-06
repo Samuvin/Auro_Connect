@@ -6,7 +6,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 /**
- * Playwright configuration for performance testing
+ * Playwright configuration for performance testing including memory leak detection
  * @see https://playwright.dev/docs/test-configuration
  */
 export default defineConfig({
@@ -58,6 +58,36 @@ export default defineConfig({
     },
 
     {
+      name: 'chromium-memory-leak-detection',
+      use: { 
+        ...devices['Desktop Chrome'],
+        // Chrome flags specifically for memory leak detection
+        launchOptions: {
+          args: [
+            '--no-sandbox',
+            '--disable-dev-shm-usage',
+            '--disable-web-security',
+            '--disable-features=TranslateUI',
+            '--disable-ipc-flooding-protection',
+            '--enable-network-service',
+            '--force-fieldtrials=NetworkService/Enabled',
+            // Memory-specific flags
+            '--enable-precise-memory-info',
+            '--enable-memory-pressure-api',
+            '--js-flags=--expose-gc',
+            '--max-old-space-size=4096',
+            '--disable-background-timer-throttling',
+            '--disable-backgrounding-occluded-windows',
+            '--disable-renderer-backgrounding',
+            '--disable-features=TranslateUI,BlinkGenPropertyTrees,VizDisplayCompositor',
+            '--enable-devtools-experiments'
+          ]
+        }
+      },
+      testMatch: '**/memory-leak.spec.js',
+    },
+
+    {
       name: 'mobile-performance',
       use: { 
         ...devices['Pixel 5'],
@@ -70,6 +100,7 @@ export default defineConfig({
           ]
         }
       },
+      testIgnore: '**/memory-leak.spec.js', // Skip memory tests on mobile
     },
   ],
 
