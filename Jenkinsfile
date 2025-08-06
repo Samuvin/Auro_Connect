@@ -1,486 +1,390 @@
-pipeline {
-    agent any
+#!groovy
+import groovy.json.JsonOutput
+
+// Build parameters
+properties([
+  disableConcurrentBuilds(),
+  parameters([
+    booleanParam(name: 'SkipLinting', defaultValue: false, description: 'Skip Linting'),
+    booleanParam(name: 'SkipUnitTests', defaultValue: false, description: 'Skip Unit Tests'),
+    booleanParam(name: 'SkipE2ETests', defaultValue: false, description: 'Skip End-to-End Tests'),
+    booleanParam(name: 'SkipPerformanceTests', defaultValue: false, description: 'Skip Performance Tests'),
+    booleanParam(name: 'SkipBuild', defaultValue: false, description: 'Skip Application Build')
+  ])
+])
+
+def startTime = 0
+results = [:]
+currStage = ''
+message = ''
+unitTestsSuccess = false
+e2eTestsSuccess = false
+buildSuccess = false
+
+node('any') {
+
+  wrap([$class: 'AnsiColorBuildWrapper', 'colorMapName': 'XTerm']) {
     
-    environment {
-        NODE_VERSION = '20'
-        NODE_ENV = 'test'
-        CLIENT_URL = 'http://localhost:3000'
-        PORT = '5000'
+    stage('Checkout') {
+      currStage = env.STAGE_NAME
+      startTime = sh(script: 'echo `date`', returnStdout: true).trim()
+      checkout scm
+      
+      // Get commit info for build metadata
+      env.GIT_COMMIT_MSG = sh(script: "git log -1 --pretty=%B", returnStdout: true).trim()
+      env.GIT_COMMIT_AUTHOR = sh(script: "git log -1 --pretty=%an", returnStdout: true).trim()
+      env.GIT_COMMIT_HASH = sh(script: "git rev-parse --short HEAD", returnStdout: true).trim()
+      
+      echo "Building commit: ${env.GIT_COMMIT_MSG} by ${env.GIT_COMMIT_AUTHOR}"
+      addSlackMessage(env.STAGE_NAME, true, '')
     }
-    
-    tools {
-        nodejs "${NODE_VERSION}"
-    }
-    
-    stages {
-        stage('Load Credentials') {
-            steps {
-                script {
-                    // Load credentials from the auro text file
-                    withCredentials([file(credentialsId: 'auro', variable: 'AURO_CREDS_FILE')]) {
-                        def props = readProperties file: env.AURO_CREDS_FILE
-                        
-                        // Set environment variables from the credentials file
-                        env.JWT_SECRET = props.JWT_SECRET
-                        env.MONGODB_URI = props.MONGODB_URI
-                        env.CLOUDINARY_CLOUD_NAME = props.CLOUDINARY_CLOUD_NAME
-                        env.CLOUDINARY_API_KEY = props.CLOUDINARY_API_KEY
-                        env.CLOUDINARY_API_SECRET = props.CLOUDINARY_API_SECRET
-                        env.MAILTRAP_TOKEN = props.MAILTRAP_TOKEN
-                        env.MAILTRAP_ENDPOINT = props.MAILTRAP_ENDPOINT
-                        env.SLACK_WEBHOOK_URL = props.SLACK_WEBHOOK_URL
-                        
-                        echo 'Credentials loaded successfully from auro file'
-                    }
-                }
-            }
+
+    try {
+
+      stage('Load Credentials') {
+        currStage = env.STAGE_NAME
+        
+        // Load credentials from the auro text file
+        withCredentials([file(credentialsId: 'auro', variable: 'AURO_CREDS_FILE')]) {
+          def props = readProperties file: env.AURO_CREDS_FILE
+          
+          // Set environment variables from the credentials file
+          env.JWT_SECRET = props.JWT_SECRET
+          env.MONGODB_URI = props.MONGODB_URI
+          env.CLOUDINARY_CLOUD_NAME = props.CLOUDINARY_CLOUD_NAME
+          env.CLOUDINARY_API_KEY = props.CLOUDINARY_API_KEY
+          env.CLOUDINARY_API_SECRET = props.CLOUDINARY_API_SECRET
+          env.MAILTRAP_TOKEN = props.MAILTRAP_TOKEN
+          env.MAILTRAP_ENDPOINT = props.MAILTRAP_ENDPOINT
+          env.SLACK_WEBHOOK_URL = props.SLACK_WEBHOOK_URL
+          
+          echo 'Credentials loaded successfully from auro file'
         }
         
-        stage('Checkout') {
-            steps {
-                checkout scm
-                script {
-                    // Get commit info for build metadata
-                    env.GIT_COMMIT_MSG = sh(script: "git log -1 --pretty=%B", returnStdout: true).trim()
-                    env.GIT_COMMIT_AUTHOR = sh(script: "git log -1 --pretty=%an", returnStdout: true).trim()
-                }
-                echo "Building commit: ${env.GIT_COMMIT_MSG} by ${env.GIT_COMMIT_AUTHOR}"
-            }
-        }
+        addSlackMessage(env.STAGE_NAME, true, '')
+      }
+
+      //NodeJS 20 Docker Image
+      def docker_image_name = 'node:20-alpine'
+      
+      stage('Install Dependencies') {
+        currStage = env.STAGE_NAME
         
-        stage('Install Dependencies') {
-            parallel {
-                stage('Backend Dependencies') {
-                    steps {
-                        dir('backend') {
-                            sh 'npm ci'
-                        }
-                    }
-                }
-                stage('Frontend Dependencies') {
-                    steps {
-                        dir('frontend') {
-                            sh 'npm ci'
-                            // Install Playwright browsers for E2E tests
-                            sh 'npx playwright install --with-deps'
-                        }
-                    }
-                }
-                stage('Root Dependencies') {
-                    steps {
-                        sh 'npm ci'
-                    }
-                }
+        parallel(
+          'Backend Dependencies': {
+            dir('backend') {
+              sh 'npm ci'
             }
-        }
+          },
+          'Frontend Dependencies': {
+            dir('frontend') {
+              sh 'npm ci'
+              sh 'npx playwright install --with-deps'
+            }
+          },
+          'Root Dependencies': {
+            sh 'npm ci'
+          }
+        )
         
-        stage('Lint & Code Quality') {
-            parallel {
-                stage('Backend Lint') {
-                    steps {
-                        dir('backend') {
-                            sh 'npm run lint:check'
-                        }
-                    }
-                    post {
-                        always {
-                            // Archive lint results if they exist
-                            publishTestResults(
-                                testResultsPattern: 'backend/eslint-results.xml',
-                                allowEmptyResults: true
-                            )
-                        }
-                    }
+        addSlackMessage(env.STAGE_NAME, true, '')
+      }
+
+      stage("Parallel: Lint & Code Quality")
+      {
+        if (!params.SkipLinting) {
+          parallel(
+            failFast: false,
+
+            "backend-lint": {
+              stage('Backend Lint') {
+                currStage = env.STAGE_NAME
+                dir('backend') {
+                  try {
+                    sh 'npm run lint:check'
+                  } catch (Exception e) {
+                    addSlackMessage(env.STAGE_NAME, false, e.toString())
+                    throw e
+                  }
                 }
-                stage('Frontend Lint') {
-                    steps {
-                        dir('frontend') {
-                            sh 'npm run lint:check'
-                        }
-                    }
-                    post {
-                        always {
-                            // Archive lint results if they exist
-                            publishTestResults(
-                                testResultsPattern: 'frontend/eslint-results.xml',
-                                allowEmptyResults: true
-                            )
-                        }
-                    }
+                addSlackMessage(env.STAGE_NAME, true, '')
+              }
+            },
+
+            "frontend-lint": {
+              stage('Frontend Lint') {
+                currStage = env.STAGE_NAME
+                dir('frontend') {
+                  try {
+                    sh 'npm run lint:check'
+                  } catch (Exception e) {
+                    addSlackMessage(env.STAGE_NAME, false, e.toString())
+                    throw e
+                  }
                 }
+                addSlackMessage(env.STAGE_NAME, true, '')
+              }
             }
+          )
+        } else {
+          echo 'Skipping Linting.'
         }
-        
-        stage('Unit & Integration Tests') {
-            parallel {
-                stage('Backend Tests') {
-                    steps {
-                        dir('backend') {
-                            script {
-                                try {
-                                    sh 'npm run test:coverage'
-                                } catch (Exception e) {
-                                    currentBuild.result = 'UNSTABLE'
-                                    echo "Backend tests failed: ${e.message}"
-                                }
-                            }
-                        }
-                    }
-                    post {
-                        always {
-                            // Publish test results
-                            publishTestResults(
-                                testResultsPattern: 'backend/coverage/junit.xml',
-                                allowEmptyResults: true
-                            )
-                            
-                            // Publish coverage reports
-                            publishHTML([
-                                allowMissing: false,
-                                alwaysLinkToLastBuild: true,
-                                keepAll: true,
-                                reportDir: 'backend/coverage/lcov-report',
-                                reportFiles: 'index.html',
-                                reportName: 'Backend Coverage Report',
-                                reportTitles: ''
-                            ])
-                            
-                            // Archive coverage artifacts
-                            archiveArtifacts(
-                                artifacts: 'backend/coverage/**/*',
-                                allowEmptyArchive: true
-                            )
-                        }
-                    }
+      }
+
+      stage("Parallel: Unit & Integration Tests")
+      {
+        if (!params.SkipUnitTests) {
+          parallel(
+            failFast: false,
+
+            "backend-tests": {
+              stage('Backend Tests') {
+                currStage = env.STAGE_NAME
+                dir('backend') {
+                  try {
+                    sh 'npm run test:coverage'
+                    unitTestsSuccess = true
+                  } catch (Exception e) {
+                    addSlackMessage(env.STAGE_NAME, false, e.toString())
+                    throw e
+                  } finally {
+                    // Archive test results and coverage
+                    archiveArtifacts artifacts: 'coverage/**/*', allowEmptyArchive: true
+                  }
                 }
-                
-                stage('Frontend Unit Tests') {
-                    steps {
-                        dir('frontend') {
-                            script {
-                                try {
-                                    sh 'npm run test:ci'
-                                } catch (Exception e) {
-                                    currentBuild.result = 'UNSTABLE'
-                                    echo "Frontend unit tests failed: ${e.message}"
-                                }
-                            }
-                        }
-                    }
-                    post {
-                        always {
-                            // Publish test results
-                            publishTestResults(
-                                testResultsPattern: 'frontend/coverage/junit.xml',
-                                allowEmptyResults: true
-                            )
-                            
-                            // Publish coverage reports
-                            publishHTML([
-                                allowMissing: false,
-                                alwaysLinkToLastBuild: true,
-                                keepAll: true,
-                                reportDir: 'frontend/coverage/lcov-report',
-                                reportFiles: 'index.html',
-                                reportName: 'Frontend Coverage Report',
-                                reportTitles: ''
-                            ])
-                            
-                            // Archive coverage artifacts
-                            archiveArtifacts(
-                                artifacts: 'frontend/coverage/**/*',
-                                allowEmptyArchive: true
-                            )
-                        }
-                    }
+                addSlackMessage(env.STAGE_NAME, true, '')
+              }
+            },
+
+            "frontend-tests": {
+              stage('Frontend Unit Tests') {
+                currStage = env.STAGE_NAME
+                dir('frontend') {
+                  try {
+                    sh 'npm run test:ci'
+                  } catch (Exception e) {
+                    addSlackMessage(env.STAGE_NAME, false, e.toString())
+                    throw e
+                  } finally {
+                    // Archive test results and coverage
+                    archiveArtifacts artifacts: 'coverage/**/*', allowEmptyArchive: true
+                  }
                 }
+                addSlackMessage(env.STAGE_NAME, true, '')
+              }
             }
+          )
+        } else {
+          echo 'Skipping Unit Tests.'
         }
-        
-        stage('Build Application') {
-            steps {
-                script {
-                    try {
-                        sh 'npm run build'
-                        echo 'Application built successfully'
-                    } catch (Exception e) {
-                        currentBuild.result = 'FAILURE'
-                        error "Build failed: ${e.message}"
-                    }
-                }
-            }
-            post {
-                success {
-                    // Archive build artifacts
-                    archiveArtifacts(
-                        artifacts: 'frontend/dist/**/*',
-                        allowEmptyArchive: true
-                    )
-                }
-            }
+      }
+
+      stage('Build Application') {
+        if (!params.SkipBuild) {
+          currStage = env.STAGE_NAME
+          try {
+            sh 'npm run build'
+            buildSuccess = true
+            echo 'Application built successfully'
+            
+            // Archive build artifacts
+            archiveArtifacts artifacts: 'frontend/dist/**/*', allowEmptyArchive: true
+          } catch (Exception e) {
+            addSlackMessage(env.STAGE_NAME, false, e.toString())
+            throw e
+          }
+          addSlackMessage(env.STAGE_NAME, true, '')
+        } else {
+          echo 'Skipping Application Build.'
         }
-        
-        stage('End-to-End Tests') {
-            when {
-                anyOf {
-                    branch 'main'
-                    branch 'develop'
-                    changeRequest()
-                }
+      }
+
+      stage('End-to-End Tests') {
+        if (!params.SkipE2ETests && (env.BRANCH_NAME == 'main' || env.BRANCH_NAME == 'develop' || env.CHANGE_ID)) {
+          currStage = env.STAGE_NAME
+          try {
+            // Start the backend server in background
+            dir('backend') {
+              sh 'nohup npm start > ../backend.log 2>&1 & echo $! > ../backend.pid'
             }
-            steps {
-                script {
-                    // Start the backend server in background
-                    dir('backend') {
-                        sh 'nohup npm start > ../backend.log 2>&1 & echo $! > ../backend.pid'
-                    }
-                    
-                    // Start the frontend server in background  
-                    dir('frontend') {
-                        sh 'nohup npm run preview > ../frontend.log 2>&1 & echo $! > ../frontend.pid'
-                    }
-                    
-                    // Wait for servers to start
-                    sleep 10
-                    
-                    // Run E2E tests
-                    dir('frontend') {
-                        try {
-                            sh 'npm run test:e2e:ci'
-                        } catch (Exception e) {
-                            currentBuild.result = 'UNSTABLE'
-                            echo "E2E tests failed: ${e.message}"
-                        } finally {
-                            // Stop servers
-                            sh '''
-                                if [ -f ../backend.pid ]; then
-                                    kill $(cat ../backend.pid) || true
-                                    rm ../backend.pid
-                                fi
-                                if [ -f ../frontend.pid ]; then
-                                    kill $(cat ../frontend.pid) || true
-                                    rm ../frontend.pid
-                                fi
-                            '''
-                        }
-                    }
-                }
+            
+            // Start the frontend server in background  
+            dir('frontend') {
+              sh 'nohup npm run preview > ../frontend.log 2>&1 & echo $! > ../frontend.pid'
             }
-            post {
-                always {
-                    // Publish E2E test results
-                    publishTestResults(
-                        testResultsPattern: 'frontend/test-results/junit.xml',
-                        allowEmptyResults: true
-                    )
-                    
-                    // Archive E2E test artifacts
-                    archiveArtifacts(
-                        artifacts: 'frontend/test-results/**/*',
-                        allowEmptyArchive: true
-                    )
-                    
-                    // Publish Playwright HTML report
-                    publishHTML([
-                        allowMissing: false,
-                        alwaysLinkToLastBuild: true,
-                        keepAll: true,
-                        reportDir: 'frontend/playwright-report',
-                        reportFiles: 'index.html',
-                        reportName: 'Playwright E2E Test Report',
-                        reportTitles: ''
-                    ])
-                    
-                    // Archive server logs for debugging
-                    archiveArtifacts(
-                        artifacts: 'backend.log,frontend.log',
-                        allowEmptyArchive: true
-                    )
-                }
+            
+            // Wait for servers to start
+            sleep 10
+            
+            // Run E2E tests
+            dir('frontend') {
+              sh 'npm run test:e2e:ci'
+              e2eTestsSuccess = true
             }
-        }
-        
-        stage('Performance Tests') {
-            when {
-                anyOf {
-                    branch 'main'
-                    branch 'develop'
-                }
-            }
-            steps {
-                script {
-                    // Start servers for performance testing
-                    dir('backend') {
-                        sh 'nohup npm start > ../backend-perf.log 2>&1 & echo $! > ../backend-perf.pid'
-                    }
-                    
-                    dir('frontend') {
-                        sh 'nohup npm run preview > ../frontend-perf.log 2>&1 & echo $! > ../frontend-perf.pid'
-                    }
-                    
-                    // Wait for servers to start
-                    sleep 15
-                    
-                    dir('frontend') {
-                        try {
-                            // Run performance tests
-                            sh 'npm run test:perf:ci'
-                            
-                            // Run Lighthouse tests
-                            sh 'npm run test:lighthouse:ci'
-                            
-                            // Run memory leak tests
-                            sh 'npm run test:memory-leaks:ci'
-                        } catch (Exception e) {
-                            currentBuild.result = 'UNSTABLE'
-                            echo "Performance tests failed: ${e.message}"
-                        } finally {
-                            // Stop servers
-                            sh '''
-                                if [ -f ../backend-perf.pid ]; then
-                                    kill $(cat ../backend-perf.pid) || true
-                                    rm ../backend-perf.pid
-                                fi
-                                if [ -f ../frontend-perf.pid ]; then
-                                    kill $(cat ../frontend-perf.pid) || true
-                                    rm ../frontend-perf.pid
-                                fi
-                            '''
-                        }
-                    }
-                }
-            }
-            post {
-                always {
-                    // Archive performance test results
-                    archiveArtifacts(
-                        artifacts: 'frontend/lighthouse-reports/**/*',
-                        allowEmptyArchive: true
-                    )
-                    
-                    // Archive performance server logs
-                    archiveArtifacts(
-                        artifacts: 'backend-perf.log,frontend-perf.log',
-                        allowEmptyArchive: true
-                    )
-                }
-            }
-        }
-        
-        stage('Test Summary') {
-            steps {
-                script {
-                    // Run all tests summary from root
-                    try {
-                        sh 'npm run test:coverage'
-                        echo 'All tests completed successfully'
-                    } catch (Exception e) {
-                        echo "Some tests failed, but build continues: ${e.message}"
-                    }
-                }
-            }
-        }
-    }
-    
-    post {
-        always {
-            // Clean up any remaining processes
+          } catch (Exception e) {
+            addSlackMessage(env.STAGE_NAME, false, e.toString())
+            message = 'Check E2E Report: <' + env.BUILD_URL + 'artifact/frontend/playwright-report/index.html| E2E Report>'
+            throw e
+          } finally {
+            // Stop servers
             sh '''
-                pkill -f "npm start" || true
-                pkill -f "npm run preview" || true
-                pkill -f "node.*server.js" || true
+              if [ -f backend.pid ]; then
+                kill $(cat backend.pid) || true
+                rm backend.pid
+              fi
+              if [ -f frontend.pid ]; then
+                kill $(cat frontend.pid) || true
+                rm frontend.pid
+              fi
             '''
             
-            // Archive all log files
-            archiveArtifacts(
-                artifacts: '*.log',
-                allowEmptyArchive: true
-            )
-            
-            // Clean up temporary files
-            sh 'rm -f *.pid *.log'
+            // Archive E2E test artifacts
+            archiveArtifacts artifacts: 'frontend/test-results/**/*', allowEmptyArchive: true
+            archiveArtifacts artifacts: 'frontend/playwright-report/**/*', allowEmptyArchive: true
+            archiveArtifacts artifacts: 'backend.log,frontend.log', allowEmptyArchive: true
+          }
+          addSlackMessage(env.STAGE_NAME, true, '')
+        } else {
+          echo 'Skipping End-to-End Tests.'
         }
-        
-        success {
-            echo 'All tests passed successfully! 🎉'
-            
-            // Send success notification
-            script {
-                def message = """
-:white_check_mark: *Build Successful* - Auro Connect
-*Branch:* ${env.BRANCH_NAME}
-*Commit:* ${env.GIT_COMMIT_MSG}
-*Author:* ${env.GIT_COMMIT_AUTHOR}
-*Build:* ${env.BUILD_NUMBER}
-*Duration:* ${currentBuild.durationString}
-*Job:* ${env.JOB_NAME}
-"""
-                
-                sh """
-                    curl -X POST -H 'Content-type: application/json' \\
-                    --data '{"channel": "#auro-connect", "text": "${message}"}' \\
-                    ${SLACK_WEBHOOK_URL}
-                """
-                
-                if (env.BRANCH_NAME == 'main') {
-                    echo 'Main branch tests passed - ready for deployment'
-                }
+      }
+
+      stage('Performance Tests') {
+        if (!params.SkipPerformanceTests && (env.BRANCH_NAME == 'main' || env.BRANCH_NAME == 'develop')) {
+          currStage = env.STAGE_NAME
+          try {
+            // Start servers for performance testing
+            dir('backend') {
+              sh 'nohup npm start > ../backend-perf.log 2>&1 & echo $! > ../backend-perf.pid'
             }
-        }
-        
-        failure {
-            echo 'Tests failed! ❌'
             
-            // Send failure notification
-            script {
-                def message = """
-:x: *Build Failed* - Auro Connect
-*Branch:* ${env.BRANCH_NAME}
-*Commit:* ${env.GIT_COMMIT_MSG}
-*Author:* ${env.GIT_COMMIT_AUTHOR}
-*Build:* ${env.BUILD_NUMBER}
-*Duration:* ${currentBuild.durationString}
-*Job:* ${env.JOB_NAME}
-*Build URL:* ${env.BUILD_URL}
-Please check the build logs for details.
-"""
-                
-                sh """
-                    curl -X POST -H 'Content-type: application/json' \\
-                    --data '{"channel": "#auro-connect", "text": "${message}"}' \\
-                    ${SLACK_WEBHOOK_URL}
-                """
+            dir('frontend') {
+              sh 'nohup npm run preview > ../frontend-perf.log 2>&1 & echo $! > ../frontend-perf.pid'
             }
-        }
-        
-        unstable {
-            echo 'Some tests failed but build completed 🟡'
             
-            // Send unstable notification
-            script {
-                def message = """
-:warning: *Build Unstable* - Auro Connect
-*Branch:* ${env.BRANCH_NAME}
-*Commit:* ${env.GIT_COMMIT_MSG}
-*Author:* ${env.GIT_COMMIT_AUTHOR}
-*Build:* ${env.BUILD_NUMBER}
-*Duration:* ${currentBuild.durationString}
-*Job:* ${env.JOB_NAME}
-*Build URL:* ${env.BUILD_URL}
-Some tests failed but not critical. Please review the results.
-"""
-                
-                sh """
-                    curl -X POST -H 'Content-type: application/json' \\
-                    --data '{"channel": "#auro-connect", "text": "${message}"}' \\
-                    ${SLACK_WEBHOOK_URL}
-                """
+            // Wait for servers to start
+            sleep 15
+            
+            dir('frontend') {
+              // Run performance tests
+              sh 'npm run test:perf:ci'
+              sh 'npm run test:lighthouse:ci'
+              sh 'npm run test:memory-leaks:ci'
             }
+          } catch (Exception e) {
+            addSlackMessage(env.STAGE_NAME, false, e.toString())
+            throw e
+          } finally {
+            // Stop servers
+            sh '''
+              if [ -f backend-perf.pid ]; then
+                kill $(cat backend-perf.pid) || true
+                rm backend-perf.pid
+              fi
+              if [ -f frontend-perf.pid ]; then
+                kill $(cat frontend-perf.pid) || true
+                rm frontend-perf.pid
+              fi
+            '''
+            
+            // Archive performance test results
+            archiveArtifacts artifacts: 'frontend/lighthouse-reports/**/*', allowEmptyArchive: true
+            archiveArtifacts artifacts: 'backend-perf.log,frontend-perf.log', allowEmptyArchive: true
+          }
+          addSlackMessage(env.STAGE_NAME, true, '')
+        } else {
+          echo 'Skipping Performance Tests.'
         }
-        
-        cleanup {
-            // Clean up workspace if needed
-            deleteDir() // This deletes the entire workspace
+      }
+
+      stage('Test Summary') {
+        currStage = env.STAGE_NAME
+        try {
+          // Run all tests summary from root
+          sh 'npm run test:coverage'
+          echo 'All tests completed successfully'
+        } catch (Exception e) {
+          echo "Some tests failed, but build continues: ${e.message}"
         }
+        addSlackMessage(env.STAGE_NAME, true, '')
+      }
     }
+
+    catch(Exception e) {
+      addSlackMessage(currStage, false, message != '' ? message : e.toString())
+      throw e
+    }
+
+    finally {
+      // Clean up any remaining processes
+      sh '''
+        pkill -f "npm start" || true
+        pkill -f "npm run preview" || true
+        pkill -f "node.*server.js" || true
+      '''
+      
+      // Clean up temporary files
+      sh 'rm -f *.pid *.log'
+
+      stage('Notify Slack') {
+        def jobUrl = env.BUILD_URL
+        def testResultMessage = '*Auro Connect Pipeline Results*\n'
+        testResultMessage += 'Branch: ' + env.BRANCH_NAME + '\n'
+        testResultMessage += 'Commit: ' + env.GIT_COMMIT_MSG + '\n'
+        testResultMessage += 'Author: ' + env.GIT_COMMIT_AUTHOR + '\n'
+        testResultMessage += 'Build: ' + "<${jobUrl}|${env.BUILD_NUMBER}>" + '\n'
+        testResultMessage += 'Time Triggered: ' + startTime + '\n'
+        testResultMessage += 'Duration: ' + currentBuild.durationString + '\n'
+        
+        def sidebarColor = '#50C878'  // Green for success
+        def hasFailures = false
+
+        results.each { key, res ->
+          def testEmoji = ':white_check_mark:'
+          if (res['Success']) {
+            testResultMessage += "\n${testEmoji} ${key}"
+          }
+          else {
+            hasFailures = true
+            sidebarColor = '#D2042D'  // Red for failure
+            testEmoji = ':x:'
+            testResultMessage += "\n${testEmoji} ${key}"
+            if (res['message'] && res['message'] != '') {
+              testResultMessage += "\n  ${res['message']}"
+            }
+          }
+        }
+
+        // Set overall build status color
+        if (hasFailures) {
+          sidebarColor = '#D2042D'
+        } else if (currentBuild.result == 'UNSTABLE') {
+          sidebarColor = '#FFA500'  // Orange for unstable
+        }
+
+        print(testResultMessage)
+        
+        // Send Slack notification using webhook
+        def slackPayload = [
+          channel: "#auro-connect",
+          text: testResultMessage,
+          color: sidebarColor
+        ]
+        
+        def payload = JsonOutput.toJson(slackPayload)
+        
+        sh """
+          curl -X POST -H 'Content-type: application/json' \\
+          --data '${payload}' \\
+          ${env.SLACK_WEBHOOK_URL}
+        """
+      }
+    }
+  }
+}
+
+def addSlackMessage(stage, status, message) {
+  results[stage] = [:]
+  results[stage] = ['Success': status]
+  results[stage]['message'] = message
 } 
