@@ -30,6 +30,22 @@ node {
     results[stage] = ['Success': status]
     results[stage]['message'] = msg
   }
+  
+  // Simplified Slack notification function
+  def sendSlackNotification = { channel, message, color = 'good' ->
+    try {
+      slackSend(
+        channel: channel,
+        color: color,
+        message: message
+      )
+      echo "✅ Slack notification sent successfully"
+      return true
+    } catch (Exception e) {
+      echo "❌ Failed to send Slack notification: ${e.getMessage()}"
+      return false
+    }
+  }
 
   wrap([$class: 'AnsiColorBuildWrapper', 'colorMapName': 'XTerm']) {
     
@@ -49,36 +65,6 @@ node {
 
     try {
       echo "Starting main pipeline execution..."
-
-      stage('Load Credentials') {
-        currStage = env.STAGE_NAME
-        
-        try {
-          // Load credentials from the auro text file
-          withCredentials([file(credentialsId: 'auro', variable: 'AURO_CREDS_FILE')]) {
-            def props = readProperties file: env.AURO_CREDS_FILE
-            
-            // Set environment variables from the credentials file
-            env.JWT_SECRET = props.JWT_SECRET
-            env.MONGODB_URI = props.MONGODB_URI
-            env.CLOUDINARY_CLOUD_NAME = props.CLOUDINARY_CLOUD_NAME
-            env.CLOUDINARY_API_KEY = props.CLOUDINARY_API_KEY
-            env.CLOUDINARY_API_SECRET = props.CLOUDINARY_API_SECRET
-            env.MAILTRAP_TOKEN = props.MAILTRAP_TOKEN
-            env.MAILTRAP_ENDPOINT = props.MAILTRAP_ENDPOINT
-            env.SLACK_WEBHOOK_URL = props.SLACK_WEBHOOK_URL
-            
-            echo 'Credentials loaded successfully from auro file'
-            echo "SLACK_WEBHOOK_URL loaded: ${env.SLACK_WEBHOOK_URL ? 'Yes' : 'No'}"
-          }
-          
-          addSlackMessage(env.STAGE_NAME, true, '')
-        } catch (Exception e) {
-          echo "Failed to load credentials: ${e.getMessage()}"
-          addSlackMessage(env.STAGE_NAME, false, "Failed to load credentials: ${e.getMessage()}")
-          throw e
-        }
-      }
 
       //NodeJS 20 Docker Image
       def docker_image_name = 'node:20-alpine'
@@ -390,24 +376,8 @@ node {
 
         print(testResultMessage)
         
-        // Send Slack notification using webhook
-        def slackPayload = [
-          channel: "#auro-connect",
-          text: testResultMessage,
-          color: sidebarColor
-        ]
-        
-        def payload = JsonOutput.toJson(slackPayload)
-        
-        if (env.SLACK_WEBHOOK_URL) {
-          sh """
-            curl -X POST -H 'Content-type: application/json' \\
-            --data '${payload}' \\
-            ${env.SLACK_WEBHOOK_URL}
-          """
-        } else {
-          echo "Skipping Slack notification: SLACK_WEBHOOK_URL is not set."
-        }
+        // Send Slack notification using the helper function
+        sendSlackNotification('#auro-connect', testResultMessage, sidebarColor)
       }
     }
   }
