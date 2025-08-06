@@ -14,14 +14,14 @@ properties([
 ])
 
 def startTime = 0
-results = [:]
-currStage = ''
-message = ''
-unitTestsSuccess = false
-e2eTestsSuccess = false
-buildSuccess = false
+def results = [:]
+def currStage = ''
+def message = ''
+def unitTestsSuccess = false
+def e2eTestsSuccess = false
+def buildSuccess = false
 
-node('any') {
+node {
 
   wrap([$class: 'AnsiColorBuildWrapper', 'colorMapName': 'XTerm']) {
     
