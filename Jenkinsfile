@@ -21,6 +21,7 @@ def message = ''
 def unitTestsSuccess = false
 def e2eTestsSuccess = false
 def buildSuccess = false
+def hasFailures = false
 
 node {
 
@@ -63,16 +64,11 @@ node {
       addSlackMessage(env.STAGE_NAME, true, '')
     }
 
-    try {
-      echo "Starting main pipeline execution..."
-
-      //NodeJS 20 Docker Image
-      def docker_image_name = 'node:20-alpine'
+    stage('Install Dependencies') {
+      currStage = env.STAGE_NAME
+      echo "Starting ${env.STAGE_NAME} stage..."
       
-      stage('Install Dependencies') {
-        currStage = env.STAGE_NAME
-        echo "Starting ${env.STAGE_NAME} stage..."
-        
+      try {
         // Uses the "install:dependencies" script which runs:
         // npm install && npm install --prefix frontend && npm install --prefix backend
         sh 'npm install'
@@ -83,227 +79,244 @@ node {
         }
         
         addSlackMessage(env.STAGE_NAME, true, '')
+      } catch (Exception e) {
+        echo "❌ Dependencies installation failed: ${e.getMessage()}"
+        addSlackMessage(env.STAGE_NAME, false, e.toString())
+        hasFailures = true
+        currentBuild.result = 'FAILURE'
+        return // Cannot continue without dependencies
       }
+    }
 
-      stage("Parallel: Lint & Code Quality")
-      {
-        echo "Starting ${env.STAGE_NAME} stage..."
-        if (!params.SkipLinting) {
-          parallel(
-            failFast: false,
+    stage("Parallel: Lint & Code Quality") {
+      echo "Starting ${env.STAGE_NAME} stage..."
+      if (!params.SkipLinting) {
+        parallel(
+          failFast: false,
 
-            "backend-lint": {
-              stage('Backend Lint') {
-                currStage = env.STAGE_NAME
-                dir('backend') {
-                  try {
-                    sh 'npm run lint:check'
-                  } catch (Exception e) {
-                    addSlackMessage(env.STAGE_NAME, false, e.toString())
-                    throw e
-                  }
+          "backend-lint": {
+            stage('Backend Lint') {
+              currStage = env.STAGE_NAME
+              dir('backend') {
+                try {
+                  sh 'npm run lint:check'
+                  addSlackMessage(env.STAGE_NAME, true, '')
+                } catch (Exception e) {
+                  echo "❌ Backend linting failed: ${e.getMessage()}"
+                  addSlackMessage(env.STAGE_NAME, false, e.toString())
+                  hasFailures = true
+                  // Don't throw - continue with other tests
                 }
-                addSlackMessage(env.STAGE_NAME, true, '')
-              }
-            },
-
-            "frontend-lint": {
-              stage('Frontend Lint') {
-                currStage = env.STAGE_NAME
-                dir('frontend') {
-                  try {
-                    sh 'npm run lint:check'
-                  } catch (Exception e) {
-                    addSlackMessage(env.STAGE_NAME, false, e.toString())
-                    throw e
-                  }
-                }
-                addSlackMessage(env.STAGE_NAME, true, '')
               }
             }
-          )
-        } else {
-          echo 'Skipping Linting.'
-        }
-      }
+          },
 
-      stage("Parallel: Unit & Integration Tests")
-      {
-        if (!params.SkipUnitTests) {
-          parallel(
-            failFast: false,
-
-            "backend-tests": {
-              stage('Backend Tests') {
-                currStage = env.STAGE_NAME
-                dir('backend') {
-                  try {
-                    sh 'npm run test:coverage'
-                    unitTestsSuccess = true
-                  } catch (Exception e) {
-                    addSlackMessage(env.STAGE_NAME, false, e.toString())
-                    throw e
-                  } finally {
-                    // Archive test results and coverage from backend directory
-                    archiveArtifacts artifacts: 'coverage/**/*', allowEmptyArchive: true
-                  }
+          "frontend-lint": {
+            stage('Frontend Lint') {
+              currStage = env.STAGE_NAME
+              dir('frontend') {
+                try {
+                  sh 'npm run lint:check'
+                  addSlackMessage(env.STAGE_NAME, true, '')
+                } catch (Exception e) {
+                  echo "❌ Frontend linting failed: ${e.getMessage()}"
+                  addSlackMessage(env.STAGE_NAME, false, e.toString())
+                  hasFailures = true
+                  // Don't throw - continue with other tests
                 }
-                addSlackMessage(env.STAGE_NAME, true, '')
-              }
-            },
-
-            "frontend-tests": {
-              stage('Frontend Unit Tests') {
-                currStage = env.STAGE_NAME
-                dir('frontend') {
-                  try {
-                    sh 'npm run test:ci'
-                    // Set frontend test success flag
-                    script {
-                      env.FRONTEND_TESTS_SUCCESS = 'true'
-                    }
-                  } catch (Exception e) {
-                    addSlackMessage(env.STAGE_NAME, false, e.toString())
-                    throw e
-                  } finally {
-                    // Archive test results and coverage from frontend directory
-                    archiveArtifacts artifacts: 'coverage/**/*', allowEmptyArchive: true
-                  }
-                }
-                addSlackMessage(env.STAGE_NAME, true, '')
               }
             }
-          )
-        } else {
-          echo 'Skipping Unit Tests.'
-        }
-      }
-
-      stage('End-to-End Tests') {
-        if (!params.SkipE2ETests && (env.BRANCH_NAME == 'main' || env.BRANCH_NAME == 'develop' || env.CHANGE_ID)) {
-          currStage = env.STAGE_NAME
-          try {
-            // Start the backend server in background
-            dir('backend') {
-              sh 'nohup npm start > ../backend.log 2>&1 & echo $! > ../backend.pid'
-            }
-            
-            // Start the frontend server in background  
-            dir('frontend') {
-              sh 'nohup npm run preview > ../frontend.log 2>&1 & echo $! > ../frontend.pid'
-            }
-            
-            // Wait for servers to start
-            sleep 10
-            
-            // Run E2E tests
-            dir('frontend') {
-              sh 'npm run test:e2e:ci'
-              e2eTestsSuccess = true
-            }
-          } catch (Exception e) {
-            addSlackMessage(env.STAGE_NAME, false, e.toString())
-            message = 'Check E2E Report: <' + env.BUILD_URL + 'artifact/frontend/playwright-report/index.html| E2E Report>'
-            throw e
-          } finally {
-            // Stop servers
-            sh '''
-              if [ -f backend.pid ]; then
-                kill $(cat backend.pid) || true
-                rm backend.pid
-              fi
-              if [ -f frontend.pid ]; then
-                kill $(cat frontend.pid) || true
-                rm frontend.pid
-              fi
-            '''
-            
-            // Archive E2E test artifacts
-            archiveArtifacts artifacts: 'frontend/test-results/**/*', allowEmptyArchive: true
-            archiveArtifacts artifacts: 'frontend/playwright-report/**/*', allowEmptyArchive: true
-            archiveArtifacts artifacts: 'backend.log,frontend.log', allowEmptyArchive: true
           }
-          addSlackMessage(env.STAGE_NAME, true, '')
-        } else {
-          echo 'Skipping End-to-End Tests.'
-        }
+        )
+      } else {
+        echo 'Skipping Linting.'
       }
+    }
 
-      stage('Performance Tests') {
-        if (!params.SkipPerformanceTests && (env.BRANCH_NAME == 'main' || env.BRANCH_NAME == 'develop')) {
-          currStage = env.STAGE_NAME
-          try {
-            // Start servers for performance testing
-            dir('backend') {
-              sh 'nohup npm start > ../backend-perf.log 2>&1 & echo $! > ../backend-perf.pid'
+    stage("Parallel: Unit & Integration Tests") {
+      if (!params.SkipUnitTests) {
+        parallel(
+          failFast: false,
+
+          "backend-tests": {
+            stage('Backend Tests') {
+              currStage = env.STAGE_NAME
+              dir('backend') {
+                try {
+                  sh 'npm run test:coverage'
+                  unitTestsSuccess = true
+                  addSlackMessage(env.STAGE_NAME, true, '')
+                } catch (Exception e) {
+                  echo "❌ Backend tests failed: ${e.getMessage()}"
+                  addSlackMessage(env.STAGE_NAME, false, e.toString())
+                  hasFailures = true
+                  // Don't throw - continue with other tests
+                } finally {
+                  // Archive test results and coverage from backend directory
+                  archiveArtifacts artifacts: 'coverage/**/*', allowEmptyArchive: true
+                }
+              }
             }
-            
-            dir('frontend') {
-              sh 'nohup npm run preview > ../frontend-perf.log 2>&1 & echo $! > ../frontend-perf.pid'
+          },
+
+          "frontend-tests": {
+            stage('Frontend Unit Tests') {
+              currStage = env.STAGE_NAME
+              dir('frontend') {
+                try {
+                  sh 'npm run test:ci'
+                  // Set frontend test success flag
+                  script {
+                    env.FRONTEND_TESTS_SUCCESS = 'true'
+                  }
+                  addSlackMessage(env.STAGE_NAME, true, '')
+                } catch (Exception e) {
+                  echo "❌ Frontend tests failed: ${e.getMessage()}"
+                  addSlackMessage(env.STAGE_NAME, false, e.toString())
+                  hasFailures = true
+                  // Don't throw - continue with other tests
+                } finally {
+                  // Archive test results and coverage from frontend directory
+                  archiveArtifacts artifacts: 'coverage/**/*', allowEmptyArchive: true
+                }
+              }
             }
-            
-            // Wait for servers to start
-            sleep 15
-            
-            dir('frontend') {
-              // Run performance tests
-              sh 'npm run test:perf:ci'
-              sh 'npm run test:lighthouse:ci'
-              sh 'npm run test:memory-leaks:ci'
-            }
-          } catch (Exception e) {
-            addSlackMessage(env.STAGE_NAME, false, e.toString())
-            throw e
-          } finally {
-            // Stop servers
-            sh '''
-              if [ -f backend-perf.pid ]; then
-                kill $(cat backend-perf.pid) || true
-                rm backend-perf.pid
-              fi
-              if [ -f frontend-perf.pid ]; then
-                kill $(cat frontend-perf.pid) || true
-                rm frontend-perf.pid
-              fi
-            '''
-            
-            // Archive performance test results
-            archiveArtifacts artifacts: 'frontend/lighthouse-reports/**/*', allowEmptyArchive: true
-            archiveArtifacts artifacts: 'backend-perf.log,frontend-perf.log', allowEmptyArchive: true
           }
-          addSlackMessage(env.STAGE_NAME, true, '')
-        } else {
-          echo 'Skipping Performance Tests.'
-        }
+        )
+      } else {
+        echo 'Skipping Unit Tests.'
       }
+    }
 
-      stage('Test Summary') {
+    stage('End-to-End Tests') {
+      if (!params.SkipE2ETests && (env.BRANCH_NAME == 'main' || env.BRANCH_NAME == 'develop' || env.CHANGE_ID)) {
         currStage = env.STAGE_NAME
         try {
-          // Run all tests summary from root
-          sh 'npm run test:coverage'
-          echo 'All tests completed successfully'
+          // Start the backend server in background
+          dir('backend') {
+            sh 'nohup npm start > ../backend.log 2>&1 & echo $! > ../backend.pid'
+          }
+          
+          // Start the frontend server in background  
+          dir('frontend') {
+            sh 'nohup npm run preview > ../frontend.log 2>&1 & echo $! > ../frontend.pid'
+          }
+          
+          // Wait for servers to start
+          sleep 10
+          
+          // Run E2E tests
+          dir('frontend') {
+            sh 'npm run test:e2e:ci'
+            e2eTestsSuccess = true
+          }
+          addSlackMessage(env.STAGE_NAME, true, '')
         } catch (Exception e) {
-          echo "Some tests failed, but build continues: ${e.message}"
+          echo "❌ E2E tests failed: ${e.getMessage()}"
+          addSlackMessage(env.STAGE_NAME, false, e.toString())
+          message = 'Check E2E Report: <' + env.BUILD_URL + 'artifact/frontend/playwright-report/index.html| E2E Report>'
+          hasFailures = true
+          // Don't throw - continue with other stages
+        } finally {
+          // Stop servers
+          sh '''
+            if [ -f backend.pid ]; then
+              kill $(cat backend.pid) || true
+              rm backend.pid
+            fi
+            if [ -f frontend.pid ]; then
+              kill $(cat frontend.pid) || true
+              rm frontend.pid
+            fi
+          '''
+          
+          // Archive E2E test artifacts
+          archiveArtifacts artifacts: 'frontend/test-results/**/*', allowEmptyArchive: true
+          archiveArtifacts artifacts: 'frontend/playwright-report/**/*', allowEmptyArchive: true
+          archiveArtifacts artifacts: 'backend.log,frontend.log', allowEmptyArchive: true
         }
-        addSlackMessage(env.STAGE_NAME, true, '')
+      } else {
+        echo 'Skipping End-to-End Tests.'
       }
     }
 
-    catch(Exception e) {
-      echo "Pipeline failed in stage: ${currStage}"
-      echo "Error details: ${e.getMessage()}"
-      echo "Full error: ${e.toString()}"
-      
+    stage('Performance Tests') {
+      if (!params.SkipPerformanceTests && (env.BRANCH_NAME == 'main' || env.BRANCH_NAME == 'develop')) {
+        currStage = env.STAGE_NAME
+        try {
+          // Start servers for performance testing
+          dir('backend') {
+            sh 'nohup npm start > ../backend-perf.log 2>&1 & echo $! > ../backend-perf.pid'
+          }
+          
+          dir('frontend') {
+            sh 'nohup npm run preview > ../frontend-perf.log 2>&1 & echo $! > ../frontend-perf.pid'
+          }
+          
+          // Wait for servers to start
+          sleep 15
+          
+          dir('frontend') {
+            // Run performance tests
+            sh 'npm run test:perf:ci'
+            sh 'npm run test:lighthouse:ci'
+            sh 'npm run test:memory-leaks:ci'
+          }
+          addSlackMessage(env.STAGE_NAME, true, '')
+        } catch (Exception e) {
+          echo "❌ Performance tests failed: ${e.getMessage()}"
+          addSlackMessage(env.STAGE_NAME, false, e.toString())
+          hasFailures = true
+          // Don't throw - continue with other stages
+        } finally {
+          // Stop servers
+          sh '''
+            if [ -f backend-perf.pid ]; then
+              kill $(cat backend-perf.pid) || true
+              rm backend-perf.pid
+            fi
+            if [ -f frontend-perf.pid ]; then
+              kill $(cat frontend-perf.pid) || true
+              rm frontend-perf.pid
+            fi
+          '''
+          
+          // Archive performance test results
+          archiveArtifacts artifacts: 'frontend/lighthouse-reports/**/*', allowEmptyArchive: true
+          archiveArtifacts artifacts: 'backend-perf.log,frontend-perf.log', allowEmptyArchive: true
+        }
+      } else {
+        echo 'Skipping Performance Tests.'
+      }
+    }
+
+    stage('Test Summary') {
+      currStage = env.STAGE_NAME
       try {
-        addSlackMessage(currStage, false, message != '' ? message : e.toString())
-      } catch (Exception slackError) {
-        echo "Failed to add Slack message: ${slackError.getMessage()}"
+        // Run all tests summary from root
+        sh 'npm run test:coverage'
+        echo 'All tests completed successfully'
+        addSlackMessage(env.STAGE_NAME, true, '')
+      } catch (Exception e) {
+        echo "❌ Test summary failed: ${e.getMessage()}"
+        echo "Some tests failed, but build continues: ${e.message}"
+        addSlackMessage(env.STAGE_NAME, false, e.toString())
+        hasFailures = true
+        // Don't throw - we want to complete the pipeline
       }
-      throw e
     }
 
-    finally {
+    // Set final build result based on whether we had any failures
+    if (hasFailures) {
+      currentBuild.result = 'UNSTABLE'
+      echo "🟡 Build completed with some test failures"
+    } else {
+      currentBuild.result = 'SUCCESS'
+      echo "✅ All tests passed successfully"
+    }
+
+    // Always run cleanup and notifications
+    stage('Cleanup & Notify') {
       // Clean up any remaining processes
       sh '''
         pkill -f "npm start" || true
@@ -325,7 +338,7 @@ node {
         testResultMessage += 'Duration: ' + currentBuild.durationString + '\n'
         
         def sidebarColor = '#50C878'  // Green for success
-        def hasFailures = false
+        def slackHasFailures = false
 
         results.each { key, res ->
           def testEmoji = ':white_check_mark:'
@@ -333,7 +346,7 @@ node {
             testResultMessage += "\n${testEmoji} ${key}"
           }
           else {
-            hasFailures = true
+            slackHasFailures = true
             sidebarColor = '#D2042D'  // Red for failure
             testEmoji = ':x:'
             testResultMessage += "\n${testEmoji} ${key}"
@@ -344,7 +357,7 @@ node {
         }
 
         // Set overall build status color
-        if (hasFailures) {
+        if (slackHasFailures) {
           sidebarColor = '#D2042D'
         } else if (currentBuild.result == 'UNSTABLE') {
           sidebarColor = '#FFA500'  // Orange for unstable
