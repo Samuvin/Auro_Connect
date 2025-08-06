@@ -48,28 +48,36 @@ node {
     }
 
     try {
+      echo "Starting main pipeline execution..."
 
       stage('Load Credentials') {
         currStage = env.STAGE_NAME
         
-        // Load credentials from the auro text file
-        withCredentials([file(credentialsId: 'auro', variable: 'AURO_CREDS_FILE')]) {
-          def props = readProperties file: env.AURO_CREDS_FILE
+        try {
+          // Load credentials from the auro text file
+          withCredentials([file(credentialsId: 'auro', variable: 'AURO_CREDS_FILE')]) {
+            def props = readProperties file: env.AURO_CREDS_FILE
+            
+            // Set environment variables from the credentials file
+            env.JWT_SECRET = props.JWT_SECRET
+            env.MONGODB_URI = props.MONGODB_URI
+            env.CLOUDINARY_CLOUD_NAME = props.CLOUDINARY_CLOUD_NAME
+            env.CLOUDINARY_API_KEY = props.CLOUDINARY_API_KEY
+            env.CLOUDINARY_API_SECRET = props.CLOUDINARY_API_SECRET
+            env.MAILTRAP_TOKEN = props.MAILTRAP_TOKEN
+            env.MAILTRAP_ENDPOINT = props.MAILTRAP_ENDPOINT
+            env.SLACK_WEBHOOK_URL = props.SLACK_WEBHOOK_URL
+            
+            echo 'Credentials loaded successfully from auro file'
+            echo "SLACK_WEBHOOK_URL loaded: ${env.SLACK_WEBHOOK_URL ? 'Yes' : 'No'}"
+          }
           
-          // Set environment variables from the credentials file
-          env.JWT_SECRET = props.JWT_SECRET
-          env.MONGODB_URI = props.MONGODB_URI
-          env.CLOUDINARY_CLOUD_NAME = props.CLOUDINARY_CLOUD_NAME
-          env.CLOUDINARY_API_KEY = props.CLOUDINARY_API_KEY
-          env.CLOUDINARY_API_SECRET = props.CLOUDINARY_API_SECRET
-          env.MAILTRAP_TOKEN = props.MAILTRAP_TOKEN
-          env.MAILTRAP_ENDPOINT = props.MAILTRAP_ENDPOINT
-          env.SLACK_WEBHOOK_URL = props.SLACK_WEBHOOK_URL
-          
-          echo 'Credentials loaded successfully from auro file'
+          addSlackMessage(env.STAGE_NAME, true, '')
+        } catch (Exception e) {
+          echo "Failed to load credentials: ${e.getMessage()}"
+          addSlackMessage(env.STAGE_NAME, false, "Failed to load credentials: ${e.getMessage()}")
+          throw e
         }
-        
-        addSlackMessage(env.STAGE_NAME, true, '')
       }
 
       //NodeJS 20 Docker Image
@@ -77,6 +85,7 @@ node {
       
       stage('Install Dependencies') {
         currStage = env.STAGE_NAME
+        echo "Starting ${env.STAGE_NAME} stage..."
         
         parallel(
           'Backend Dependencies': {
@@ -100,6 +109,7 @@ node {
 
       stage("Parallel: Lint & Code Quality")
       {
+        echo "Starting ${env.STAGE_NAME} stage..."
         if (!params.SkipLinting) {
           parallel(
             failFast: false,
@@ -319,7 +329,15 @@ node {
     }
 
     catch(Exception e) {
-      addSlackMessage(currStage, false, message != '' ? message : e.toString())
+      echo "Pipeline failed in stage: ${currStage}"
+      echo "Error details: ${e.getMessage()}"
+      echo "Full error: ${e.toString()}"
+      
+      try {
+        addSlackMessage(currStage, false, message != '' ? message : e.toString())
+      } catch (Exception slackError) {
+        echo "Failed to add Slack message: ${slackError.getMessage()}"
+      }
       throw e
     }
 
@@ -381,11 +399,15 @@ node {
         
         def payload = JsonOutput.toJson(slackPayload)
         
-        sh """
-          curl -X POST -H 'Content-type: application/json' \\
-          --data '${payload}' \\
-          ${env.SLACK_WEBHOOK_URL}
-        """
+        if (env.SLACK_WEBHOOK_URL) {
+          sh """
+            curl -X POST -H 'Content-type: application/json' \\
+            --data '${payload}' \\
+            ${env.SLACK_WEBHOOK_URL}
+          """
+        } else {
+          echo "Skipping Slack notification: SLACK_WEBHOOK_URL is not set."
+        }
       }
     }
   }
