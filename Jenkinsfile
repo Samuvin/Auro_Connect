@@ -145,7 +145,7 @@ node {
                     addSlackMessage(env.STAGE_NAME, false, e.toString())
                     throw e
                   } finally {
-                    // Archive test results and coverage
+                    // Archive test results and coverage from backend directory
                     archiveArtifacts artifacts: 'coverage/**/*', allowEmptyArchive: true
                   }
                 }
@@ -159,11 +159,15 @@ node {
                 dir('frontend') {
                   try {
                     sh 'npm run test:ci'
+                    // Set frontend test success flag
+                    script {
+                      env.FRONTEND_TESTS_SUCCESS = 'true'
+                    }
                   } catch (Exception e) {
                     addSlackMessage(env.STAGE_NAME, false, e.toString())
                     throw e
                   } finally {
-                    // Archive test results and coverage
+                    // Archive test results and coverage from frontend directory
                     archiveArtifacts artifacts: 'coverage/**/*', allowEmptyArchive: true
                   }
                 }
@@ -173,26 +177,6 @@ node {
           )
         } else {
           echo 'Skipping Unit Tests.'
-        }
-      }
-
-      stage('Build Application') {
-        if (!params.SkipBuild) {
-          currStage = env.STAGE_NAME
-          try {
-            sh 'npm run build'
-            buildSuccess = true
-            echo 'Application built successfully'
-            
-            // Archive build artifacts
-            archiveArtifacts artifacts: 'frontend/dist/**/*', allowEmptyArchive: true
-          } catch (Exception e) {
-            addSlackMessage(env.STAGE_NAME, false, e.toString())
-            throw e
-          }
-          addSlackMessage(env.STAGE_NAME, true, '')
-        } else {
-          echo 'Skipping Application Build.'
         }
       }
 
