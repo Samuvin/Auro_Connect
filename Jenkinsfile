@@ -75,7 +75,11 @@ node {
         
         // Install Playwright browsers (requires system dependencies)
         dir('frontend') {
-          sh 'npx playwright install --with-deps'
+          sh 'npm install'
+        }
+
+        dir('backend') {
+          sh 'npm install'
         }
         
         addSlackMessage(env.STAGE_NAME, true, '')
