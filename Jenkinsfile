@@ -73,22 +73,15 @@ node {
         currStage = env.STAGE_NAME
         echo "Starting ${env.STAGE_NAME} stage..."
         
-        parallel(
-          'Backend Dependencies': {
-            dir('backend') {
-              sh 'npm ci'
-            }
-          },
-          'Frontend Dependencies': {
-            dir('frontend') {
-              sh 'npm ci'
-              sh 'npx playwright install --with-deps'
-            }
-          },
-          'Root Dependencies': {
-            sh 'npm ci'
-          }
-        )
+        // Single command installs all dependencies (root + frontend + backend)
+        // Uses the "install" script which runs:
+        // npm install && npm install --prefix frontend && npm install --prefix backend
+        sh 'npm ci'
+        
+        // Install Playwright browsers (requires system dependencies)
+        dir('frontend') {
+          sh 'npx playwright install --with-deps'
+        }
         
         addSlackMessage(env.STAGE_NAME, true, '')
       }
