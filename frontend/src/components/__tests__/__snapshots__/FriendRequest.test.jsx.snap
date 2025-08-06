@@ -1,0 +1,142 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`FriendRequest matches snapshot for default friend request 1`] = `
+<div
+  class="bg-white rounded-lg shadow p-4 flex items-center justify-between transition-all hover:shadow-md"
+>
+  <div
+    class="flex items-center gap-4"
+  >
+    <a
+      href="/profile/johndoe"
+    >
+      <img
+        alt="John Doe"
+        class="w-16 h-16 rounded-full object-cover"
+        src="/avatar.png"
+      />
+    </a>
+    <div>
+      <a
+        class="font-semibold text-lg"
+        href="/profile/johndoe"
+      >
+        John Doe
+      </a>
+      <p
+        class="text-gray-600"
+      >
+        Software Developer
+      </p>
+    </div>
+  </div>
+  <div
+    class="space-x-2"
+  >
+    <button
+      class="bg-primary text-white px-4 py-2 rounded-md hover:bg-primary-dark transition-colors"
+    >
+      Accept
+    </button>
+    <button
+      class="bg-gray-200 text-gray-800 px-4 py-2 rounded-md hover:bg-gray-300 transition-colors"
+    >
+      Reject
+    </button>
+  </div>
+</div>
+`;
+
+exports[`FriendRequest matches snapshot for friend request with different user data 1`] = `
+<div
+  class="bg-white rounded-lg shadow p-4 flex items-center justify-between transition-all hover:shadow-md"
+>
+  <div
+    class="flex items-center gap-4"
+  >
+    <a
+      href="/profile/janesmith"
+    >
+      <img
+        alt="Jane Smith"
+        class="w-16 h-16 rounded-full object-cover"
+        src="/jane-avatar.png"
+      />
+    </a>
+    <div>
+      <a
+        class="font-semibold text-lg"
+        href="/profile/janesmith"
+      >
+        Jane Smith
+      </a>
+      <p
+        class="text-gray-600"
+      >
+        UX Designer
+      </p>
+    </div>
+  </div>
+  <div
+    class="space-x-2"
+  >
+    <button
+      class="bg-primary text-white px-4 py-2 rounded-md hover:bg-primary-dark transition-colors"
+    >
+      Accept
+    </button>
+    <button
+      class="bg-gray-200 text-gray-800 px-4 py-2 rounded-md hover:bg-gray-300 transition-colors"
+    >
+      Reject
+    </button>
+  </div>
+</div>
+`;
+
+exports[`FriendRequest matches snapshot for friend request with missing profile picture 1`] = `
+<div
+  class="bg-white rounded-lg shadow p-4 flex items-center justify-between transition-all hover:shadow-md"
+>
+  <div
+    class="flex items-center gap-4"
+  >
+    <a
+      href="/profile/johndoe"
+    >
+      <img
+        alt="John Doe"
+        class="w-16 h-16 rounded-full object-cover"
+        src="/avatar.png"
+      />
+    </a>
+    <div>
+      <a
+        class="font-semibold text-lg"
+        href="/profile/johndoe"
+      >
+        John Doe
+      </a>
+      <p
+        class="text-gray-600"
+      >
+        Software Developer
+      </p>
+    </div>
+  </div>
+  <div
+    class="space-x-2"
+  >
+    <button
+      class="bg-primary text-white px-4 py-2 rounded-md hover:bg-primary-dark transition-colors"
+    >
+      Accept
+    </button>
+    <button
+      class="bg-gray-200 text-gray-800 px-4 py-2 rounded-md hover:bg-gray-300 transition-colors"
+    >
+      Reject
+    </button>
+  </div>
+</div>
+`;

@@ -1,0 +1,26 @@
+[run]
+# Exclude files from coverage
+omit = 
+    src/main.jsx
+    src/vite-env.d.ts
+    src/**/__tests__/**
+    src/**/setupTests.js
+    src/**/testUtils.jsx
+    src/**/*.stories.*
+    src/**/*.config.*
+    node_modules/*
+
+[report]
+# Generate coverage reports
+show_missing = True
+skip_covered = False
+precision = 2
+
+[html]
+# HTML report configuration
+directory = coverage/html
+title = "Test Coverage Report"
+
+[xml]
+# XML report for CI/CD
+output = coverage/coverage.xml 

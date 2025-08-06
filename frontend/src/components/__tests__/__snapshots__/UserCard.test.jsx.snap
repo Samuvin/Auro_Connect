@@ -1,0 +1,152 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`UserCard matches snapshot for connected user card 1`] = `
+<div
+  class="bg-white rounded-lg shadow p-4 flex flex-col items-center transition-all hover:shadow-md"
+>
+  <a
+    class="flex flex-col items-center"
+    href="/profile/johndoe"
+  >
+    <img
+      alt="John Doe"
+      class="w-24 h-24 rounded-full object-cover mb-4"
+      src="/avatar.png"
+    />
+    <h3
+      class="font-semibold text-lg text-center"
+    >
+      John Doe
+    </h3>
+  </a>
+  <p
+    class="text-gray-600 text-center"
+  >
+    Software Developer
+  </p>
+  <p
+    class="text-sm text-gray-500 mt-2"
+  >
+    2
+     connections
+  </p>
+  <button
+    class="mt-4 bg-primary text-white px-4 py-2 rounded-md hover:bg-primary-dark transition-colors w-full"
+  >
+    Connected
+  </button>
+</div>
+`;
+
+exports[`UserCard matches snapshot for default user card 1`] = `
+<div
+  class="bg-white rounded-lg shadow p-4 flex flex-col items-center transition-all hover:shadow-md"
+>
+  <a
+    class="flex flex-col items-center"
+    href="/profile/johndoe"
+  >
+    <img
+      alt="John Doe"
+      class="w-24 h-24 rounded-full object-cover mb-4"
+      src="/avatar.png"
+    />
+    <h3
+      class="font-semibold text-lg text-center"
+    >
+      John Doe
+    </h3>
+  </a>
+  <p
+    class="text-gray-600 text-center"
+  >
+    Software Developer
+  </p>
+  <p
+    class="text-sm text-gray-500 mt-2"
+  >
+    2
+     connections
+  </p>
+  <button
+    class="mt-4 bg-primary text-white px-4 py-2 rounded-md hover:bg-primary-dark transition-colors w-full"
+  >
+    Connect
+  </button>
+</div>
+`;
+
+exports[`UserCard matches snapshot for user with no connections 1`] = `
+<div
+  class="bg-white rounded-lg shadow p-4 flex flex-col items-center transition-all hover:shadow-md"
+>
+  <a
+    class="flex flex-col items-center"
+    href="/profile/johndoe"
+  >
+    <img
+      alt="John Doe"
+      class="w-24 h-24 rounded-full object-cover mb-4"
+      src="/avatar.png"
+    />
+    <h3
+      class="font-semibold text-lg text-center"
+    >
+      John Doe
+    </h3>
+  </a>
+  <p
+    class="text-gray-600 text-center"
+  >
+    Software Developer
+  </p>
+  <p
+    class="text-sm text-gray-500 mt-2"
+  >
+    0
+     connections
+  </p>
+  <button
+    class="mt-4 bg-primary text-white px-4 py-2 rounded-md hover:bg-primary-dark transition-colors w-full"
+  >
+    Connect
+  </button>
+</div>
+`;
+
+exports[`UserCard matches snapshot for user with undefined connections 1`] = `
+<div
+  class="bg-white rounded-lg shadow p-4 flex flex-col items-center transition-all hover:shadow-md"
+>
+  <a
+    class="flex flex-col items-center"
+    href="/profile/johndoe"
+  >
+    <img
+      alt="John Doe"
+      class="w-24 h-24 rounded-full object-cover mb-4"
+      src="/avatar.png"
+    />
+    <h3
+      class="font-semibold text-lg text-center"
+    >
+      John Doe
+    </h3>
+  </a>
+  <p
+    class="text-gray-600 text-center"
+  >
+    Software Developer
+  </p>
+  <p
+    class="text-sm text-gray-500 mt-2"
+  >
+     connections
+  </p>
+  <button
+    class="mt-4 bg-primary text-white px-4 py-2 rounded-md hover:bg-primary-dark transition-colors w-full"
+  >
+    Connect
+  </button>
+</div>
+`;

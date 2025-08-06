@@ -1,0 +1,83 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`PostAction matches snapshot for post action with comment icon 1`] = `
+<button
+  class="flex items-center"
+>
+  <span
+    class="mr-1"
+  >
+    <span
+      data-testid="comment-icon"
+    >
+      💬
+    </span>
+  </span>
+  <span
+    class="hidden sm:inline"
+  >
+    Comment
+  </span>
+</button>
+`;
+
+exports[`PostAction matches snapshot for post action with icon and text 1`] = `
+<button
+  class="flex items-center"
+>
+  <span
+    class="mr-1"
+  >
+    <span
+      data-testid="mock-icon"
+    >
+      👍
+    </span>
+  </span>
+  <span
+    class="hidden sm:inline"
+  >
+    Like
+  </span>
+</button>
+`;
+
+exports[`PostAction matches snapshot for post action with icon only 1`] = `
+<button
+  class="flex items-center"
+>
+  <span
+    class="mr-1"
+  >
+    <span
+      data-testid="mock-icon"
+    >
+      👍
+    </span>
+  </span>
+  <span
+    class="hidden sm:inline"
+  />
+</button>
+`;
+
+exports[`PostAction matches snapshot for post action without onClick handler 1`] = `
+<button
+  class="flex items-center"
+>
+  <span
+    class="mr-1"
+  >
+    <span
+      data-testid="mock-icon"
+    >
+      👍
+    </span>
+  </span>
+  <span
+    class="hidden sm:inline"
+  >
+    Like
+  </span>
+</button>
+`;

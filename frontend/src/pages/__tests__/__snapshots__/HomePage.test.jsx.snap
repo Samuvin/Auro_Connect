@@ -1,0 +1,95 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`HomePage matches snapshot for homepage layout 1`] = `
+<div
+  class="fixed bottom-10 right-10"
+>
+  <button
+    class="relative p-4 bg-blue-500 text-white rounded-full shadow-lg flex items-center justify-center hover:bg-blue-700 transition-transform transform hover:scale-110"
+  >
+    <div
+      class="absolute top-0 right-0 h-3 w-3 rounded-full bg-gray-400 border-2 border-white"
+    />
+    <svg
+      fill="none"
+      height="30"
+      stroke="currentColor"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      stroke-width="2"
+      viewBox="0 0 24 24"
+      width="30"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"
+      />
+      <polyline
+        points="7.5 4.21 12 6.81 16.5 4.21"
+      />
+      <polyline
+        points="7.5 19.79 7.5 14.6 3 12"
+      />
+      <polyline
+        points="21 12 16.5 14.6 16.5 19.79"
+      />
+      <polyline
+        points="3.27 6.96 12 12.01 20.73 6.96"
+      />
+      <line
+        x1="12"
+        x2="12"
+        y1="22.08"
+        y2="12"
+      />
+    </svg>
+  </button>
+</div>
+`;
+
+exports[`HomePage matches snapshot for homepage with mocked data 1`] = `
+<div
+  class="fixed bottom-10 right-10"
+>
+  <button
+    class="relative p-4 bg-blue-500 text-white rounded-full shadow-lg flex items-center justify-center hover:bg-blue-700 transition-transform transform hover:scale-110"
+  >
+    <div
+      class="absolute top-0 right-0 h-3 w-3 rounded-full bg-gray-400 border-2 border-white"
+    />
+    <svg
+      fill="none"
+      height="30"
+      stroke="currentColor"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      stroke-width="2"
+      viewBox="0 0 24 24"
+      width="30"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"
+      />
+      <polyline
+        points="7.5 4.21 12 6.81 16.5 4.21"
+      />
+      <polyline
+        points="7.5 19.79 7.5 14.6 3 12"
+      />
+      <polyline
+        points="21 12 16.5 14.6 16.5 19.79"
+      />
+      <polyline
+        points="3.27 6.96 12 12.01 20.73 6.96"
+      />
+      <line
+        x1="12"
+        x2="12"
+        y1="22.08"
+        y2="12"
+      />
+    </svg>
+  </button>
+</div>
+`;

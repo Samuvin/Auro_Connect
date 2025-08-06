@@ -1,0 +1,109 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`LoginForm matches snapshot for login form default state 1`] = `
+<form
+  class="space-y-4 w-full max-w-md"
+>
+  <input
+    class="input input-bordered w-full"
+    placeholder="Username"
+    required=""
+    type="text"
+    value=""
+  />
+  <input
+    class="input input-bordered w-full"
+    placeholder="Password"
+    required=""
+    type="password"
+    value=""
+  />
+  <button
+    class="btn btn-primary w-full"
+    type="submit"
+  >
+    Login
+  </button>
+</form>
+`;
+
+exports[`LoginForm matches snapshot for login form loading state 1`] = `
+<form
+  class="space-y-4 w-full max-w-md"
+>
+  <input
+    class="input input-bordered w-full"
+    placeholder="Username"
+    required=""
+    type="text"
+    value=""
+  />
+  <input
+    class="input input-bordered w-full"
+    placeholder="Password"
+    required=""
+    type="password"
+    value=""
+  />
+  <button
+    class="btn btn-primary w-full"
+    type="submit"
+  >
+    Login
+  </button>
+</form>
+`;
+
+exports[`LoginForm matches snapshot for login form with error state 1`] = `
+<form
+  class="space-y-4 w-full max-w-md"
+>
+  <input
+    class="input input-bordered w-full"
+    placeholder="Username"
+    required=""
+    type="text"
+    value=""
+  />
+  <input
+    class="input input-bordered w-full"
+    placeholder="Password"
+    required=""
+    type="password"
+    value=""
+  />
+  <button
+    class="btn btn-primary w-full"
+    type="submit"
+  >
+    Login
+  </button>
+</form>
+`;
+
+exports[`LoginForm matches snapshot for login form with filled inputs 1`] = `
+<form
+  class="space-y-4 w-full max-w-md"
+>
+  <input
+    class="input input-bordered w-full"
+    placeholder="Username"
+    required=""
+    type="text"
+    value="testuser"
+  />
+  <input
+    class="input input-bordered w-full"
+    placeholder="Password"
+    required=""
+    type="password"
+    value="password123"
+  />
+  <button
+    class="btn btn-primary w-full"
+    type="submit"
+  >
+    Login
+  </button>
+</form>
+`;
