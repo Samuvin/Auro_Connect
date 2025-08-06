@@ -76,8 +76,6 @@ node {
         // Uses the "install:dependencies" script which runs:
         // npm install && npm install --prefix frontend && npm install --prefix backend
         sh 'npm install'
-        sh 'npm install --prefix frontend'
-        sh 'npm install --prefix backend'
         
         // Install Playwright browsers (requires system dependencies)
         dir('frontend') {
