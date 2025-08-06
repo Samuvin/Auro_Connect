@@ -193,7 +193,8 @@ node {
     }
 
     stage('End-to-End Tests') {
-      if (!params.SkipE2ETests && (env.BRANCH_NAME == 'main' || env.BRANCH_NAME == 'develop' || env.CHANGE_ID)) {
+      if (!params.SkipE2ETests) {
+        // Run E2E tests on all branches, but can be skipped via parameter
         currStage = env.STAGE_NAME
         try {
           // Start the backend server in background
@@ -245,7 +246,8 @@ node {
     }
 
     stage('Performance Tests') {
-      if (!params.SkipPerformanceTests && (env.BRANCH_NAME == 'main' || env.BRANCH_NAME == 'develop')) {
+      if (!params.SkipPerformanceTests) {
+        // Run Performance tests on all branches, but can be skipped via parameter
         currStage = env.STAGE_NAME
         try {
           // Start servers for performance testing
