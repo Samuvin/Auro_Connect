@@ -76,6 +76,7 @@ node {
         // Install Playwright browsers (requires system dependencies)
         dir('frontend') {
           sh 'npm install'
+          sh 'npx playwright install'
         }
 
         dir('backend') {
