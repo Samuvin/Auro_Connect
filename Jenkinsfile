@@ -297,9 +297,33 @@ node {
     stage('Test Summary') {
       currStage = env.STAGE_NAME
       try {
-        // Run all tests summary from root
-        sh 'npm run test:coverage'
-        echo 'All tests completed successfully'
+        // Generate test summary without re-running tests
+        echo "=== Test Summary ==="
+        echo "Unit Tests Success: ${unitTestsSuccess}"
+        echo "E2E Tests Success: ${e2eTestsSuccess}"
+        echo "Build Success: ${buildSuccess}"
+        echo "Has Failures: ${hasFailures}"
+        
+        // Check if critical test results exist
+        def backendCoverageExists = fileExists('backend/coverage/coverage-summary.json')
+        def frontendCoverageExists = fileExists('frontend/coverage/coverage-summary.json')
+        
+        if (backendCoverageExists) {
+          echo "✅ Backend coverage report generated"
+        } else {
+          echo "⚠️ Backend coverage report missing"
+        }
+        
+        if (frontendCoverageExists) {
+          echo "✅ Frontend coverage report generated"
+        } else {
+          echo "⚠️ Frontend coverage report missing"
+        }
+        
+        // Archive combined coverage results
+        archiveArtifacts artifacts: 'backend/coverage/**/*,frontend/coverage/**/*', allowEmptyArchive: true
+        
+        echo 'Test summary completed successfully'
         addSlackMessage(env.STAGE_NAME, true, '')
       } catch (Exception e) {
         echo "❌ Test summary failed: ${e.getMessage()}"
@@ -317,61 +341,6 @@ node {
     } else {
       currentBuild.result = 'SUCCESS'
       echo "✅ All tests passed successfully"
-    }
-
-    // Always run cleanup and notifications
-    stage('Cleanup & Notify') {
-      // Clean up any remaining processes
-      sh '''
-        pkill -f "npm start" || true
-        pkill -f "npm run preview" || true
-        pkill -f "node.*server.js" || true
-      '''
-      
-      // Clean up temporary files
-      sh 'rm -f *.pid *.log'
-
-      stage('Notify Slack') {
-        def jobUrl = env.BUILD_URL
-        def testResultMessage = '*Auro Connect Pipeline Results*\n'
-        testResultMessage += 'Branch: ' + env.BRANCH_NAME + '\n'
-        testResultMessage += 'Commit: ' + env.GIT_COMMIT_MSG + '\n'
-        testResultMessage += 'Author: ' + env.GIT_COMMIT_AUTHOR + '\n'
-        testResultMessage += 'Build: ' + "<${jobUrl}|${env.BUILD_NUMBER}>" + '\n'
-        testResultMessage += 'Time Triggered: ' + startTime + '\n'
-        testResultMessage += 'Duration: ' + currentBuild.durationString + '\n'
-        
-        def sidebarColor = '#50C878'  // Green for success
-        def slackHasFailures = false
-
-        results.each { key, res ->
-          def testEmoji = ':white_check_mark:'
-          if (res['Success']) {
-            testResultMessage += "\n${testEmoji} ${key}"
-          }
-          else {
-            slackHasFailures = true
-            sidebarColor = '#D2042D'  // Red for failure
-            testEmoji = ':x:'
-            testResultMessage += "\n${testEmoji} ${key}"
-            if (res['message'] && res['message'] != '') {
-              testResultMessage += "\n  ${res['message']}"
-            }
-          }
-        }
-
-        // Set overall build status color
-        if (slackHasFailures) {
-          sidebarColor = '#D2042D'
-        } else if (currentBuild.result == 'UNSTABLE') {
-          sidebarColor = '#FFA500'  // Orange for unstable
-        }
-
-        print(testResultMessage)
-        
-        // Send Slack notification using the helper function
-        sendSlackNotification('#auro-connect', testResultMessage, sidebarColor)
-      }
     }
   }
 } 
