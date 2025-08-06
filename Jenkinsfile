@@ -73,10 +73,11 @@ node {
         currStage = env.STAGE_NAME
         echo "Starting ${env.STAGE_NAME} stage..."
         
-        // Single command installs all dependencies (root + frontend + backend)
-        // Uses the "install" script which runs:
+        // Uses the "install:dependencies" script which runs:
         // npm install && npm install --prefix frontend && npm install --prefix backend
-        sh 'npm ci'
+        sh 'npm install'
+        sh 'npm install --prefix frontend'
+        sh 'npm install --prefix backend'
         
         // Install Playwright browsers (requires system dependencies)
         dir('frontend') {
