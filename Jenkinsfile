@@ -13,6 +13,7 @@ properties([
   ])
 ])
 
+// Global variables accessible throughout the pipeline
 def startTime = 0
 def results = [:]
 def currStage = ''
@@ -22,6 +23,13 @@ def e2eTestsSuccess = false
 def buildSuccess = false
 
 node {
+
+  // Define addSlackMessage function inside node block to access global variables
+  def addSlackMessage = { stage, status, msg ->
+    results[stage] = [:]
+    results[stage] = ['Success': status]
+    results[stage]['message'] = msg
+  }
 
   wrap([$class: 'AnsiColorBuildWrapper', 'colorMapName': 'XTerm']) {
     
@@ -381,10 +389,4 @@ node {
       }
     }
   }
-}
-
-def addSlackMessage(stage, status, message) {
-  results[stage] = [:]
-  results[stage] = ['Success': status]
-  results[stage]['message'] = message
 } 
