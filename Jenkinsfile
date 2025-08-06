@@ -6,15 +6,6 @@ pipeline {
         NODE_ENV = 'test'
         CLIENT_URL = 'http://localhost:3000'
         PORT = '5000'
-        
-        // Load sensitive values from Jenkins credentials
-        JWT_SECRET = credentials('jwt-secret-test')
-        MONGODB_URI = credentials('mongodb-uri-test')
-        CLOUDINARY_CLOUD_NAME = credentials('cloudinary-cloud-name')
-        CLOUDINARY_API_KEY = credentials('cloudinary-api-key')
-        CLOUDINARY_API_SECRET = credentials('cloudinary-api-secret')
-        MAILTRAP_TOKEN = credentials('mailtrap-token')
-        MAILTRAP_ENDPOINT = credentials('mailtrap-endpoint')
     }
     
     tools {
@@ -22,6 +13,29 @@ pipeline {
     }
     
     stages {
+        stage('Load Credentials') {
+            steps {
+                script {
+                    // Load credentials from the auro text file
+                    withCredentials([file(credentialsId: 'auro', variable: 'AURO_CREDS_FILE')]) {
+                        def props = readProperties file: env.AURO_CREDS_FILE
+                        
+                        // Set environment variables from the credentials file
+                        env.JWT_SECRET = props.JWT_SECRET
+                        env.MONGODB_URI = props.MONGODB_URI
+                        env.CLOUDINARY_CLOUD_NAME = props.CLOUDINARY_CLOUD_NAME
+                        env.CLOUDINARY_API_KEY = props.CLOUDINARY_API_KEY
+                        env.CLOUDINARY_API_SECRET = props.CLOUDINARY_API_SECRET
+                        env.MAILTRAP_TOKEN = props.MAILTRAP_TOKEN
+                        env.MAILTRAP_ENDPOINT = props.MAILTRAP_ENDPOINT
+                        env.SLACK_WEBHOOK_URL = props.SLACK_WEBHOOK_URL
+                        
+                        echo 'Credentials loaded successfully from auro file'
+                    }
+                }
+            }
+        }
+        
         stage('Checkout') {
             steps {
                 checkout scm
@@ -392,8 +406,23 @@ pipeline {
             
             // Send success notification
             script {
+                def message = """
+:white_check_mark: *Build Successful* - Auro Connect
+*Branch:* ${env.BRANCH_NAME}
+*Commit:* ${env.GIT_COMMIT_MSG}
+*Author:* ${env.GIT_COMMIT_AUTHOR}
+*Build:* ${env.BUILD_NUMBER}
+*Duration:* ${currentBuild.durationString}
+*Job:* ${env.JOB_NAME}
+"""
+                
+                sh """
+                    curl -X POST -H 'Content-type: application/json' \\
+                    --data '{"channel": "#auro-connect", "text": "${message}"}' \\
+                    ${SLACK_WEBHOOK_URL}
+                """
+                
                 if (env.BRANCH_NAME == 'main') {
-                    // You can add notification logic here (Slack, email, etc.)
                     echo 'Main branch tests passed - ready for deployment'
                 }
             }
@@ -404,8 +433,23 @@ pipeline {
             
             // Send failure notification
             script {
-                // You can add notification logic here
-                echo 'Tests failed - please check the build logs'
+                def message = """
+:x: *Build Failed* - Auro Connect
+*Branch:* ${env.BRANCH_NAME}
+*Commit:* ${env.GIT_COMMIT_MSG}
+*Author:* ${env.GIT_COMMIT_AUTHOR}
+*Build:* ${env.BUILD_NUMBER}
+*Duration:* ${currentBuild.durationString}
+*Job:* ${env.JOB_NAME}
+*Build URL:* ${env.BUILD_URL}
+Please check the build logs for details.
+"""
+                
+                sh """
+                    curl -X POST -H 'Content-type: application/json' \\
+                    --data '{"channel": "#auro-connect", "text": "${message}"}' \\
+                    ${SLACK_WEBHOOK_URL}
+                """
             }
         }
         
@@ -414,7 +458,23 @@ pipeline {
             
             // Send unstable notification
             script {
-                echo 'Build unstable - some tests failed but not critical'
+                def message = """
+:warning: *Build Unstable* - Auro Connect
+*Branch:* ${env.BRANCH_NAME}
+*Commit:* ${env.GIT_COMMIT_MSG}
+*Author:* ${env.GIT_COMMIT_AUTHOR}
+*Build:* ${env.BUILD_NUMBER}
+*Duration:* ${currentBuild.durationString}
+*Job:* ${env.JOB_NAME}
+*Build URL:* ${env.BUILD_URL}
+Some tests failed but not critical. Please review the results.
+"""
+                
+                sh """
+                    curl -X POST -H 'Content-type: application/json' \\
+                    --data '{"channel": "#auro-connect", "text": "${message}"}' \\
+                    ${SLACK_WEBHOOK_URL}
+                """
             }
         }
         
