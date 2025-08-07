@@ -1,0 +1,35 @@
+name: 'Setup Test Environment'
+description: 'Sets up Node.js and restores dependencies for testing'
+
+inputs:
+  node-version:
+    description: 'Node.js version to use'
+    required: true
+  include-playwright:
+    description: 'Whether to include Playwright cache'
+    required: false
+    default: 'false'
+
+runs:
+  using: 'composite'
+  steps:
+    - name: 🔍 Checkout Repository
+      uses: actions/checkout@v4
+
+    - name: 🔧 Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ inputs.node-version }}
+        cache: 'npm'
+
+    - name: 📦 Restore Dependencies
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~/.npm
+          frontend/node_modules
+          backend/node_modules
+          ${{ inputs.include-playwright == 'true' && '~/.cache/ms-playwright' || '' }}
+        key: ${{ runner.os }}-node-${{ inputs.node-version }}-${{ hashFiles('**/package-lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-node-${{ inputs.node-version }}- 

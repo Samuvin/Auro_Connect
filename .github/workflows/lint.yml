@@ -1,0 +1,84 @@
+name: Lint & Code Quality
+
+on:
+  workflow_call:
+    inputs:
+      node-version:
+        description: 'Node.js version to use'
+        required: true
+        type: string
+    outputs:
+      frontend-warnings:
+        description: "Frontend ESLint warnings count"
+        value: ${{ jobs.lint.outputs.frontend-warnings }}
+      frontend-errors:
+        description: "Frontend ESLint errors count"
+        value: ${{ jobs.lint.outputs.frontend-errors }}
+      backend-warnings:
+        description: "Backend ESLint warnings count"
+        value: ${{ jobs.lint.outputs.backend-warnings }}
+      backend-errors:
+        description: "Backend ESLint errors count"
+        value: ${{ jobs.lint.outputs.backend-errors }}
+
+jobs:
+  lint:
+    name: 🔍 Lint & Code Quality
+    runs-on: ubuntu-latest
+    outputs:
+      frontend-warnings: ${{ steps.lint-frontend.outputs.warnings }}
+      frontend-errors: ${{ steps.lint-frontend.outputs.errors }}
+      backend-warnings: ${{ steps.lint-backend.outputs.warnings }}
+      backend-errors: ${{ steps.lint-backend.outputs.errors }}
+    steps:
+      - name: 🔍 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 🔧 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ inputs.node-version }}
+          cache: 'npm'
+
+      - name: 📦 Restore Dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.npm
+            frontend/node_modules
+            backend/node_modules
+          key: ${{ runner.os }}-node-${{ inputs.node-version }}-${{ hashFiles('**/package-lock.json') }}
+
+      - name: 🔍 Run Frontend ESLint
+        id: lint-frontend
+        working-directory: frontend
+        run: |
+          npm run lint:check 2>&1 | tee eslint-output.log || true
+          WARNINGS=$(grep -c "warning" eslint-output.log || echo "0")
+          ERRORS=$(grep -c "error" eslint-output.log || echo "0")
+          echo "warnings=$WARNINGS" >> $GITHUB_OUTPUT
+          echo "errors=$ERRORS" >> $GITHUB_OUTPUT
+          echo "Frontend: $WARNINGS warnings, $ERRORS errors"
+          if [ "$ERRORS" -gt "0" ]; then exit 1; fi
+
+      - name: 🔍 Run Backend ESLint
+        id: lint-backend
+        working-directory: backend
+        run: |
+          npm run lint:check 2>&1 | tee eslint-output.log || true
+          WARNINGS=$(grep -c "warning" eslint-output.log || echo "0")
+          ERRORS=$(grep -c "error" eslint-output.log || echo "0")
+          echo "warnings=$WARNINGS" >> $GITHUB_OUTPUT
+          echo "errors=$ERRORS" >> $GITHUB_OUTPUT
+          echo "Backend: $WARNINGS warnings, $ERRORS errors"
+          if [ "$ERRORS" -gt "0" ]; then exit 1; fi
+
+      - name: 📊 Upload Lint Results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lint-results
+          path: |
+            frontend/eslint-output.log
+            backend/eslint-output.log
+          retention-days: 30 
