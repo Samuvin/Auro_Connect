@@ -97,12 +97,8 @@ jobs:
           cache: 'npm'
 
       - name: 🔨 Install Dependencies
-        run: |
-          if [ "${{ matrix.component }}" = "frontend" ]; then
-            cd frontend && npm ci
-          else
-            cd backend && npm ci
-          fi
+        working-directory: ${{ matrix.component }}
+        run: npm ci
 
       - name: 🔍 Run Linting
         working-directory: ${{ matrix.component }}
@@ -148,12 +144,8 @@ jobs:
           cache: 'npm'
 
       - name: 🔨 Install Dependencies
-        run: |
-          if [ "${{ matrix.component }}" = "frontend" ]; then
-            cd frontend && npm ci
-          else
-            cd backend && npm ci
-          fi
+        working-directory: ${{ matrix.component }}
+        run: npm ci
 
       - name: 🧪 Run Tests
         working-directory: ${{ matrix.component }}
