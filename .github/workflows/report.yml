@@ -90,9 +90,9 @@ jobs:
           ./scripts/send-slack-notification.sh
 
         env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-          SLACK_TOKEN: ${{ secrets.SLACK_TOKEN }}
-          SLACK_CHANNEL: ${{ secrets.SLACK_CHANNEL }}
+          SLACK_WEBHOOK_URL: ${{ secrets.slack-webhook-url }}
+          SLACK_TOKEN: ${{ secrets.slack-token }}
+          SLACK_CHANNEL: ${{ secrets.slack-channel }}
           GITHUB_CONTEXT: ${{ toJson(github) }}
 
 

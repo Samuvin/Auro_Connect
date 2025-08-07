@@ -70,8 +70,7 @@ on:
 
 env:
   NODE_VERSION: '18'
-  SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-
+  
 jobs:
   setup:
     name: 🔧 Setup & Dependencies
@@ -118,4 +117,6 @@ jobs:
     with:
       node-version: '18'
     secrets:
-      slack-webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }} 
+      slack-webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}
+      slack-token: ${{ secrets.SLACK_TOKEN }}
+      slack-channel: ${{ secrets.SLACK_CHANNEL }} 

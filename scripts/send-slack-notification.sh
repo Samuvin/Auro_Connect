@@ -137,11 +137,19 @@ cat << EOF > slack_message.json
 EOF
 
 # Send to Slack
+echo "🔍 Checking Slack configuration..."
+echo "SLACK_WEBHOOK_URL is set: $([ -n "$SLACK_WEBHOOK_URL" ] && echo "✅ Yes" || echo "❌ No")"
+echo "SLACK_TOKEN is set: $([ -n "$SLACK_TOKEN" ] && echo "✅ Yes" || echo "❌ No")"
+echo "SLACK_CHANNEL is set: $([ -n "$SLACK_CHANNEL" ] && echo "✅ Yes (${SLACK_CHANNEL})" || echo "❌ No")"
+
 if [ -n "$SLACK_WEBHOOK_URL" ]; then
+    echo "📤 Sending notification via webhook..."
     curl -X POST -H 'Content-type: application/json' \
          --data @slack_message.json \
          "$SLACK_WEBHOOK_URL"
+    echo "✅ Webhook notification sent"
 elif [ -n "$SLACK_TOKEN" ]; then
+    echo "📤 Sending notification via Slack API..."
     # Use Slack Web API with bot token
     # Extract channel from environment or use default
     SLACK_CHANNEL="${SLACK_CHANNEL:-#general}"
@@ -163,9 +171,16 @@ EOF
          -H 'Content-type: application/json' \
          --data @slack_api_message.json \
          "https://slack.com/api/chat.postMessage"
+    echo "✅ API notification sent"
 else
-    echo "Neither SLACK_WEBHOOK_URL nor SLACK_TOKEN is set, skipping notification"
-    echo "To enable Slack notifications, set one of:"
-    echo "  - SLACK_WEBHOOK_URL: https://hooks.slack.com/services/..."
-    echo "  - SLACK_TOKEN: xoxb-... (requires SLACK_CHANNEL)"
-fi 
+    echo "⚠️  Neither SLACK_WEBHOOK_URL nor SLACK_TOKEN is set, skipping notification"
+    echo ""
+    echo "To enable Slack notifications, set one of the following GitHub secrets:"
+    echo "  - SLACK_WEBHOOK_URL: Your Slack webhook URL (https://hooks.slack.com/services/...)"
+    echo "  - SLACK_TOKEN: Your Slack bot token (xoxb-...) + SLACK_CHANNEL: Target channel"
+    echo ""
+    echo "ℹ️  This is not an error - Slack notifications are optional"
+fi
+
+# Cleanup temporary files
+rm -f slack_message.json slack_api_message.json 
