@@ -22,11 +22,6 @@ on:
         required: false
         default: false
         type: boolean
-      skip_memory_leak_tests:
-        description: 'Skip Memory Leak Tests'
-        required: false
-        default: false
-        type: boolean
       skip_performance_tests:
         description: 'Skip Performance Tests'
         required: false
@@ -61,13 +56,18 @@ on:
       playwright_devices:
         description: 'Device types to test'
         required: false
-        default: 'desktop,mobile'
+        default: 'all'
         type: choice
         options:
-          - desktop,mobile
+          - all
           - desktop
           - mobile
-          - all-devices
+          - tablet
+      playwright_retries:
+        description: 'Number of test retries'
+        required: false
+        default: '2'
+        type: string
 
 env:
   NODE_VERSION: '18'
@@ -453,7 +453,7 @@ jobs:
     name: 🧠 Memory Leak Tests
     runs-on: ubuntu-latest
     needs: [setup, lint, unit-tests, integration-tests]
-    if: always() && github.event.inputs.skip_memory_leak_tests != 'true'
+    if: always()
     outputs:
       tests-passed: ${{ steps.memory-tests.outputs.passed }}
       tests-failed: ${{ steps.memory-tests.outputs.failed }}
@@ -757,7 +757,8 @@ jobs:
         env:
           PLAYWRIGHT_WORKERS: ${{ github.event.inputs.playwright_workers || '11' }}
           PLAYWRIGHT_BROWSERS: ${{ github.event.inputs.playwright_browsers || 'all' }}
-          PLAYWRIGHT_DEVICES: ${{ github.event.inputs.playwright_devices || 'desktop,mobile' }}
+          PLAYWRIGHT_DEVICES: ${{ github.event.inputs.playwright_devices || 'all' }}
+          PLAYWRIGHT_RETRIES: ${{ github.event.inputs.playwright_retries || '2' }}
         run: |
           START_TIME=$(date +%s)
           
@@ -767,8 +768,8 @@ jobs:
           # Set number of workers
           PLAYWRIGHT_CMD="$PLAYWRIGHT_CMD --workers=$PLAYWRIGHT_WORKERS"
           
-          # Set retry count (default 2)
-          PLAYWRIGHT_CMD="$PLAYWRIGHT_CMD --retries=2"
+          # Set retry count
+          PLAYWRIGHT_CMD="$PLAYWRIGHT_CMD --retries=$PLAYWRIGHT_RETRIES"
           
           # Set timeout (default 30 seconds)
           PLAYWRIGHT_CMD="$PLAYWRIGHT_CMD --timeout=30000"
@@ -778,7 +779,7 @@ jobs:
           
           # Configure browsers/projects based on selection
           if [ "$PLAYWRIGHT_BROWSERS" != "all" ]; then
-            # Handle specific browser selection with device filtering
+            # Run selected browser with device filtering
             case "$PLAYWRIGHT_DEVICES" in
               "desktop")
                 case "$PLAYWRIGHT_BROWSERS" in
@@ -791,15 +792,6 @@ jobs:
                   "webkit")
                     PLAYWRIGHT_CMD="$PLAYWRIGHT_CMD --project=webkit"
                     ;;
-                  "chromium,firefox")
-                    PLAYWRIGHT_CMD="$PLAYWRIGHT_CMD --project=chromium --project=firefox"
-                    ;;
-                  "chromium,webkit")
-                    PLAYWRIGHT_CMD="$PLAYWRIGHT_CMD --project=chromium --project=webkit"
-                    ;;
-                  "firefox,webkit")
-                    PLAYWRIGHT_CMD="$PLAYWRIGHT_CMD --project=firefox --project=webkit"
-                    ;;
                 esac
                 ;;
               "mobile")
@@ -809,9 +801,6 @@ jobs:
                     ;;
                   "webkit")
                     PLAYWRIGHT_CMD="$PLAYWRIGHT_CMD --project=mobile-safari"
-                    ;;
-                  "chromium,webkit")
-                    PLAYWRIGHT_CMD="$PLAYWRIGHT_CMD --project=mobile-chrome --project=mobile-safari"
                     ;;
                 esac
                 ;;
@@ -823,74 +812,9 @@ jobs:
                   "webkit")
                     PLAYWRIGHT_CMD="$PLAYWRIGHT_CMD --project=tablet-safari"
                     ;;
-                  "chromium,webkit")
-                    PLAYWRIGHT_CMD="$PLAYWRIGHT_CMD --project=tablet-chrome --project=tablet-safari"
-                    ;;
                 esac
                 ;;
-              "desktop-large")
-                case "$PLAYWRIGHT_BROWSERS" in
-                  "chromium")
-                    PLAYWRIGHT_CMD="$PLAYWRIGHT_CMD --project=desktop-large"
-                    ;;
-                esac
-                ;;
-              "desktop-small")
-                case "$PLAYWRIGHT_BROWSERS" in
-                  "chromium")
-                    PLAYWRIGHT_CMD="$PLAYWRIGHT_CMD --project=desktop-small"
-                    ;;
-                esac
-                ;;
-              "desktop,mobile")
-                case "$PLAYWRIGHT_BROWSERS" in
-                  "chromium")
-                    PLAYWRIGHT_CMD="$PLAYWRIGHT_CMD --project=chromium --project=mobile-chrome"
-                    ;;
-                  "firefox")
-                    PLAYWRIGHT_CMD="$PLAYWRIGHT_CMD --project=firefox"
-                    ;;
-                  "webkit")
-                    PLAYWRIGHT_CMD="$PLAYWRIGHT_CMD --project=webkit --project=mobile-safari"
-                    ;;
-                  "chromium,firefox")
-                    PLAYWRIGHT_CMD="$PLAYWRIGHT_CMD --project=chromium --project=firefox --project=mobile-chrome"
-                    ;;
-                  "chromium,webkit")
-                    PLAYWRIGHT_CMD="$PLAYWRIGHT_CMD --project=chromium --project=webkit --project=mobile-chrome --project=mobile-safari"
-                    ;;
-                  "firefox,webkit")
-                    PLAYWRIGHT_CMD="$PLAYWRIGHT_CMD --project=firefox --project=webkit --project=mobile-safari"
-                    ;;
-                esac
-                ;;
-              "desktop,tablet")
-                case "$PLAYWRIGHT_BROWSERS" in
-                  "chromium")
-                    PLAYWRIGHT_CMD="$PLAYWRIGHT_CMD --project=chromium --project=tablet-chrome"
-                    ;;
-                  "webkit")
-                    PLAYWRIGHT_CMD="$PLAYWRIGHT_CMD --project=webkit --project=tablet-safari"
-                    ;;
-                  "chromium,webkit")
-                    PLAYWRIGHT_CMD="$PLAYWRIGHT_CMD --project=chromium --project=webkit --project=tablet-chrome --project=tablet-safari"
-                    ;;
-                esac
-                ;;
-              "mobile,tablet")
-                case "$PLAYWRIGHT_BROWSERS" in
-                  "chromium")
-                    PLAYWRIGHT_CMD="$PLAYWRIGHT_CMD --project=mobile-chrome --project=tablet-chrome"
-                    ;;
-                  "webkit")
-                    PLAYWRIGHT_CMD="$PLAYWRIGHT_CMD --project=mobile-safari --project=tablet-safari"
-                    ;;
-                  "chromium,webkit")
-                    PLAYWRIGHT_CMD="$PLAYWRIGHT_CMD --project=mobile-chrome --project=mobile-safari --project=tablet-chrome --project=tablet-safari"
-                    ;;
-                esac
-                ;;
-              "desktop,mobile,tablet"|"all-devices")
+              "all")
                 case "$PLAYWRIGHT_BROWSERS" in
                   "chromium")
                     PLAYWRIGHT_CMD="$PLAYWRIGHT_CMD --project=chromium --project=mobile-chrome --project=tablet-chrome"
@@ -900,15 +824,6 @@ jobs:
                     ;;
                   "webkit")
                     PLAYWRIGHT_CMD="$PLAYWRIGHT_CMD --project=webkit --project=mobile-safari --project=tablet-safari"
-                    ;;
-                  "chromium,firefox")
-                    PLAYWRIGHT_CMD="$PLAYWRIGHT_CMD --project=chromium --project=firefox --project=mobile-chrome --project=tablet-chrome"
-                    ;;
-                  "chromium,webkit")
-                    PLAYWRIGHT_CMD="$PLAYWRIGHT_CMD --project=chromium --project=webkit --project=mobile-chrome --project=mobile-safari --project=tablet-chrome --project=tablet-safari"
-                    ;;
-                  "firefox,webkit")
-                    PLAYWRIGHT_CMD="$PLAYWRIGHT_CMD --project=firefox --project=webkit --project=mobile-safari --project=tablet-safari"
                     ;;
                 esac
                 ;;
@@ -925,22 +840,7 @@ jobs:
               "tablet")
                 PLAYWRIGHT_CMD="$PLAYWRIGHT_CMD --project=tablet-chrome --project=tablet-safari"
                 ;;
-              "desktop-large")
-                PLAYWRIGHT_CMD="$PLAYWRIGHT_CMD --project=desktop-large"
-                ;;
-              "desktop-small")
-                PLAYWRIGHT_CMD="$PLAYWRIGHT_CMD --project=desktop-small"
-                ;;
-              "desktop,mobile")
-                PLAYWRIGHT_CMD="$PLAYWRIGHT_CMD --project=chromium --project=firefox --project=webkit --project=mobile-chrome --project=mobile-safari"
-                ;;
-              "desktop,tablet")
-                PLAYWRIGHT_CMD="$PLAYWRIGHT_CMD --project=chromium --project=firefox --project=webkit --project=tablet-chrome --project=tablet-safari"
-                ;;
-              "mobile,tablet")
-                PLAYWRIGHT_CMD="$PLAYWRIGHT_CMD --project=mobile-chrome --project=mobile-safari --project=tablet-chrome --project=tablet-safari"
-                ;;
-              "desktop,mobile,tablet"|"all-devices")
+              "all")
                 # Run all projects (default behavior)
                 ;;
             esac
