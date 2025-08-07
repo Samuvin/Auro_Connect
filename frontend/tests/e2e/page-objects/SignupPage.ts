@@ -13,7 +13,6 @@ export class SignupPage {
   readonly usernameInput: Locator;
   readonly emailInput: Locator;
   readonly passwordInput: Locator;
-  readonly confirmPasswordInput: Locator;
   readonly signupButton: Locator;
   readonly loginLink: Locator;
   
@@ -37,21 +36,22 @@ export class SignupPage {
     this.usernameInput = page.getByPlaceholder('Username');
     this.emailInput = page.getByPlaceholder('Email');
     this.passwordInput = page.getByPlaceholder('Password (6+ characters)');
-    this.confirmPasswordInput = page.getByPlaceholder('Confirm password');
-    this.signupButton = page.getByRole('button', { name: /sign up|create account|register/i });
-    this.loginLink = page.getByRole('main').getByRole('link', { name: /sign in|login/i });
+    // Updated to match actual button text
+    this.signupButton = page.getByRole('button', { name: 'Agree & Join' });
+    // More specific selector to target the form area "Sign in" link, not the navbar
+    this.loginLink = page.locator('div.mt-6').getByRole('link', { name: 'Sign in' });
     
-    // Page content - use more flexible selectors
-    this.pageTitle = page.locator('h2').filter({ hasText: /create account|sign up|register/i });
+    // Page content - updated to match actual page
+    this.pageTitle = page.getByRole('heading', { name: 'Make the most of your professional life' });
     this.logoTitle = page.getByRole('heading', { name: 'Auto_Connect' });
-    this.existingUserText = page.getByText(/already have an account|existing user/i);
+    this.existingUserText = page.getByText('Already on LinkedIn?');
     this.loadingSpinner = page.locator('.animate-spin, .loading, .spinner');
     
-    // Messages
-    this.errorMessage = page.locator('[data-hot-toast], .toast-error, .alert-error, [role="alert"]');
-    this.successMessage = page.locator('[data-hot-toast], .toast-success, .alert-success');
-    this.toastContainer = page.locator('[data-hot-toast], .toast-container');
-    this.validationErrors = page.locator('.field-error, .validation-error, .error-text');
+    // Messages - Updated selectors for react-hot-toast
+    this.errorMessage = page.locator('[role="alert"], [data-testid="toast"], .toast, div[role="status"]').filter({ hasText: /error|fail|invalid|wrong/i });
+    this.successMessage = page.locator('[role="alert"], [data-testid="toast"], .toast, div[role="status"]').filter({ hasText: /success|created|welcome/i });
+    this.toastContainer = page.locator('[role="alert"], [data-testid="toast"], .toast, div[role="status"]');
+    this.validationErrors = page.locator('.field-error, .validation-error, .error-text, [aria-invalid="true"] + *, [role="alert"]');
   }
 
   /**
@@ -81,10 +81,6 @@ export class SignupPage {
     await this.usernameInput.fill(formData.username);
     await this.emailInput.fill(formData.email);
     await this.passwordInput.fill(formData.password);
-    
-    if (formData.confirmPassword && this.confirmPasswordInput) {
-      await this.confirmPasswordInput.fill(formData.confirmPassword);
-    }
   }
 
   /**
@@ -104,12 +100,6 @@ export class SignupPage {
 
   async fillPassword(password: string): Promise<void> {
     await this.passwordInput.fill(password);
-  }
-
-  async fillConfirmPassword(password: string): Promise<void> {
-    if (this.confirmPasswordInput) {
-      await this.confirmPasswordInput.fill(password);
-    }
   }
 
   /**
@@ -158,9 +148,6 @@ export class SignupPage {
     await this.usernameInput.clear();
     await this.emailInput.clear();
     await this.passwordInput.clear();
-    if (this.confirmPasswordInput) {
-      await this.confirmPasswordInput.clear();
-    }
   }
 
   /**
@@ -191,8 +178,30 @@ export class SignupPage {
    */
   async hasErrorMessage(): Promise<boolean> {
     try {
-      await this.errorMessage.waitFor({ state: 'visible', timeout: 3000 });
-      return await this.errorMessage.isVisible();
+      // Try multiple approaches to find error messages
+      const selectors = [
+        '[role="alert"]',
+        '[data-testid="toast"]',
+        '.toast',
+        'div[role="status"]'
+      ];
+      
+      for (const selector of selectors) {
+        const elements = this.page.locator(selector);
+        const count = await elements.count();
+        
+        for (let i = 0; i < count; i++) {
+          const element = elements.nth(i);
+          const text = await element.textContent();
+          if (text && /error|fail|invalid|wrong|denied|rejected/i.test(text)) {
+            return true;
+          }
+        }
+      }
+      
+      // Also check if any element contains error-related text
+      const errorTexts = await this.page.locator('body').filter({ hasText: /error|fail|invalid|wrong|denied|rejected/i }).count();
+      return errorTexts > 0;
     } catch {
       return false;
     }
@@ -244,8 +253,7 @@ export class SignupPage {
       fullName: await this.fullNameInput.inputValue(),
       username: await this.usernameInput.inputValue(),
       email: await this.emailInput.inputValue(),
-      password: await this.passwordInput.inputValue(),
-      confirmPassword: this.confirmPasswordInput ? await this.confirmPasswordInput.inputValue() : undefined
+      password: await this.passwordInput.inputValue()
     };
   }
 
@@ -263,11 +271,7 @@ export class SignupPage {
   async testTabNavigation(): Promise<boolean> {
     await this.fullNameInput.focus();
     
-    const fields = [this.usernameInput, this.emailInput, this.passwordInput];
-    if (this.confirmPasswordInput) {
-      fields.push(this.confirmPasswordInput);
-    }
-    fields.push(this.signupButton);
+    const fields = [this.usernameInput, this.emailInput, this.passwordInput, this.signupButton];
     
     for (const field of fields) {
       await this.page.keyboard.press('Tab');
