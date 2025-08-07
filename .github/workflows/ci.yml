@@ -7,28 +7,33 @@ on:
     branches: [ main, develop ]
   workflow_dispatch:
     inputs:
-      SkipLinting:
+      skip_lint:
         description: 'Skip Linting'
         required: false
         default: false
         type: boolean
-      SkipUnitTests:
+      skip_unit_tests:
         description: 'Skip Unit Tests'
         required: false
         default: false
         type: boolean
-      SkipE2ETests:
-        description: 'Skip End-to-End Tests'
+      skip_snapshot_tests:
+        description: 'Skip Snapshot Tests'
         required: false
         default: false
         type: boolean
-      SkipPerformanceTests:
+      skip_memory_leak_tests:
+        description: 'Skip Memory Leak Tests'
+        required: false
+        default: false
+        type: boolean
+      skip_performance_tests:
         description: 'Skip Performance Tests'
         required: false
         default: false
         type: boolean
-      SkipBuild:
-        description: 'Skip Application Build'
+      skip_e2e_tests:
+        description: 'Skip End-to-End Tests'
         required: false
         default: false
         type: boolean
@@ -38,10 +43,15 @@ env:
   SLACK_TOKEN: ${{ secrets.SLACK_TOKEN }}
 
 jobs:
-  # Stage: Install Dependencies
-  install-dependencies:
-    name: 📦 Install Dependencies
+  # ========================================================================================
+  # STAGE 1: SETUP & DEPENDENCIES
+  # ========================================================================================
+  setup:
+    name: 📦 Setup & Install Dependencies
     runs-on: ubuntu-latest
+    outputs:
+      frontend-cache-key: ${{ steps.cache-keys.outputs.frontend }}
+      backend-cache-key: ${{ steps.cache-keys.outputs.backend }}
     steps:
       - name: 🔍 Checkout Repository
         uses: actions/checkout@v4
@@ -52,40 +62,56 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
 
-      - name: 🔨 Install Dependencies
+      - name: 📝 Generate Cache Keys
+        id: cache-keys
+        run: |
+          echo "frontend=$(sha256sum frontend/package-lock.json | cut -d' ' -f1)" >> $GITHUB_OUTPUT
+          echo "backend=$(sha256sum backend/package-lock.json | cut -d' ' -f1)" >> $GITHUB_OUTPUT
+
+      - name: 🔨 Install Root Dependencies
+        run: npm ci
+
+      - name: 🔨 Install Frontend Dependencies
+        working-directory: frontend
         run: |
           npm ci
-          cd frontend && npm ci && npx playwright install
-          cd ../backend && npm ci
+          npx playwright install
 
-      - name: 📢 Slack Success Notification
+      - name: 🔨 Install Backend Dependencies
+        working-directory: backend
+        run: npm ci
+
+      - name: 📦 Cache Node Modules
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.npm
+            frontend/node_modules
+            backend/node_modules
+            ~/.cache/ms-playwright
+          key: ${{ runner.os }}-node-${{ env.NODE_VERSION }}-${{ hashFiles('**/package-lock.json') }}
+
+      - name: 📢 Notify Setup Success
         if: success()
         run: |
           curl -X POST -H 'Content-type: application/json' -H 'Authorization: Bearer ${{ env.SLACK_TOKEN }}' --data "{
             \"channel\": \"#auro-connect\",
-            \"text\": \"✅ Install Dependencies - SUCCESS\",
+            \"text\": \"✅ Setup & Dependencies - SUCCESS\",
             \"color\": \"good\"
           }" https://slack.com/api/chat.postMessage
 
-      - name: 📢 Slack Failure Notification
-        if: failure()
-        run: |
-          curl -X POST -H 'Content-type: application/json' -H 'Authorization: Bearer ${{ env.SLACK_TOKEN }}' --data "{
-            \"channel\": \"#auro-connect\",
-            \"text\": \"❌ Install Dependencies - FAILED\",
-            \"color\": \"danger\"
-          }" https://slack.com/api/chat.postMessage
-
-  # Stage: Parallel - Lint & Code Quality
+  # ========================================================================================
+  # STAGE 2: LINTING & CODE QUALITY
+  # ========================================================================================
   lint:
     name: 🔍 Lint & Code Quality
     runs-on: ubuntu-latest
-    needs: install-dependencies
-    if: github.event.inputs.SkipLinting != 'true'
+    needs: setup
+    if: github.event.inputs.skip_lint != 'true'
     strategy:
       fail-fast: false
       matrix:
-        component: [backend, frontend]
+        component: [frontend, backend]
     steps:
       - name: 🔍 Checkout Repository
         uses: actions/checkout@v4
@@ -100,12 +126,19 @@ jobs:
         working-directory: ${{ matrix.component }}
         run: npm ci
 
-      - name: 🔍 Run Linting
+      - name: 🔍 Run ESLint
         working-directory: ${{ matrix.component }}
-        run: npm run lint:check || echo "❌ ${{ matrix.component }} linting failed but continuing..."
-        continue-on-error: true
+        run: npm run lint:check
 
-      - name: 📢 Slack Success Notification
+      - name: 📊 Upload Lint Results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lint-results-${{ matrix.component }}
+          path: ${{ matrix.component }}/eslint-report.json
+          retention-days: 30
+
+      - name: 📢 Notify Lint Success
         if: success()
         run: |
           curl -X POST -H 'Content-type: application/json' -H 'Authorization: Bearer ${{ env.SLACK_TOKEN }}' --data "{
@@ -114,25 +147,18 @@ jobs:
             \"color\": \"good\"
           }" https://slack.com/api/chat.postMessage
 
-      - name: 📢 Slack Failure Notification
-        if: failure()
-        run: |
-          curl -X POST -H 'Content-type: application/json' -H 'Authorization: Bearer ${{ env.SLACK_TOKEN }}' --data "{
-            \"channel\": \"#auro-connect\",
-            \"text\": \"❌ ${{ matrix.component }} Lint - FAILED\",
-            \"color\": \"danger\"
-          }" https://slack.com/api/chat.postMessage
-
-  # Stage: Parallel - Unit & Integration Tests
+  # ========================================================================================
+  # STAGE 3: UNIT TESTS
+  # ========================================================================================
   unit-tests:
-    name: 🧪 Unit & Integration Tests
+    name: 🧪 Unit Tests
     runs-on: ubuntu-latest
-    needs: [install-dependencies, lint]
-    if: always() && github.event.inputs.SkipUnitTests != 'true'
+    needs: [setup, lint]
+    if: always() && github.event.inputs.skip_unit_tests != 'true'
     strategy:
       fail-fast: false
       matrix:
-        component: [backend, frontend]
+        component: [frontend, backend]
     steps:
       - name: 🔍 Checkout Repository
         uses: actions/checkout@v4
@@ -147,17 +173,16 @@ jobs:
         working-directory: ${{ matrix.component }}
         run: npm ci
 
-      - name: 🧪 Run Tests
+      - name: 🧪 Run Unit Tests
         working-directory: ${{ matrix.component }}
         run: |
           if [ "${{ matrix.component }}" = "frontend" ]; then
-            npm run test:ci || echo "❌ Frontend tests failed but continuing..."
+            npm run test:ci
           else
-            npm run test:coverage || echo "❌ Backend tests failed but continuing..."
+            npm run test:coverage
           fi
-        continue-on-error: true
 
-      - name: 📊 Archive Coverage
+      - name: 📊 Upload Coverage Reports
         if: always()
         uses: actions/upload-artifact@v4
         with:
@@ -165,34 +190,35 @@ jobs:
           path: ${{ matrix.component }}/coverage/
           retention-days: 30
 
-      - name: 📢 Slack Success Notification
+      - name: 📊 Upload Test Results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: unit-test-results-${{ matrix.component }}
+          path: ${{ matrix.component }}/test-results.xml
+          retention-days: 30
+
+      - name: 📢 Notify Unit Tests Success
         if: success()
         run: |
           curl -X POST -H 'Content-type: application/json' -H 'Authorization: Bearer ${{ env.SLACK_TOKEN }}' --data "{
             \"channel\": \"#auro-connect\",
-            \"text\": \"✅ ${{ matrix.component }} Tests - SUCCESS\",
+            \"text\": \"✅ ${{ matrix.component }} Unit Tests - SUCCESS\",
             \"color\": \"good\"
           }" https://slack.com/api/chat.postMessage
 
-      - name: 📢 Slack Failure Notification
-        if: failure()
-        run: |
-          curl -X POST -H 'Content-type: application/json' -H 'Authorization: Bearer ${{ env.SLACK_TOKEN }}' --data "{
-            \"channel\": \"#auro-connect\",
-            \"text\": \"❌ ${{ matrix.component }} Tests - FAILED\",
-            \"color\": \"danger\"
-          }" https://slack.com/api/chat.postMessage
-
-  # Stage: Snapshot Tests
+  # ========================================================================================
+  # STAGE 4: SNAPSHOT TESTS
+  # ========================================================================================
   snapshot-tests:
     name: 📸 Snapshot Tests
     runs-on: ubuntu-latest
-    needs: [install-dependencies, lint]
-    if: always() && github.event.inputs.SkipUnitTests != 'true'
+    needs: [setup, lint]
+    if: always() && github.event.inputs.skip_snapshot_tests != 'true'
     strategy:
       fail-fast: false
       matrix:
-        component: [backend, frontend]
+        component: [frontend, backend]
     steps:
       - name: 🔍 Checkout Repository
         uses: actions/checkout@v4
@@ -209,10 +235,9 @@ jobs:
 
       - name: 📸 Run Snapshot Tests
         working-directory: ${{ matrix.component }}
-        run: npm run test:snapshot:ci || echo "❌ ${{ matrix.component }} snapshot tests failed but continuing..."
-        continue-on-error: true
+        run: npm run test:snapshot:ci
 
-      - name: 📊 Archive Snapshot Results
+      - name: 📊 Upload Snapshot Results
         if: always()
         uses: actions/upload-artifact@v4
         with:
@@ -220,7 +245,7 @@ jobs:
           path: ${{ matrix.component }}/**/__snapshots__/
           retention-days: 30
 
-      - name: 📢 Slack Success Notification
+      - name: 📢 Notify Snapshot Tests Success
         if: success()
         run: |
           curl -X POST -H 'Content-type: application/json' -H 'Authorization: Bearer ${{ env.SLACK_TOKEN }}' --data "{
@@ -229,21 +254,14 @@ jobs:
             \"color\": \"good\"
           }" https://slack.com/api/chat.postMessage
 
-      - name: 📢 Slack Failure Notification
-        if: failure()
-        run: |
-          curl -X POST -H 'Content-type: application/json' -H 'Authorization: Bearer ${{ env.SLACK_TOKEN }}' --data "{
-            \"channel\": \"#auro-connect\",
-            \"text\": \"❌ ${{ matrix.component }} Snapshot Tests - FAILED\",
-            \"color\": \"danger\"
-          }" https://slack.com/api/chat.postMessage
-
-  # Stage: End-to-End Tests
-  e2e-tests:
-    name: 🎭 End-to-End Tests
+  # ========================================================================================
+  # STAGE 5: MEMORY LEAK TESTS
+  # ========================================================================================
+  memory-leak-tests:
+    name: 🧠 Memory Leak Tests
     runs-on: ubuntu-latest
-    needs: [install-dependencies, lint, unit-tests, snapshot-tests]
-    if: always() && github.event.inputs.SkipE2ETests != 'true'
+    needs: [setup, lint, unit-tests]
+    if: always() && github.event.inputs.skip_memory_leak_tests != 'true'
     steps:
       - name: 🔍 Checkout Repository
         uses: actions/checkout@v4
@@ -263,69 +281,61 @@ jobs:
       - name: 🚀 Start Backend Server
         working-directory: backend
         run: |
-          nohup npm start > ../backend.log 2>&1 & echo $! > ../backend.pid
+          nohup npm start > ../backend-memory.log 2>&1 & echo $! > ../backend-memory.pid
 
       - name: 🌐 Start Frontend Server
         working-directory: frontend
         run: |
-          nohup npm run preview > ../frontend.log 2>&1 & echo $! > ../frontend.pid
+          nohup npm run preview > ../frontend-memory.log 2>&1 & echo $! > ../frontend-memory.pid
 
       - name: ⏳ Wait for Servers
-        run: sleep 10
+        run: sleep 15
 
-      - name: 🎭 Run E2E Tests
+      - name: 🧠 Run Memory Leak Tests
         working-directory: frontend
-        run: npm run test:e2e:ci || echo "❌ E2E tests failed but continuing..."
-        continue-on-error: true
+        run: npm run test:memory-leaks:ci
 
       - name: 🧹 Cleanup Servers
         if: always()
         run: |
-          if [ -f backend.pid ]; then
-            kill $(cat backend.pid) || true
-            rm backend.pid
+          if [ -f backend-memory.pid ]; then
+            kill $(cat backend-memory.pid) || true
+            rm backend-memory.pid
           fi
-          if [ -f frontend.pid ]; then
-            kill $(cat frontend.pid) || true
-            rm frontend.pid
+          if [ -f frontend-memory.pid ]; then
+            kill $(cat frontend-memory.pid) || true
+            rm frontend-memory.pid
           fi
 
-      - name: 📊 Archive E2E Results
+      - name: 📊 Upload Memory Leak Results
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: e2e-test-results
+          name: memory-leak-test-results
           path: |
             frontend/test-results/
             frontend/playwright-report/
-            backend.log
-            frontend.log
+            backend-memory.log
+            frontend-memory.log
           retention-days: 30
 
-      - name: 📢 Slack Success Notification
+      - name: 📢 Notify Memory Leak Tests Success
         if: success()
         run: |
           curl -X POST -H 'Content-type: application/json' -H 'Authorization: Bearer ${{ env.SLACK_TOKEN }}' --data "{
             \"channel\": \"#auro-connect\",
-            \"text\": \"✅ End-to-End Tests - SUCCESS\",
+            \"text\": \"✅ Memory Leak Tests - SUCCESS\",
             \"color\": \"good\"
           }" https://slack.com/api/chat.postMessage
 
-      - name: 📢 Slack Failure Notification
-        if: failure()
-        run: |
-          curl -X POST -H 'Content-type: application/json' -H 'Authorization: Bearer ${{ env.SLACK_TOKEN }}' --data "{
-            \"channel\": \"#auro-connect\",
-            \"text\": \"❌ End-to-End Tests - FAILED\",
-            \"color\": \"danger\"
-          }" https://slack.com/api/chat.postMessage
-
-  # Stage: Performance Tests
+  # ========================================================================================
+  # STAGE 6: PERFORMANCE TESTS
+  # ========================================================================================
   performance-tests:
     name: ⚡ Performance Tests
     runs-on: ubuntu-latest
-    needs: [install-dependencies, lint, unit-tests, e2e-tests]
-    if: always() && github.event.inputs.SkipPerformanceTests != 'true'
+    needs: [setup, lint, unit-tests]
+    if: always() && github.event.inputs.skip_performance_tests != 'true'
     steps:
       - name: 🔍 Checkout Repository
         uses: actions/checkout@v4
@@ -357,18 +367,11 @@ jobs:
 
       - name: 🎭 Run Performance Tests
         working-directory: frontend
-        run: npm run test:perf:ci || echo "❌ Performance tests failed but continuing..."
-        continue-on-error: true
+        run: npm run test:perf:ci
 
       - name: 🔍 Run Lighthouse Tests
         working-directory: frontend
-        run: npm run test:lighthouse:ci || echo "❌ Lighthouse tests failed but continuing..."
-        continue-on-error: true
-
-      - name: 🧠 Run Memory Leak Tests
-        working-directory: frontend
-        run: npm run test:memory-leaks:ci || echo "❌ Memory leak tests failed but continuing..."
-        continue-on-error: true
+        run: npm run test:lighthouse:ci
 
       - name: 🧹 Cleanup Servers
         if: always()
@@ -382,18 +385,20 @@ jobs:
             rm frontend-perf.pid
           fi
 
-      - name: 📊 Archive Performance Results
+      - name: 📊 Upload Performance Results
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: performance-test-results
           path: |
             frontend/lighthouse-reports/
+            frontend/test-results/
+            frontend/playwright-report/
             backend-perf.log
             frontend-perf.log
           retention-days: 30
 
-      - name: 📢 Slack Success Notification
+      - name: 📢 Notify Performance Tests Success
         if: success()
         run: |
           curl -X POST -H 'Content-type: application/json' -H 'Authorization: Bearer ${{ env.SLACK_TOKEN }}' --data "{
@@ -402,81 +407,170 @@ jobs:
             \"color\": \"good\"
           }" https://slack.com/api/chat.postMessage
 
-      - name: 📢 Slack Failure Notification
-        if: failure()
+  # ========================================================================================
+  # STAGE 7: END-TO-END TESTS
+  # ========================================================================================
+  e2e-tests:
+    name: 🎭 End-to-End Tests
+    runs-on: ubuntu-latest
+    needs: [setup, lint, unit-tests, snapshot-tests]
+    if: always() && github.event.inputs.skip_e2e_tests != 'true'
+    steps:
+      - name: 🔍 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 🔧 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: 🔨 Install Dependencies
+        run: |
+          npm ci
+          cd frontend && npm ci && npx playwright install
+          cd ../backend && npm ci
+
+      - name: 🚀 Start Backend Server
+        working-directory: backend
+        run: |
+          nohup npm start > ../backend-e2e.log 2>&1 & echo $! > ../backend-e2e.pid
+
+      - name: 🌐 Start Frontend Server
+        working-directory: frontend
+        run: |
+          nohup npm run preview > ../frontend-e2e.log 2>&1 & echo $! > ../frontend-e2e.pid
+
+      - name: ⏳ Wait for Servers
+        run: sleep 15
+
+      - name: 🎭 Run E2E Tests
+        working-directory: frontend
+        run: npm run test:e2e:ci
+
+      - name: 🧹 Cleanup Servers
+        if: always()
+        run: |
+          if [ -f backend-e2e.pid ]; then
+            kill $(cat backend-e2e.pid) || true
+            rm backend-e2e.pid
+          fi
+          if [ -f frontend-e2e.pid ]; then
+            kill $(cat frontend-e2e.pid) || true
+            rm frontend-e2e.pid
+          fi
+
+      - name: 📊 Upload E2E Test Results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-test-results
+          path: |
+            frontend/test-results/
+            frontend/playwright-report/
+            backend-e2e.log
+            frontend-e2e.log
+          retention-days: 30
+
+      - name: 📢 Notify E2E Tests Success
+        if: success()
         run: |
           curl -X POST -H 'Content-type: application/json' -H 'Authorization: Bearer ${{ env.SLACK_TOKEN }}' --data "{
             \"channel\": \"#auro-connect\",
-            \"text\": \"❌ Performance Tests - FAILED\",
-            \"color\": \"danger\"
+            \"text\": \"✅ End-to-End Tests - SUCCESS\",
+            \"color\": \"good\"
           }" https://slack.com/api/chat.postMessage
 
-  # Stage: Test Summary
+  # ========================================================================================
+  # STAGE 8: TEST SUMMARY & REPORTING
+  # ========================================================================================
   test-summary:
-    name: 📋 Test Summary
+    name: 📋 Test Summary & Reporting
     runs-on: ubuntu-latest
-    needs: [install-dependencies, lint, unit-tests, e2e-tests, performance-tests]
+    needs: [setup, lint, unit-tests, snapshot-tests, memory-leak-tests, performance-tests, e2e-tests]
     if: always()
     steps:
       - name: 🔍 Checkout Repository
         uses: actions/checkout@v4
 
-      - name: 📊 Generate Test Summary
-        run: |
-          echo "=== Test Summary ==="
-          echo "Install Dependencies Status: ${{ needs.install-dependencies.result }}"
-          echo "Lint Status: ${{ needs.lint.result }}"
-          echo "Unit Tests Status: ${{ needs.unit-tests.result }}"
-          echo "E2E Tests Status: ${{ needs.e2e-tests.result }}"
-          echo "Performance Tests Status: ${{ needs.performance-tests.result }}"
-          
-          # Set final result like Jenkins - only fail if critical tests fail
-          if [[ "${{ needs.install-dependencies.result }}" == "failure" ]]; then
-            echo "❌ Critical failure - cannot continue without dependencies"
-            exit 1
-          elif [[ "${{ needs.unit-tests.result }}" == "failure" || "${{ needs.e2e-tests.result }}" == "failure" || "${{ needs.performance-tests.result }}" == "failure" || "${{ needs.lint.result }}" == "failure" ]]; then
-            echo "🟡 Build completed with some test failures"
-            # Don't exit 1 - Jenkins sets UNSTABLE, not FAILURE
-          else
-            echo "✅ All tests passed successfully"
-          fi
-
-      - name: 📊 Archive Combined Coverage
+      - name: 📊 Download All Artifacts
         uses: actions/download-artifact@v4
         with:
-          pattern: coverage-*
-          merge-multiple: true
+          path: artifacts/
 
-      - name: 📦 Upload Combined Coverage
+      - name: 📊 Generate Detailed Test Summary
+        run: |
+          echo "# 📋 CI Pipeline Test Summary" > test-summary.md
+          echo "" >> test-summary.md
+          echo "## 🔄 Pipeline Overview" >> test-summary.md
+          echo "- **Commit:** ${{ github.sha }}" >> test-summary.md
+          echo "- **Branch:** ${{ github.ref_name }}" >> test-summary.md
+          echo "- **Author:** ${{ github.actor }}" >> test-summary.md
+          echo "- **Triggered by:** ${{ github.event_name }}" >> test-summary.md
+          echo "" >> test-summary.md
+          echo "## 📊 Stage Results" >> test-summary.md
+          echo "| Stage | Status | Component | Result |" >> test-summary.md
+          echo "|-------|--------|-----------|--------|" >> test-summary.md
+          echo "| 📦 Setup | ${{ needs.setup.result }} | All | Dependencies installed |" >> test-summary.md
+          echo "| 🔍 Lint | ${{ needs.lint.result }} | Frontend/Backend | Code quality checks |" >> test-summary.md
+          echo "| 🧪 Unit Tests | ${{ needs.unit-tests.result }} | Frontend/Backend | Unit & integration tests |" >> test-summary.md
+          echo "| 📸 Snapshot Tests | ${{ needs.snapshot-tests.result }} | Frontend/Backend | Component snapshots |" >> test-summary.md
+          echo "| 🧠 Memory Leak Tests | ${{ needs.memory-leak-tests.result }} | Frontend | Memory leak detection |" >> test-summary.md
+          echo "| ⚡ Performance Tests | ${{ needs.performance-tests.result }} | Frontend | Performance & Lighthouse |" >> test-summary.md
+          echo "| 🎭 E2E Tests | ${{ needs.e2e-tests.result }} | Full Stack | End-to-end scenarios |" >> test-summary.md
+          echo "" >> test-summary.md
+          
+          # Determine overall status
+          if [[ "${{ needs.setup.result }}" == "failure" ]]; then
+            echo "## ❌ Overall Status: FAILED"
+            echo "Critical failure - cannot continue without dependencies"
+            exit 1
+          elif [[ "${{ needs.lint.result }}" == "failure" || "${{ needs.unit-tests.result }}" == "failure" || "${{ needs.snapshot-tests.result }}" == "failure" || "${{ needs.memory-leak-tests.result }}" == "failure" || "${{ needs.performance-tests.result }}" == "failure" || "${{ needs.e2e-tests.result }}" == "failure" ]]; then
+            echo "## 🟡 Overall Status: UNSTABLE"
+            echo "Some tests failed but build completed"
+          else
+            echo "## ✅ Overall Status: SUCCESS"
+            echo "All tests passed successfully"
+          fi
+
+      - name: 📊 Upload Test Summary
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-summary
+          path: test-summary.md
+          retention-days: 30
+
+      - name: 📊 Upload Combined Coverage
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: combined-coverage
-          path: coverage/
+          path: artifacts/coverage-*/
           retention-days: 30
 
       - name: 📢 Slack Final Summary - Success
-        if: needs.install-dependencies.result == 'success' && needs.lint.result != 'failure' && needs.unit-tests.result != 'failure' && needs.e2e-tests.result != 'failure' && needs.performance-tests.result != 'failure'
+        if: needs.setup.result == 'success' && needs.lint.result != 'failure' && needs.unit-tests.result != 'failure' && needs.snapshot-tests.result != 'failure' && needs.memory-leak-tests.result != 'failure' && needs.performance-tests.result != 'failure' && needs.e2e-tests.result != 'failure'
         run: |
           curl -X POST -H 'Content-type: application/json' -H 'Authorization: Bearer ${{ env.SLACK_TOKEN }}' --data "{
             \"channel\": \"#auro-connect\",
-            \"text\": \"✅ CI Pipeline COMPLETED SUCCESSFULLY\\nCommit: ${{ github.sha }}\\nBranch: ${{ github.ref_name }}\\nAuthor: ${{ github.actor }}\",
+            \"text\": \"✅ CI Pipeline COMPLETED SUCCESSFULLY\\n\\n📦 Setup: ✅\\n🔍 Lint: ✅\\n🧪 Unit Tests: ✅\\n📸 Snapshot Tests: ✅\\n🧠 Memory Leak Tests: ✅\\n⚡ Performance Tests: ✅\\n🎭 E2E Tests: ✅\\n\\nCommit: ${{ github.sha }}\\nBranch: ${{ github.ref_name }}\\nAuthor: ${{ github.actor }}\",
             \"color\": \"good\"
           }" https://slack.com/api/chat.postMessage
 
       - name: 📢 Slack Final Summary - Unstable
-        if: needs.install-dependencies.result != 'failure' && (needs.lint.result == 'failure' || needs.unit-tests.result == 'failure' || needs.e2e-tests.result == 'failure' || needs.performance-tests.result == 'failure')
+        if: needs.setup.result != 'failure' && (needs.lint.result == 'failure' || needs.unit-tests.result == 'failure' || needs.snapshot-tests.result == 'failure' || needs.memory-leak-tests.result == 'failure' || needs.performance-tests.result == 'failure' || needs.e2e-tests.result == 'failure')
         run: |
           curl -X POST -H 'Content-type: application/json' -H 'Authorization: Bearer ${{ env.SLACK_TOKEN }}' --data "{
             \"channel\": \"#auro-connect\",
-            \"text\": \"🟡 CI Pipeline COMPLETED WITH FAILURES\\nCommit: ${{ github.sha }}\\nBranch: ${{ github.ref_name }}\\nAuthor: ${{ github.actor }}\\nCheck: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}\",
+            \"text\": \"🟡 CI Pipeline COMPLETED WITH FAILURES\\n\\n📦 Setup: ${{ needs.setup.result }}\\n🔍 Lint: ${{ needs.lint.result }}\\n🧪 Unit Tests: ${{ needs.unit-tests.result }}\\n📸 Snapshot Tests: ${{ needs.snapshot-tests.result }}\\n🧠 Memory Leak Tests: ${{ needs.memory-leak-tests.result }}\\n⚡ Performance Tests: ${{ needs.performance-tests.result }}\\n🎭 E2E Tests: ${{ needs.e2e-tests.result }}\\n\\nCommit: ${{ github.sha }}\\nBranch: ${{ github.ref_name }}\\nAuthor: ${{ github.actor }}\\nCheck: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}\",
             \"color\": \"warning\"
           }" https://slack.com/api/chat.postMessage
 
       - name: 📢 Slack Final Summary - Failure
-        if: needs.install-dependencies.result == 'failure'
+        if: needs.setup.result == 'failure'
         run: |
           curl -X POST -H 'Content-type: application/json' -H 'Authorization: Bearer ${{ env.SLACK_TOKEN }}' --data "{
             \"channel\": \"#auro-connect\",
-            \"text\": \"❌ CI Pipeline FAILED\\nCommit: ${{ github.sha }}\\nBranch: ${{ github.ref_name }}\\nAuthor: ${{ github.actor }}\\nCheck: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}\",
+            \"text\": \"❌ CI Pipeline FAILED\\n\\n📦 Setup: ❌ FAILED\\n\\nCommit: ${{ github.sha }}\\nBranch: ${{ github.ref_name }}\\nAuthor: ${{ github.actor }}\\nCheck: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}\",
             \"color\": \"danger\"
           }" https://slack.com/api/chat.postMessage 
