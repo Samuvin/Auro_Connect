@@ -35,6 +35,7 @@ on:
 
 env:
   NODE_VERSION: '18'
+  SLACK_TOKEN: ${{ secrets.SLACK_TOKEN }}
 
 jobs:
   # Stage: Install Dependencies
@@ -56,6 +57,24 @@ jobs:
           npm ci
           cd frontend && npm ci && npx playwright install
           cd ../backend && npm ci
+
+      - name: 📢 Slack Success Notification
+        if: success()
+        run: |
+          curl -X POST -H 'Content-type: application/json' -H 'Authorization: Bearer ${{ env.SLACK_TOKEN }}' --data "{
+            \"channel\": \"#auro-connect\",
+            \"text\": \"✅ Install Dependencies - SUCCESS\",
+            \"color\": \"good\"
+          }" https://slack.com/api/chat.postMessage
+
+      - name: 📢 Slack Failure Notification
+        if: failure()
+        run: |
+          curl -X POST -H 'Content-type: application/json' -H 'Authorization: Bearer ${{ env.SLACK_TOKEN }}' --data "{
+            \"channel\": \"#auro-connect\",
+            \"text\": \"❌ Install Dependencies - FAILED\",
+            \"color\": \"danger\"
+          }" https://slack.com/api/chat.postMessage
 
   # Stage: Parallel - Lint & Code Quality
   lint:
@@ -89,6 +108,24 @@ jobs:
         working-directory: ${{ matrix.component }}
         run: npm run lint:check || echo "❌ ${{ matrix.component }} linting failed but continuing..."
         continue-on-error: true
+
+      - name: 📢 Slack Success Notification
+        if: success()
+        run: |
+          curl -X POST -H 'Content-type: application/json' -H 'Authorization: Bearer ${{ env.SLACK_TOKEN }}' --data "{
+            \"channel\": \"#auro-connect\",
+            \"text\": \"✅ ${{ matrix.component }} Lint - SUCCESS\",
+            \"color\": \"good\"
+          }" https://slack.com/api/chat.postMessage
+
+      - name: 📢 Slack Failure Notification
+        if: failure()
+        run: |
+          curl -X POST -H 'Content-type: application/json' -H 'Authorization: Bearer ${{ env.SLACK_TOKEN }}' --data "{
+            \"channel\": \"#auro-connect\",
+            \"text\": \"❌ ${{ matrix.component }} Lint - FAILED\",
+            \"color\": \"danger\"
+          }" https://slack.com/api/chat.postMessage
 
   # Stage: Parallel - Unit & Integration Tests
   unit-tests:
@@ -135,6 +172,24 @@ jobs:
           name: coverage-${{ matrix.component }}
           path: ${{ matrix.component }}/coverage/
           retention-days: 30
+
+      - name: 📢 Slack Success Notification
+        if: success()
+        run: |
+          curl -X POST -H 'Content-type: application/json' -H 'Authorization: Bearer ${{ env.SLACK_TOKEN }}' --data "{
+            \"channel\": \"#auro-connect\",
+            \"text\": \"✅ ${{ matrix.component }} Tests - SUCCESS\",
+            \"color\": \"good\"
+          }" https://slack.com/api/chat.postMessage
+
+      - name: 📢 Slack Failure Notification
+        if: failure()
+        run: |
+          curl -X POST -H 'Content-type: application/json' -H 'Authorization: Bearer ${{ env.SLACK_TOKEN }}' --data "{
+            \"channel\": \"#auro-connect\",
+            \"text\": \"❌ ${{ matrix.component }} Tests - FAILED\",
+            \"color\": \"danger\"
+          }" https://slack.com/api/chat.postMessage
 
   # Stage: End-to-End Tests
   e2e-tests:
@@ -199,6 +254,24 @@ jobs:
             backend.log
             frontend.log
           retention-days: 30
+
+      - name: 📢 Slack Success Notification
+        if: success()
+        run: |
+          curl -X POST -H 'Content-type: application/json' -H 'Authorization: Bearer ${{ env.SLACK_TOKEN }}' --data "{
+            \"channel\": \"#auro-connect\",
+            \"text\": \"✅ End-to-End Tests - SUCCESS\",
+            \"color\": \"good\"
+          }" https://slack.com/api/chat.postMessage
+
+      - name: 📢 Slack Failure Notification
+        if: failure()
+        run: |
+          curl -X POST -H 'Content-type: application/json' -H 'Authorization: Bearer ${{ env.SLACK_TOKEN }}' --data "{
+            \"channel\": \"#auro-connect\",
+            \"text\": \"❌ End-to-End Tests - FAILED\",
+            \"color\": \"danger\"
+          }" https://slack.com/api/chat.postMessage
 
   # Stage: Performance Tests
   performance-tests:
@@ -273,6 +346,24 @@ jobs:
             frontend-perf.log
           retention-days: 30
 
+      - name: 📢 Slack Success Notification
+        if: success()
+        run: |
+          curl -X POST -H 'Content-type: application/json' -H 'Authorization: Bearer ${{ env.SLACK_TOKEN }}' --data "{
+            \"channel\": \"#auro-connect\",
+            \"text\": \"✅ Performance Tests - SUCCESS\",
+            \"color\": \"good\"
+          }" https://slack.com/api/chat.postMessage
+
+      - name: 📢 Slack Failure Notification
+        if: failure()
+        run: |
+          curl -X POST -H 'Content-type: application/json' -H 'Authorization: Bearer ${{ env.SLACK_TOKEN }}' --data "{
+            \"channel\": \"#auro-connect\",
+            \"text\": \"❌ Performance Tests - FAILED\",
+            \"color\": \"danger\"
+          }" https://slack.com/api/chat.postMessage
+
   # Stage: Test Summary
   test-summary:
     name: 📋 Test Summary
@@ -314,4 +405,31 @@ jobs:
         with:
           name: combined-coverage
           path: coverage/
-          retention-days: 30 
+          retention-days: 30
+
+      - name: 📢 Slack Final Summary - Success
+        if: needs.install-dependencies.result == 'success' && needs.lint.result != 'failure' && needs.unit-tests.result != 'failure' && needs.e2e-tests.result != 'failure' && needs.performance-tests.result != 'failure'
+        run: |
+          curl -X POST -H 'Content-type: application/json' -H 'Authorization: Bearer ${{ env.SLACK_TOKEN }}' --data "{
+            \"channel\": \"#auro-connect\",
+            \"text\": \"✅ CI Pipeline COMPLETED SUCCESSFULLY\\nCommit: ${{ github.sha }}\\nBranch: ${{ github.ref_name }}\\nAuthor: ${{ github.actor }}\",
+            \"color\": \"good\"
+          }" https://slack.com/api/chat.postMessage
+
+      - name: 📢 Slack Final Summary - Unstable
+        if: needs.install-dependencies.result != 'failure' && (needs.lint.result == 'failure' || needs.unit-tests.result == 'failure' || needs.e2e-tests.result == 'failure' || needs.performance-tests.result == 'failure')
+        run: |
+          curl -X POST -H 'Content-type: application/json' -H 'Authorization: Bearer ${{ env.SLACK_TOKEN }}' --data "{
+            \"channel\": \"#auro-connect\",
+            \"text\": \"🟡 CI Pipeline COMPLETED WITH FAILURES\\nCommit: ${{ github.sha }}\\nBranch: ${{ github.ref_name }}\\nAuthor: ${{ github.actor }}\\nCheck: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}\",
+            \"color\": \"warning\"
+          }" https://slack.com/api/chat.postMessage
+
+      - name: 📢 Slack Final Summary - Failure
+        if: needs.install-dependencies.result == 'failure'
+        run: |
+          curl -X POST -H 'Content-type: application/json' -H 'Authorization: Bearer ${{ env.SLACK_TOKEN }}' --data "{
+            \"channel\": \"#auro-connect\",
+            \"text\": \"❌ CI Pipeline FAILED\\nCommit: ${{ github.sha }}\\nBranch: ${{ github.ref_name }}\\nAuthor: ${{ github.actor }}\\nCheck: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}\",
+            \"color\": \"danger\"
+          }" https://slack.com/api/chat.postMessage 
