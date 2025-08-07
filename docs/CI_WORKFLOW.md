@@ -1,61 +1,20 @@
-# 🔄 CI Workflow Documentation
+# 🔄 Auro Connect CI Pipeline
 
-## Overview
+## 📋 Pipeline Overview
 
-The Auro Connect CI pipeline is organized into 8 clear stages that run sequentially, with some stages running in parallel for efficiency. Each stage has a specific purpose and can be skipped individually using workflow dispatch inputs.
+The Auro Connect CI pipeline is organized into **9 distinct stages** that run in a logical sequence to ensure code quality, functionality, and performance:
 
-## 🏗️ Pipeline Stages
+### Pipeline Stages
 
-### Stage 1: 📦 Setup & Dependencies
-- **Purpose**: Install all dependencies for frontend and backend
-- **Components**: Root, Frontend, Backend
-- **Cache Strategy**: Uses Node.js cache and custom caching for node_modules
-- **Skip Option**: Cannot be skipped (required for all other stages)
-
-### Stage 2: 🔍 Lint & Code Quality
-- **Purpose**: Run ESLint checks for code quality and style compliance
-- **Components**: Frontend, Backend (parallel execution)
-- **Skip Option**: `skip_lint`
-- **Artifacts**: Lint results for each component
-
-### Stage 3: 🧪 Unit Tests
-- **Purpose**: Run unit and integration tests with coverage
-- **Components**: Frontend, Backend (parallel execution)
-- **Skip Option**: `skip_unit_tests`
-- **Artifacts**: Coverage reports, test results
-
-### Stage 4: 📸 Snapshot Tests
-- **Purpose**: Run snapshot tests to detect UI/API changes
-- **Components**: Frontend, Backend (parallel execution)
-- **Skip Option**: `skip_snapshot_tests`
-- **Artifacts**: Snapshot files, test results
-
-### Stage 5: 🧠 Memory Leak Tests
-- **Purpose**: Detect memory leaks in the frontend application
-- **Components**: Frontend only
-- **Skip Option**: `skip_memory_leak_tests`
-- **Artifacts**: Memory leak reports, server logs
-- **Requirements**: Requires both frontend and backend servers running
-
-### Stage 6: ⚡ Performance Tests
-- **Purpose**: Run performance tests and Lighthouse audits
-- **Components**: Frontend only
-- **Skip Option**: `skip_performance_tests`
-- **Artifacts**: Performance reports, Lighthouse reports, server logs
-- **Requirements**: Requires both frontend and backend servers running
-
-### Stage 7: 🎭 End-to-End Tests
-- **Purpose**: Run full end-to-end tests across the application
-- **Components**: Full Stack
-- **Skip Option**: `skip_e2e_tests`
-- **Artifacts**: E2E test results, Playwright reports, server logs
-- **Requirements**: Requires both frontend and backend servers running
-
-### Stage 8: 📋 Test Summary & Reporting
-- **Purpose**: Aggregate results and send notifications
-- **Components**: All
-- **Skip Option**: Cannot be skipped
-- **Artifacts**: Combined coverage, test summary, all previous artifacts
+1. **📦 Setup & Dependencies** - Install and cache all project dependencies
+2. **🔍 Lint & Code Quality** - Run ESLint and code quality checks
+3. **🧪 Unit Tests** - Execute unit tests with coverage reporting
+4. **🔗 Integration Tests** - Run API and component integration tests
+5. **📸 Snapshot Tests** - Verify component rendering consistency
+6. **🧠 Memory Leak Tests** - Detect memory leaks in frontend applications
+7. **⚡ Performance Tests** - Run performance and Lighthouse audits
+8. **🎭 End-to-End Tests** - Full application workflow testing
+9. **📋 Test Summary & Reporting** - Generate comprehensive test reports
 
 ## 🎛️ Manual Controls
 
@@ -67,6 +26,7 @@ You can trigger the workflow manually and skip specific stages:
 4. Toggle the stages you want to skip:
    - Skip Linting
    - Skip Unit Tests
+   - Skip Integration Tests
    - Skip Snapshot Tests
    - Skip Memory Leak Tests
    - Skip Performance Tests
@@ -79,7 +39,8 @@ Each stage generates specific artifacts that are stored for 30 days:
 - **Lint Results**: ESLint reports in JSON format
 - **Coverage Reports**: HTML and LCOV coverage reports
 - **Test Results**: JUnit XML test results
-- **Snapshot Files**: Jest/Playwright snapshot files
+- **Integration Test Results**: Frontend Playwright and backend Jest integration test reports
+- **Snapshots**: Component and API snapshot files
 - **Performance Reports**: Lighthouse reports and performance metrics
 - **E2E Reports**: Playwright HTML reports and screenshots
 - **Server Logs**: Backend and frontend server logs for debugging
@@ -99,31 +60,35 @@ The pipeline sends Slack notifications to the `#auro-connect` channel:
 graph TD
     A[📦 Setup & Dependencies] --> B[🔍 Lint & Code Quality]
     B --> C[🧪 Unit Tests]
-    B --> D[📸 Snapshot Tests]
-    C --> E[🧠 Memory Leak Tests]
-    C --> F[⚡ Performance Tests]
-    D --> G[🎭 End-to-End Tests]
-    E --> H[📋 Test Summary & Reporting]
-    F --> H
-    G --> H
+    C --> D[🔗 Integration Tests]
+    B --> E[📸 Snapshot Tests]
+    D --> F[🧠 Memory Leak Tests]
+    D --> G[⚡ Performance Tests]
+    D --> E
+    E --> H[🎭 End-to-End Tests]
+    F --> I[📋 Test Summary & Reporting]
+    G --> I
+    H --> I
 ```
 
 ## 🔧 Dependencies Between Stages
 
 - **Lint**: Depends on Setup
 - **Unit Tests**: Depends on Setup + Lint
-- **Snapshot Tests**: Depends on Setup + Lint
-- **Memory Leak Tests**: Depends on Setup + Lint + Unit Tests
-- **Performance Tests**: Depends on Setup + Lint + Unit Tests
-- **E2E Tests**: Depends on Setup + Lint + Unit Tests + Snapshot Tests
+- **Integration Tests**: Depends on Setup + Lint + Unit Tests
+- **Snapshot Tests**: Depends on Setup + Lint + Integration Tests
+- **Memory Leak Tests**: Depends on Setup + Lint + Unit Tests + Integration Tests
+- **Performance Tests**: Depends on Setup + Lint + Unit Tests + Integration Tests
+- **E2E Tests**: Depends on Setup + Lint + Unit Tests + Integration Tests + Snapshot Tests
 - **Test Summary**: Depends on all previous stages
 
 ## 📋 Available Scripts
 
 ### Frontend Scripts
 - `npm run lint:check` - ESLint check
-- `npm run test:ci` - Unit tests with coverage
-- `npm run test:snapshot:ci` - Snapshot tests
+- `npm run test:ci` - Unit tests for CI
+- `npm run test:integration:ci` - Integration tests for CI
+- `npm run test:snapshot:ci` - Snapshot tests for CI
 - `npm run test:memory-leaks:ci` - Memory leak tests
 - `npm run test:perf:ci` - Performance tests
 - `npm run test:lighthouse:ci` - Lighthouse audits

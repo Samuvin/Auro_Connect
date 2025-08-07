@@ -12,6 +12,10 @@
     "test:snapshot:update": "jest --testNamePattern=@snapshot --updateSnapshot",
     "test:snapshot:ci": "jest --testNamePattern=@snapshot --coverage=false --watchAll=false --verbose",
     "test:snapshot:watch": "jest --testNamePattern=@snapshot --watch",
+    "test:integration": "jest tests/integration/ --verbose",
+    "test:integration:watch": "jest tests/integration/ --watch",
+    "test:integration:ci": "jest tests/integration/ --coverage=false --watchAll=false --verbose",
+    "test:integration:ts": "jest tests/integration/*.ts --verbose",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "lint:check": "eslint . --max-warnings 0",
@@ -34,14 +38,21 @@
   },
   "devDependencies": {
     "@babel/preset-env": "^7.23.0",
+    "@babel/preset-typescript": "^7.23.0",
     "@eslint/js": "^9.32.0",
+    "@types/bcryptjs": "^2.4.2",
+    "@types/express": "^4.17.17",
+    "@types/jest": "^29.5.5",
+    "@types/jsonwebtoken": "^9.0.2",
+    "@types/supertest": "^2.0.12",
     "eslint": "^9.32.0",
     "eslint-plugin-import": "^2.32.0",
     "eslint-plugin-n": "^17.21.3",
     "jest": "^29.7.0",
     "mongodb-memory-server": "^9.1.1",
     "nodemon": "^3.1.4",
-    "supertest": "^6.3.3"
+    "supertest": "^6.3.3",
+    "typescript": "^5.0.0"
   },
   "jest": {
     "testEnvironment": "node",
@@ -50,7 +61,9 @@
     ],
     "testMatch": [
       "<rootDir>/tests/**/*.test.js",
-      "<rootDir>/**/__tests__/**/*.js"
+      "<rootDir>/tests/**/*.test.ts",
+      "<rootDir>/**/__tests__/**/*.js",
+      "<rootDir>/**/__tests__/**/*.ts"
     ],
     "collectCoverageFrom": [
       "controllers/**/*.js",
@@ -70,7 +83,7 @@
     "forceExit": true,
     "maxWorkers": 1,
     "transform": {
-      "^.+\\.js$": [
+      "^.+\\.(js|ts)$": [
         "babel-jest",
         {
           "presets": [
@@ -81,10 +94,12 @@
                   "node": "current"
                 }
               }
-            ]
+            ],
+            "@babel/preset-typescript"
           ]
         }
       ]
-    }
+    },
+    "moduleFileExtensions": ["js", "ts"]
   }
 }

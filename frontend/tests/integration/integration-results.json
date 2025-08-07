@@ -1,0 +1,322 @@
+{
+  "config": {
+    "configFile": "C:\\Users\\jenishs\\OneDrive - Autodesk\\Desktop\\Test\\sjs\\Pro\\test\\Auro_Connect\\frontend\\tests\\integration\\playwright.config.js",
+    "rootDir": "C:/Users/jenishs/OneDrive - Autodesk/Desktop/Test/sjs/Pro/test/Auro_Connect/frontend/tests/integration",
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "reporter": [
+      [
+        "html",
+        {
+          "outputFolder": "integration-report"
+        }
+      ],
+      [
+        "json",
+        {
+          "outputFile": "integration-results.json"
+        }
+      ],
+      [
+        "list",
+        null
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "quiet": false,
+    "projects": [
+      {
+        "outputDir": "C:/Users/jenishs/OneDrive - Autodesk/Desktop/Test/sjs/Pro/test/Auro_Connect/frontend/tests/integration/integration-test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium-integration",
+        "name": "chromium-integration",
+        "testDir": "C:/Users/jenishs/OneDrive - Autodesk/Desktop/Test/sjs/Pro/test/Auro_Connect/frontend/tests/integration",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.integration.test.ts"
+        ],
+        "timeout": 60000
+      }
+    ],
+    "shard": null,
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.54.2",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "auth.integration.test.ts",
+      "file": "auth.integration.test.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Authentication Integration Tests (Mock-based)",
+          "file": "auth.integration.test.ts",
+          "line": 48,
+          "column": 6,
+          "specs": [],
+          "suites": [
+            {
+              "title": "Signup Integration Flow",
+              "file": "auth.integration.test.ts",
+              "line": 55,
+              "column": 8,
+              "specs": [
+                {
+                  "title": "should complete full signup integration with mocked components",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 60000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium-integration",
+                      "projectName": "chromium-integration",
+                      "results": [
+                        {
+                          "workerIndex": 0,
+                          "parallelIndex": 0,
+                          "status": "passed",
+                          "duration": 2886,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2025-08-07T13:13:43.799Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "254f5d28313828f90b61-d22f620d50c8417d51ff",
+                  "file": "auth.integration.test.ts",
+                  "line": 56,
+                  "column": 5
+                },
+                {
+                  "title": "should handle signup validation errors",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 60000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium-integration",
+                      "projectName": "chromium-integration",
+                      "results": [
+                        {
+                          "workerIndex": 0,
+                          "parallelIndex": 0,
+                          "status": "passed",
+                          "duration": 604,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2025-08-07T13:13:47.140Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "254f5d28313828f90b61-b4a4637e5b895c144368",
+                  "file": "auth.integration.test.ts",
+                  "line": 191,
+                  "column": 5
+                }
+              ]
+            },
+            {
+              "title": "Login Integration Flow",
+              "file": "auth.integration.test.ts",
+              "line": 274,
+              "column": 8,
+              "specs": [
+                {
+                  "title": "should complete full login integration with mocked API",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 60000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium-integration",
+                      "projectName": "chromium-integration",
+                      "results": [
+                        {
+                          "workerIndex": 0,
+                          "parallelIndex": 0,
+                          "status": "passed",
+                          "duration": 523,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2025-08-07T13:13:47.750Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "254f5d28313828f90b61-4e8c11ee39458feb83a7",
+                  "file": "auth.integration.test.ts",
+                  "line": 275,
+                  "column": 5
+                },
+                {
+                  "title": "should handle invalid credentials",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 60000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium-integration",
+                      "projectName": "chromium-integration",
+                      "results": [
+                        {
+                          "workerIndex": 0,
+                          "parallelIndex": 0,
+                          "status": "passed",
+                          "duration": 521,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2025-08-07T13:13:48.279Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "254f5d28313828f90b61-5c8a63a426b2bb9b645c",
+                  "file": "auth.integration.test.ts",
+                  "line": 405,
+                  "column": 5
+                }
+              ]
+            },
+            {
+              "title": "Error Handling Integration",
+              "file": "auth.integration.test.ts",
+              "line": 482,
+              "column": 8,
+              "specs": [
+                {
+                  "title": "should handle network errors gracefully",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 60000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium-integration",
+                      "projectName": "chromium-integration",
+                      "results": [
+                        {
+                          "workerIndex": 0,
+                          "parallelIndex": 0,
+                          "status": "passed",
+                          "duration": 541,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2025-08-07T13:13:48.805Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "254f5d28313828f90b61-6030074d85bde8a76d6b",
+                  "file": "auth.integration.test.ts",
+                  "line": 483,
+                  "column": 5
+                },
+                {
+                  "title": "should handle server errors (500)",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 60000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium-integration",
+                      "projectName": "chromium-integration",
+                      "results": [
+                        {
+                          "workerIndex": 0,
+                          "parallelIndex": 0,
+                          "status": "passed",
+                          "duration": 547,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2025-08-07T13:13:49.352Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "254f5d28313828f90b61-56887028e1a0db2635e0",
+                  "file": "auth.integration.test.ts",
+                  "line": 536,
+                  "column": 5
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2025-08-07T13:13:40.066Z",
+    "duration": 10841.766,
+    "expected": 6,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}
