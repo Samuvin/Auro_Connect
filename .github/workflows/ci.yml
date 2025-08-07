@@ -42,74 +42,17 @@ on:
         required: false
         default: false
         type: boolean
-      # Playwright Configuration Options
-      playwright_workers:
-        description: 'Number of Playwright workers'
+      # Consolidated Playwright Configuration
+      playwright_config:
+        description: 'Playwright configuration (workers:browsers:devices:retries)'
         required: false
-        default: '11'
+        default: '11:all:desktop,mobile:2'
         type: string
-      playwright_browsers:
-        description: 'Browsers to test (chromium,firefox,webkit,all)'
+      playwright_advanced:
+        description: 'Advanced options (timeout:headed:debug)'
         required: false
-        default: 'all'
-        type: choice
-        options:
-          - all
-          - chromium
-          - firefox
-          - webkit
-          - chromium,firefox
-          - chromium,webkit
-          - firefox,webkit
-      playwright_devices:
-        description: 'Device types to test'
-        required: false
-        default: 'desktop,mobile'
-        type: choice
-        options:
-          - desktop,mobile
-          - desktop
-          - mobile
-          - tablet
-          - desktop,mobile,tablet
-          - desktop,tablet
-          - mobile,tablet
-          - desktop-large
-          - desktop-small
-          - all-devices
-      playwright_headed:
-        description: 'Run Playwright tests in headed mode'
-        required: false
-        default: false
-        type: boolean
-      playwright_debug:
-        description: 'Enable Playwright debug mode'
-        required: false
-        default: false
-        type: boolean
-      playwright_retries:
-        description: 'Number of test retries'
-        required: false
-        default: '2'
+        default: '30000:false:false'
         type: string
-      playwright_timeout:
-        description: 'Test timeout in milliseconds'
-        required: false
-        default: '30000'
-        type: string
-      playwright_reporter:
-        description: 'Test reporter format'
-        required: false
-        default: 'junit'
-        type: choice
-        options:
-          - junit
-          - html
-          - json
-          - list
-          - dot
-          - line
-          - github
       playwright_base_url:
         description: 'Base URL for tests'
         required: false
@@ -802,17 +745,24 @@ jobs:
         id: e2e-tests
         working-directory: frontend
         env:
-          PLAYWRIGHT_WORKERS: ${{ github.event.inputs.playwright_workers || '11' }}
-          PLAYWRIGHT_BROWSERS: ${{ github.event.inputs.playwright_browsers || 'all' }}
-          PLAYWRIGHT_DEVICES: ${{ github.event.inputs.playwright_devices || 'desktop,mobile' }}
-          PLAYWRIGHT_HEADED: ${{ github.event.inputs.playwright_headed || 'false' }}
-          PLAYWRIGHT_DEBUG: ${{ github.event.inputs.playwright_debug || 'false' }}
-          PLAYWRIGHT_RETRIES: ${{ github.event.inputs.playwright_retries || '2' }}
-          PLAYWRIGHT_TIMEOUT: ${{ github.event.inputs.playwright_timeout || '30000' }}
-          PLAYWRIGHT_REPORTER: ${{ github.event.inputs.playwright_reporter || 'junit' }}
+          PLAYWRIGHT_CONFIG: ${{ github.event.inputs.playwright_config || '11:all:desktop,mobile:2' }}
+          PLAYWRIGHT_ADVANCED: ${{ github.event.inputs.playwright_advanced || '30000:false:false' }}
           PLAYWRIGHT_BASE_URL: ${{ github.event.inputs.playwright_base_url || 'https://auro-connect-r9mk.onrender.com' }}
         run: |
           START_TIME=$(date +%s)
+          
+          # Parse Playwright configuration
+          IFS=':' read -ra CONFIG <<< "$PLAYWRIGHT_CONFIG"
+          PLAYWRIGHT_WORKERS="${CONFIG[0]:-11}"
+          PLAYWRIGHT_BROWSERS="${CONFIG[1]:-all}"
+          PLAYWRIGHT_DEVICES="${CONFIG[2]:-desktop,mobile}"
+          PLAYWRIGHT_RETRIES="${CONFIG[3]:-2}"
+          
+          # Parse advanced configuration
+          IFS=':' read -ra ADVANCED <<< "$PLAYWRIGHT_ADVANCED"
+          PLAYWRIGHT_TIMEOUT="${ADVANCED[0]:-30000}"
+          PLAYWRIGHT_HEADED="${ADVANCED[1]:-false}"
+          PLAYWRIGHT_DEBUG="${ADVANCED[2]:-false}"
           
           # Build Playwright command with configuration options
           PLAYWRIGHT_CMD="npx playwright test"
@@ -826,8 +776,8 @@ jobs:
           # Set timeout
           PLAYWRIGHT_CMD="$PLAYWRIGHT_CMD --timeout=$PLAYWRIGHT_TIMEOUT"
           
-          # Set reporter
-          PLAYWRIGHT_CMD="$PLAYWRIGHT_CMD --reporter=$PLAYWRIGHT_REPORTER"
+          # Set reporter to HTML
+          PLAYWRIGHT_CMD="$PLAYWRIGHT_CMD --reporter=html"
           
           # Configure browsers/projects based on selection
           if [ "$PLAYWRIGHT_BROWSERS" != "all" ]; then
