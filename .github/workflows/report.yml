@@ -17,12 +17,15 @@ on:
         type: string
 
     secrets:
-
       slack-webhook-url:
-
         description: 'Slack webhook URL for notifications'
-
-        required: true
+        required: false
+      slack-token:
+        description: 'Slack bot token for notifications (alternative to webhook)'
+        required: false
+      slack-channel:
+        description: 'Slack channel for notifications (used with bot token)'
+        required: false
 
 
 
@@ -87,9 +90,9 @@ jobs:
           ./scripts/send-slack-notification.sh
 
         env:
-
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-
+          SLACK_TOKEN: ${{ secrets.SLACK_TOKEN }}
+          SLACK_CHANNEL: ${{ secrets.SLACK_CHANNEL }}
           GITHUB_CONTEXT: ${{ toJson(github) }}
 
 

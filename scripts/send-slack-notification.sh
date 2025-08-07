@@ -141,6 +141,31 @@ if [ -n "$SLACK_WEBHOOK_URL" ]; then
     curl -X POST -H 'Content-type: application/json' \
          --data @slack_message.json \
          "$SLACK_WEBHOOK_URL"
+elif [ -n "$SLACK_TOKEN" ]; then
+    # Use Slack Web API with bot token
+    # Extract channel from environment or use default
+    SLACK_CHANNEL="${SLACK_CHANNEL:-#general}"
+    
+    # Convert attachment-style message to blocks for Web API
+    ATTACHMENT_COLOR=$(cat slack_message.json | jq -r '.attachments[0].color')
+    STATUS_TEXT=$(cat slack_message.json | jq -r '.text')
+    
+    # Create a simpler message for Web API
+    cat << EOF > slack_api_message.json
+{
+  "channel": "$SLACK_CHANNEL",
+  "text": "$STATUS_TEXT",
+  "attachments": $(cat slack_message.json | jq '.attachments')
+}
+EOF
+    
+    curl -X POST -H "Authorization: Bearer $SLACK_TOKEN" \
+         -H 'Content-type: application/json' \
+         --data @slack_api_message.json \
+         "https://slack.com/api/chat.postMessage"
 else
-    echo "SLACK_WEBHOOK_URL not set, skipping notification"
+    echo "Neither SLACK_WEBHOOK_URL nor SLACK_TOKEN is set, skipping notification"
+    echo "To enable Slack notifications, set one of:"
+    echo "  - SLACK_WEBHOOK_URL: https://hooks.slack.com/services/..."
+    echo "  - SLACK_TOKEN: xoxb-... (requires SLACK_CHANNEL)"
 fi 
