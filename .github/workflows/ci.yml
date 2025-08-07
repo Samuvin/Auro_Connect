@@ -94,19 +94,19 @@ jobs:
       skip-unit-tests: ${{ github.event.inputs.skip_unit_tests == 'true' }}
       skip-integration-tests: ${{ github.event.inputs.skip_integration_tests == 'true' }}
       skip-snapshot-tests: ${{ github.event.inputs.skip_snapshot_tests == 'true' }}
-      
-    visual-regression:
-      name: 👁️ Visual Regression
-      needs: [setup, lint]
-      if: always()
-      uses: ./.github/workflows/visual-regression.yml
-      with:
-        node-version: '18'
-        skip-visual-tests: false
-        playwright-workers: '1'
-        playwright-browsers: ${{ github.event.inputs.playwright_browsers || 'all' }}
-        update-snapshots: false
-        
+
+  visual-regression:
+    name: 👁️ Visual Regression
+    needs: [setup, lint]
+    if: always()
+    uses: ./.github/workflows/visual-regression.yml
+    with:
+      node-version: '18'
+      skip-visual-tests: false
+      playwright-workers: '1'
+      playwright-browsers: ${{ github.event.inputs.playwright_browsers || 'all' }}
+      update-snapshots: false
+
   performance:
     name: ⚡ Performance & E2E
     needs: [setup, lint, test, visual-regression]
