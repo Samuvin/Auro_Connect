@@ -75,7 +75,7 @@ jobs:
           echo "⏳ Waiting for Storybook to be ready..."
           timeout 120s bash -c 'until curl -f http://localhost:6006; do sleep 2; done' || {
             echo "❌ Storybook failed to start within timeout"
-            docker-compose -f docker-compose.storybook.yml logs
+            docker compose -f docker-compose.storybook.yml logs
             exit 1
           }
           echo "✅ Storybook is ready!"

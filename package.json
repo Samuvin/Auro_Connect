@@ -18,9 +18,9 @@
 		"storybook:docker:build": "docker build -f Dockerfile.storybook -t storybook-app .",
 		"storybook:docker:run": "docker run -p 6006:6006 storybook-app",
 		"storybook:docker": "npm run storybook:docker:build && npm run storybook:docker:run",
-		"storybook:docker:compose": "docker-compose -f docker-compose.storybook.yml up --build",
-		"storybook:docker:compose:down": "docker-compose -f docker-compose.storybook.yml down",
-		"storybook:docker:dev": "docker-compose -f docker-compose.storybook.yml up --build --watch"
+		"storybook:docker:compose": "docker compose -f docker-compose.storybook.yml up --build",
+		"storybook:docker:compose:down": "docker compose -f docker-compose.storybook.yml down",
+		"storybook:docker:dev": "docker compose -f docker-compose.storybook.yml up --build --watch"
 	},
 	"keywords": [],
 	"author": "",
