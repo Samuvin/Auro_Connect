@@ -144,7 +144,7 @@ jobs:
 
           # Exit with error code if there are errors
 
-          if [ "${ERRORS}" -gt "0" ]; then
+          if [ "${ERRORS}" -gt 0 ]; then
 
             exit 1
 
@@ -190,7 +190,7 @@ jobs:
 
           # Exit with error code if there are errors
 
-          if [ "${ERRORS}" -gt "0" ]; then
+          if [ "${ERRORS}" -gt 0 ]; then
 
             exit 1
 
