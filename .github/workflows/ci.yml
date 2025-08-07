@@ -42,22 +42,32 @@ on:
         required: false
         default: false
         type: boolean
-      # Consolidated Playwright Configuration
-      playwright_config:
-        description: 'Playwright configuration (workers:browsers:devices:retries)'
+      # Playwright Configuration
+      playwright_workers:
+        description: 'Number of Playwright workers'
         required: false
-        default: '11:all:desktop,mobile:2'
+        default: '11'
         type: string
-      playwright_advanced:
-        description: 'Advanced options (timeout:headed:debug)'
+      playwright_browsers:
+        description: 'Browsers to test'
         required: false
-        default: '30000:false:false'
-        type: string
-      playwright_base_url:
-        description: 'Base URL for tests'
+        default: 'all'
+        type: choice
+        options:
+          - all
+          - chromium
+          - firefox
+          - webkit
+      playwright_devices:
+        description: 'Device types to test'
         required: false
-        default: 'https://auro-connect-r9mk.onrender.com'
-        type: string
+        default: 'desktop,mobile'
+        type: choice
+        options:
+          - desktop,mobile
+          - desktop
+          - mobile
+          - all-devices
 
 env:
   NODE_VERSION: '18'
@@ -745,24 +755,11 @@ jobs:
         id: e2e-tests
         working-directory: frontend
         env:
-          PLAYWRIGHT_CONFIG: ${{ github.event.inputs.playwright_config || '11:all:desktop,mobile:2' }}
-          PLAYWRIGHT_ADVANCED: ${{ github.event.inputs.playwright_advanced || '30000:false:false' }}
-          PLAYWRIGHT_BASE_URL: ${{ github.event.inputs.playwright_base_url || 'https://auro-connect-r9mk.onrender.com' }}
+          PLAYWRIGHT_WORKERS: ${{ github.event.inputs.playwright_workers || '11' }}
+          PLAYWRIGHT_BROWSERS: ${{ github.event.inputs.playwright_browsers || 'all' }}
+          PLAYWRIGHT_DEVICES: ${{ github.event.inputs.playwright_devices || 'desktop,mobile' }}
         run: |
           START_TIME=$(date +%s)
-          
-          # Parse Playwright configuration
-          IFS=':' read -ra CONFIG <<< "$PLAYWRIGHT_CONFIG"
-          PLAYWRIGHT_WORKERS="${CONFIG[0]:-11}"
-          PLAYWRIGHT_BROWSERS="${CONFIG[1]:-all}"
-          PLAYWRIGHT_DEVICES="${CONFIG[2]:-desktop,mobile}"
-          PLAYWRIGHT_RETRIES="${CONFIG[3]:-2}"
-          
-          # Parse advanced configuration
-          IFS=':' read -ra ADVANCED <<< "$PLAYWRIGHT_ADVANCED"
-          PLAYWRIGHT_TIMEOUT="${ADVANCED[0]:-30000}"
-          PLAYWRIGHT_HEADED="${ADVANCED[1]:-false}"
-          PLAYWRIGHT_DEBUG="${ADVANCED[2]:-false}"
           
           # Build Playwright command with configuration options
           PLAYWRIGHT_CMD="npx playwright test"
@@ -770,11 +767,11 @@ jobs:
           # Set number of workers
           PLAYWRIGHT_CMD="$PLAYWRIGHT_CMD --workers=$PLAYWRIGHT_WORKERS"
           
-          # Set retry count
-          PLAYWRIGHT_CMD="$PLAYWRIGHT_CMD --retries=$PLAYWRIGHT_RETRIES"
+          # Set retry count (default 2)
+          PLAYWRIGHT_CMD="$PLAYWRIGHT_CMD --retries=2"
           
-          # Set timeout
-          PLAYWRIGHT_CMD="$PLAYWRIGHT_CMD --timeout=$PLAYWRIGHT_TIMEOUT"
+          # Set timeout (default 30 seconds)
+          PLAYWRIGHT_CMD="$PLAYWRIGHT_CMD --timeout=30000"
           
           # Set reporter to HTML
           PLAYWRIGHT_CMD="$PLAYWRIGHT_CMD --reporter=html"
@@ -949,21 +946,6 @@ jobs:
             esac
           fi
           
-          # Add headed mode if requested
-          if [ "$PLAYWRIGHT_HEADED" = "true" ]; then
-            PLAYWRIGHT_CMD="$PLAYWRIGHT_CMD --headed"
-          fi
-          
-          # Add debug mode if requested
-          if [ "$PLAYWRIGHT_DEBUG" = "true" ]; then
-            PLAYWRIGHT_CMD="$PLAYWRIGHT_CMD --debug"
-          fi
-          
-          # Add base URL if provided
-          if [ -n "$PLAYWRIGHT_BASE_URL" ]; then
-            PLAYWRIGHT_CMD="$PLAYWRIGHT_CMD --base-url=$PLAYWRIGHT_BASE_URL"
-          fi
-
           echo "Running command: $PLAYWRIGHT_CMD"
           $PLAYWRIGHT_CMD 2>&1 | tee e2e-output.log || true
           
