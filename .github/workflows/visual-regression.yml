@@ -42,6 +42,29 @@ jobs:
           node-version: ${{ inputs.node-version }}
           include-playwright: true
           
+      - name: 🐳 Install Docker Compose
+        run: |
+          echo "🔧 Installing Docker Compose..."
+          
+          # Check if docker-compose is already available
+          if command -v docker-compose &> /dev/null; then
+            echo "✅ docker-compose already installed"
+            docker-compose --version
+          elif docker compose version &> /dev/null; then
+            echo "✅ docker compose (plugin) already available"
+            docker compose version
+          else
+            echo "📦 Installing docker-compose..."
+            
+            # Install docker-compose using the official method
+            sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+            sudo chmod +x /usr/local/bin/docker-compose
+            
+            # Verify installation
+            docker-compose --version
+            echo "✅ Docker Compose installed successfully"
+          fi
+          
       - name: 🐳 Start Storybook with Docker
         working-directory: .
         run: |
