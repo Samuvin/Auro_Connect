@@ -1,0 +1,289 @@
+name: 🔄 Continuous Integration
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+  workflow_dispatch:
+    inputs:
+      skip_linting:
+        description: 'Skip Linting'
+        required: false
+        default: false
+        type: boolean
+      skip_unit_tests:
+        description: 'Skip Unit Tests'
+        required: false
+        default: false
+        type: boolean
+      skip_build:
+        description: 'Skip Application Build'
+        required: false
+        default: false
+        type: boolean
+
+env:
+  NODE_VERSION: '18'
+  CACHE_KEY_PREFIX: 'node-deps'
+
+jobs:
+  # Dependency installation and setup
+  setup:
+    name: 📦 Setup Dependencies
+    runs-on: ubuntu-latest
+    outputs:
+      cache-key: ${{ steps.cache-keys.outputs.cache-key }}
+    steps:
+      - name: 🔍 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 🔧 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: 📋 Generate Cache Keys
+        id: cache-keys
+        run: |
+          echo "cache-key=${{ env.CACHE_KEY_PREFIX }}-${{ hashFiles('**/package-lock.json') }}" >> $GITHUB_OUTPUT
+
+      - name: 📦 Cache Dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            node_modules
+            frontend/node_modules
+            backend/node_modules
+            ~/.cache/ms-playwright
+          key: ${{ steps.cache-keys.outputs.cache-key }}
+          restore-keys: |
+            ${{ env.CACHE_KEY_PREFIX }}-
+
+      - name: 🔨 Install Root Dependencies
+        run: npm install
+
+      - name: 🔨 Install Frontend Dependencies
+        working-directory: frontend
+        run: |
+          npm install
+          npx playwright install
+
+      - name: 🔨 Install Backend Dependencies
+        working-directory: backend
+        run: npm install
+
+  # Parallel linting jobs
+  lint:
+    name: 🔍 Code Quality & Linting
+    runs-on: ubuntu-latest
+    needs: setup
+    if: github.event.inputs.skip_linting != 'true'
+    strategy:
+      fail-fast: false
+      matrix:
+        component: [frontend, backend]
+    steps:
+      - name: 🔍 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 🔧 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: 📦 Restore Dependencies Cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            node_modules
+            frontend/node_modules
+            backend/node_modules
+          key: ${{ needs.setup.outputs.cache-key }}
+
+      - name: 🔍 Run ${{ matrix.component }} Linting
+        working-directory: ${{ matrix.component }}
+        run: npm run lint:check
+
+  # Parallel unit and integration tests
+  test:
+    name: 🧪 Unit & Integration Tests
+    runs-on: ubuntu-latest
+    needs: setup
+    if: github.event.inputs.skip_unit_tests != 'true'
+    strategy:
+      fail-fast: false
+      matrix:
+        component: [frontend, backend]
+    steps:
+      - name: 🔍 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 🔧 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: 📦 Restore Dependencies Cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            node_modules
+            frontend/node_modules
+            backend/node_modules
+          key: ${{ needs.setup.outputs.cache-key }}
+
+      - name: 🧪 Run ${{ matrix.component }} Tests
+        working-directory: ${{ matrix.component }}
+        run: npm run test:coverage
+
+      - name: 📊 Upload Coverage Reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-${{ matrix.component }}
+          path: ${{ matrix.component }}/coverage/
+          retention-days: 30
+
+      - name: 📈 Upload Coverage to Codecov (Optional)
+        if: matrix.component == 'backend'
+        uses: codecov/codecov-action@v3
+        with:
+          files: backend/coverage/lcov.info
+          flags: backend
+          name: backend-coverage
+
+      - name: 📈 Upload Coverage to Codecov (Optional)
+        if: matrix.component == 'frontend'
+        uses: codecov/codecov-action@v3
+        with:
+          files: frontend/coverage/lcov.info
+          flags: frontend
+          name: frontend-coverage
+
+  # Build application
+  build:
+    name: 🏗️ Build Application
+    runs-on: ubuntu-latest
+    needs: [setup, lint, test]
+    if: github.event.inputs.skip_build != 'true'
+    steps:
+      - name: 🔍 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 🔧 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: 📦 Restore Dependencies Cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            node_modules
+            frontend/node_modules
+            backend/node_modules
+          key: ${{ needs.setup.outputs.cache-key }}
+
+      - name: 🏗️ Build Frontend
+        working-directory: frontend
+        run: npm run build
+
+      - name: 📦 Upload Build Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-build
+          path: frontend/dist/
+          retention-days: 30
+
+  # Test summary and reporting
+  test-summary:
+    name: 📋 Test Summary
+    runs-on: ubuntu-latest
+    needs: [lint, test, build]
+    if: always()
+    steps:
+      - name: 🔍 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 📊 Download Coverage Reports
+        uses: actions/download-artifact@v4
+        with:
+          pattern: coverage-*
+          merge-multiple: true
+
+      - name: 📋 Generate Test Summary
+        run: |
+          echo "## 🧪 Test Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          # Check job statuses
+          if [ "${{ needs.lint.result }}" == "success" ]; then
+            echo "✅ **Linting**: Passed" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ **Linting**: Failed" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          if [ "${{ needs.test.result }}" == "success" ]; then
+            echo "✅ **Unit Tests**: Passed" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ **Unit Tests**: Failed" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          if [ "${{ needs.build.result }}" == "success" ]; then
+            echo "✅ **Build**: Passed" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ **Build**: Failed" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 📊 Coverage Reports" >> $GITHUB_STEP_SUMMARY
+          echo "Coverage reports are available in the artifacts section." >> $GITHUB_STEP_SUMMARY
+
+      - name: 📦 Upload Combined Coverage
+        uses: actions/upload-artifact@v4
+        with:
+          name: combined-coverage
+          path: |
+            frontend/coverage/
+            backend/coverage/
+          retention-days: 30
+
+  # Notification job
+  notify:
+    name: 📢 Notify Results
+    runs-on: ubuntu-latest
+    needs: [lint, test, build, test-summary]
+    if: always()
+    steps:
+      - name: 🔍 Determine Overall Status
+        id: status
+        run: |
+          if [[ "${{ needs.lint.result }}" == "success" && "${{ needs.test.result }}" == "success" && "${{ needs.build.result }}" == "success" ]]; then
+            echo "status=success" >> $GITHUB_OUTPUT
+            echo "message=✅ All CI checks passed successfully!" >> $GITHUB_OUTPUT
+            echo "color=success" >> $GITHUB_OUTPUT
+          else
+            echo "status=failure" >> $GITHUB_OUTPUT
+            echo "message=❌ Some CI checks failed. Please review the logs." >> $GITHUB_OUTPUT
+            echo "color=danger" >> $GITHUB_OUTPUT
+          fi
+
+      - name: 📢 Send Slack Notification (Optional)
+        if: env.SLACK_WEBHOOK_URL != ''
+        uses: 8398a7/action-slack@v3
+        with:
+          status: ${{ steps.status.outputs.status }}
+          channel: '#ci-notifications'
+          text: |
+            ${{ steps.status.outputs.message }}
+            
+            **Commit**: ${{ github.event.head_commit.message }}
+            **Author**: ${{ github.event.head_commit.author.name }}
+            **Branch**: ${{ github.ref_name }}
+            **Build**: <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View Logs>
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }} 
