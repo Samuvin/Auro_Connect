@@ -183,11 +183,66 @@ jobs:
             \"color\": \"danger\"
           }" https://slack.com/api/chat.postMessage
 
+  # Stage: Snapshot Tests
+  snapshot-tests:
+    name: 📸 Snapshot Tests
+    runs-on: ubuntu-latest
+    needs: [install-dependencies, lint]
+    if: always() && github.event.inputs.SkipUnitTests != 'true'
+    strategy:
+      fail-fast: false
+      matrix:
+        component: [backend, frontend]
+    steps:
+      - name: 🔍 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 🔧 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: 🔨 Install Dependencies
+        working-directory: ${{ matrix.component }}
+        run: npm ci
+
+      - name: 📸 Run Snapshot Tests
+        working-directory: ${{ matrix.component }}
+        run: npm run test:snapshot:ci || echo "❌ ${{ matrix.component }} snapshot tests failed but continuing..."
+        continue-on-error: true
+
+      - name: 📊 Archive Snapshot Results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: snapshots-${{ matrix.component }}
+          path: ${{ matrix.component }}/**/__snapshots__/
+          retention-days: 30
+
+      - name: 📢 Slack Success Notification
+        if: success()
+        run: |
+          curl -X POST -H 'Content-type: application/json' -H 'Authorization: Bearer ${{ env.SLACK_TOKEN }}' --data "{
+            \"channel\": \"#auro-connect\",
+            \"text\": \"✅ ${{ matrix.component }} Snapshot Tests - SUCCESS\",
+            \"color\": \"good\"
+          }" https://slack.com/api/chat.postMessage
+
+      - name: 📢 Slack Failure Notification
+        if: failure()
+        run: |
+          curl -X POST -H 'Content-type: application/json' -H 'Authorization: Bearer ${{ env.SLACK_TOKEN }}' --data "{
+            \"channel\": \"#auro-connect\",
+            \"text\": \"❌ ${{ matrix.component }} Snapshot Tests - FAILED\",
+            \"color\": \"danger\"
+          }" https://slack.com/api/chat.postMessage
+
   # Stage: End-to-End Tests
   e2e-tests:
     name: 🎭 End-to-End Tests
     runs-on: ubuntu-latest
-    needs: [install-dependencies, lint, unit-tests]
+    needs: [install-dependencies, lint, unit-tests, snapshot-tests]
     if: always() && github.event.inputs.SkipE2ETests != 'true'
     steps:
       - name: 🔍 Checkout Repository

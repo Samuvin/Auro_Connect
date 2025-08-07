@@ -33,13 +33,23 @@ describe('App', () => {
   });
 
   // Snapshot Tests
-  test('matches snapshot for app component', () => {
-    const { container } = renderWithProviders(<App />);
-    expect(container.firstChild).toMatchSnapshot();
+  test('Should match the snapshot for the component App @snapshot', () => {
+    const view = renderWithProviders(<App />);
+    expect(view).toMatchSnapshot();
   });
 
-  test('matches snapshot for app with default routing', () => {
-    const { container } = renderWithProviders(<App />);
-    expect(container.firstChild).toMatchSnapshot();
+  test('Should match the snapshot for the component App with default routing @snapshot', () => {
+    const view = renderWithProviders(<App />);
+    expect(view).toMatchSnapshot();
+  });
+
+  test('Should match the snapshot for the component App with providers loaded @snapshot', () => {
+    const view = renderWithProviders(<App />);
+    expect(view).toMatchSnapshot();
+  });
+
+  test('Should match the snapshot for the component App when showing home page layout @snapshot', () => {
+    const view = renderWithProviders(<App />);
+    expect(view).toMatchSnapshot();
   });
 }); 

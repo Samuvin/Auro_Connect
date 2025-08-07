@@ -35,42 +35,53 @@ describe('Layout', () => {
   });
 
   // Snapshot Tests
-  test('matches snapshot for layout with single child', () => {
-    const { container } = renderWithProviders(
+  test('Should match the snapshot for the component Layout with single child @snapshot', () => {
+    const view = renderWithProviders(
       <Layout>
         <div>Test content</div>
       </Layout>
     );
-    expect(container.firstChild).toMatchSnapshot();
+    expect(view).toMatchSnapshot();
   });
 
-  test('matches snapshot for layout without children', () => {
-    const { container } = renderWithProviders(<Layout />);
-    expect(container.firstChild).toMatchSnapshot();
+  test('Should match the snapshot for the component Layout without children @snapshot', () => {
+    const view = renderWithProviders(<Layout />);
+    expect(view).toMatchSnapshot();
   });
 
-  test('matches snapshot for layout with multiple children', () => {
-    const { container } = renderWithProviders(
+  test('Should match the snapshot for the component Layout with multiple children @snapshot', () => {
+    const view = renderWithProviders(
       <Layout>
         <div>First child</div>
         <div>Second child</div>
         <span>Third child</span>
       </Layout>
     );
-    expect(container.firstChild).toMatchSnapshot();
+    expect(view).toMatchSnapshot();
   });
 
-  test('matches snapshot for layout with nested components', () => {
-    const { container } = renderWithProviders(
+  test('Should match the snapshot for the component Layout with nested components @snapshot', () => {
+    const view = renderWithProviders(
       <Layout>
-        <header>Header content</header>
-        <main>
-          <div>Main content</div>
-          <aside>Sidebar content</aside>
-        </main>
-        <footer>Footer content</footer>
+        <div className="main-content">
+          <header>Header Content</header>
+          <main>
+            <section>Section 1</section>
+            <section>Section 2</section>
+          </main>
+          <footer>Footer Content</footer>
+        </div>
       </Layout>
     );
-    expect(container.firstChild).toMatchSnapshot();
+    expect(view).toMatchSnapshot();
+  });
+
+  test('Should match the snapshot for the component Layout with custom className @snapshot', () => {
+    const view = renderWithProviders(
+      <Layout className="custom-layout-class">
+        <div>Custom styled content</div>
+      </Layout>
+    );
+    expect(view).toMatchSnapshot();
   });
 }); 
