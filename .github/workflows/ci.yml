@@ -149,7 +149,7 @@ jobs:
 
       - name: 📈 Upload Coverage to Codecov (Optional)
         if: matrix.component == 'backend'
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v5
         with:
           files: backend/coverage/lcov.info
           flags: backend
@@ -157,7 +157,7 @@ jobs:
 
       - name: 📈 Upload Coverage to Codecov (Optional)
         if: matrix.component == 'frontend'
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v5
         with:
           files: frontend/coverage/lcov.info
           flags: frontend
