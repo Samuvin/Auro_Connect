@@ -1,21 +1,32 @@
 name: Test Summary & Reporting
 
-
-
 on:
-
   workflow_call:
-
     inputs:
-
       node-version:
-
         description: 'Node.js version to use'
-
         required: true
-
         type: string
-
+      setup-result:
+        description: 'Setup job result'
+        required: false
+        type: string
+        default: 'success'
+      lint-result:
+        description: 'Lint job result'
+        required: false
+        type: string
+        default: 'success'
+      test-result:
+        description: 'Test job result'
+        required: false
+        type: string
+        default: 'success'
+      performance-result:
+        description: 'Performance job result'
+        required: false
+        type: string
+        default: 'success'
     secrets:
       slack-webhook-url:
         description: 'Slack webhook URL for notifications'
@@ -27,88 +38,80 @@ on:
         description: 'Slack channel for notifications (used with bot token)'
         required: false
 
-
-
 jobs:
-
   test-summary:
-
-    name:  Test Summary & Enhanced Reporting
-
+    name: 📊 Test Summary & Enhanced Reporting
     runs-on: ubuntu-latest
-
     steps:
-
-      - name:  Checkout Repository
-
+      - name: 📥 Checkout Repository
         uses: actions/checkout@v4
 
-
-
-      - name:  Download All Artifacts
-
+      - name: 📥 Download All Artifacts
         uses: actions/download-artifact@v4
-
         with:
-
           path: artifacts/
 
-
-
-      - name:  Generate Comprehensive Test Summary
-
+      - name: 🔍 Debug Artifacts Structure
         run: |
+          echo "📂 Artifacts directory structure:"
+          find artifacts/ -type f -name "*.log" -o -name "*.json" | head -20
+          echo ""
+          echo "🎭 E2E test results:"
+          if [ -f "artifacts/e2e-test-results/e2e-output.log" ]; then
+            echo "✅ E2E output log found"
+            tail -10 artifacts/e2e-test-results/e2e-output.log
+          else
+            echo "❌ E2E output log not found"
+          fi
+          echo ""
+          echo "⚡ Performance test results:"
+          if [ -d "artifacts/performance-test-results/lighthouse-reports" ]; then
+            echo "✅ Lighthouse reports found"
+            ls -la artifacts/performance-test-results/lighthouse-reports/
+          else
+            echo "❌ Lighthouse reports not found"
+          fi
 
-          echo "#  Comprehensive CI Pipeline Report" > test-summary.md
-
+      - name: 📊 Generate Comprehensive Test Summary
+        run: |
+          echo "# 📊 Comprehensive CI Pipeline Report" > test-summary.md
           echo "" >> test-summary.md
-
-          echo "##  Pipeline Overview" >> test-summary.md
-
+          echo "## 🔍 Pipeline Overview" >> test-summary.md
           echo "- **Commit:** \`${{ github.sha }}\`" >> test-summary.md
-
           echo "- **Branch:** \`${{ github.ref_name }}\`" >> test-summary.md
-
           echo "- **Author:** ${{ github.actor }}" >> test-summary.md
-
           echo "- **Triggered by:** ${{ github.event_name }}" >> test-summary.md
-
           echo "- **Workflow:** ${{ github.workflow }}" >> test-summary.md
+          echo "" >> test-summary.md
+          
+          echo "## 📋 Job Results" >> test-summary.md
+          echo "- **Setup:** ${{ inputs.setup-result }}" >> test-summary.md
+          echo "- **Lint:** ${{ inputs.lint-result }}" >> test-summary.md
+          echo "- **Tests:** ${{ inputs.test-result }}" >> test-summary.md
+          echo "- **Performance:** ${{ inputs.performance-result }}" >> test-summary.md
 
-
-
-      - name:  Send Enhanced Slack Notification
-
+      - name: 📤 Send Enhanced Slack Notification
         if: always()
-
         run: |
-
           # Make script executable and run Slack notification
-
           chmod +x ./scripts/send-slack-notification.sh
-
           ./scripts/send-slack-notification.sh
-
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.slack-webhook-url }}
           SLACK_TOKEN: ${{ secrets.slack-token }}
           SLACK_CHANNEL: ${{ secrets.slack-channel }}
           GITHUB_CONTEXT: ${{ toJson(github) }}
+          SETUP_RESULT: ${{ inputs.setup-result }}
+          LINT_RESULT: ${{ inputs.lint-result }}
+          TEST_RESULTS: ${{ inputs.test-result }}
+          PERFORMANCE_RESULTS: ${{ inputs.performance-result }}
 
-
-
-      - name:  Upload Enhanced Test Summary
-
+      - name: 📤 Upload Enhanced Test Summary
         uses: actions/upload-artifact@v4
-
         with:
-
           name: comprehensive-test-summary
-
           path: |
-
             test-summary.md
-
-            slack_message.json
-
+            slack_api_message.json
+            slack_webhook_message.json
           retention-days: 30 

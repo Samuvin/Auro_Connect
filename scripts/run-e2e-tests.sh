@@ -82,14 +82,30 @@ PASSED=$(grep -oP '\K\d+(?=\s+passed)' e2e-output.log | tail -1 || echo "0")
 FAILED=$(grep -oP '\K\d+(?=\s+failed)' e2e-output.log | tail -1 || echo "0")
 TOTAL=$((PASSED + FAILED))
 
-echo "passed=$PASSED" >> $GITHUB_OUTPUT
-echo "failed=$FAILED" >> $GITHUB_OUTPUT
-echo "total=$TOTAL" >> $GITHUB_OUTPUT
-echo "duration=${DURATION}s" >> $GITHUB_OUTPUT
+# Write results to GitHub Actions output if running in CI
+if [ -n "$GITHUB_OUTPUT" ]; then
+    echo "passed=$PASSED" >> $GITHUB_OUTPUT
+    echo "failed=$FAILED" >> $GITHUB_OUTPUT
+    echo "total=$TOTAL" >> $GITHUB_OUTPUT
+    echo "duration=${DURATION}s" >> $GITHUB_OUTPUT
+fi
 
-echo "E2E Tests: $PASSED passed, $FAILED failed, ${DURATION}s duration"
-echo "Configuration: Workers=$PLAYWRIGHT_WORKERS, Browsers=$PLAYWRIGHT_BROWSERS, Devices=$PLAYWRIGHT_DEVICES"
+# Output clear summary for notification parsing
+echo ""
+echo "=== E2E TEST RESULTS SUMMARY ==="
+echo "✅ Tests passed: $PASSED"
+echo "❌ Tests failed: $FAILED"
+echo "📊 Total tests: $TOTAL"
+echo "⏱️ Duration: ${DURATION}s"
+echo "🔧 Workers: $PLAYWRIGHT_WORKERS"
+echo "🌐 Browsers: $PLAYWRIGHT_BROWSERS" 
+echo "📱 Devices: $PLAYWRIGHT_DEVICES"
+echo "🔄 Retries: $PLAYWRIGHT_RETRIES"
+echo "================================="
 
 if [ "$FAILED" -gt "0" ]; then 
+    echo "❌ E2E tests failed with $FAILED failures"
     exit 1
+else
+    echo "✅ All E2E tests passed successfully"
 fi 

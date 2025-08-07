@@ -116,6 +116,10 @@ jobs:
     uses: ./.github/workflows/report.yml
     with:
       node-version: '18'
+      setup-result: ${{ needs.setup.result }}
+      lint-result: ${{ needs.lint.result }}
+      test-result: ${{ needs.test.result }}
+      performance-result: ${{ needs.performance.result }}
     secrets:
       slack-webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}
       slack-token: ${{ secrets.SLACK_TOKEN }}
