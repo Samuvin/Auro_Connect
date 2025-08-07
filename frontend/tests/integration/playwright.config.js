@@ -9,8 +9,8 @@ export default defineConfig({
   testMatch: '**/*.integration.test.ts',
   fullyParallel: false, // Run integration tests sequentially for database consistency
   forbidOnly: !!process.env.CI,
-  retries: process.env.CI ? 1 : 0,
-  workers: 1, // Use single worker for integration tests
+  retries: process.env.CI ? parseInt(process.env.PLAYWRIGHT_RETRIES || '1') : 0,
+  workers: parseInt(process.env.PLAYWRIGHT_WORKERS || '1'), // Use single worker for integration tests by default
   reporter: [
     ['html', { outputFolder: 'integration-report' }],
     ['json', { outputFile: 'integration-results.json' }],
@@ -19,7 +19,7 @@ export default defineConfig({
   
   use: {
     // Global test settings
-    baseURL: process.env.FRONTEND_URL || 'http://localhost:3000',
+    baseURL: process.env.PLAYWRIGHT_BASE_URL || process.env.FRONTEND_URL || 'http://localhost:3000',
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',
@@ -28,15 +28,25 @@ export default defineConfig({
     viewport: { width: 1280, height: 720 },
     ignoreHTTPSErrors: true,
     
-    // Timeouts
-    actionTimeout: 15000,
-    navigationTimeout: 30000,
+    // Timeouts - integration tests may need more time
+    actionTimeout: parseInt(process.env.PLAYWRIGHT_TIMEOUT || '15000'),
+    navigationTimeout: parseInt(process.env.PLAYWRIGHT_TIMEOUT || '30000'),
   },
 
   projects: [
     {
       name: 'chromium-integration',
-      use: { ...devices['Desktop Chrome'] },
+      use: { 
+        ...devices['Desktop Chrome'],
+        // Add Chrome flags for better CI performance
+        launchOptions: {
+          args: [
+            '--no-sandbox',
+            '--disable-dev-shm-usage',
+            '--disable-web-security'
+          ]
+        }
+      },
     }
   ],
 
@@ -44,5 +54,5 @@ export default defineConfig({
   outputDir: 'integration-test-results/',
   
   // Global setup and teardown
-  timeout: 60000, // 60 seconds per test
+  timeout: parseInt(process.env.PLAYWRIGHT_TIMEOUT || '60000'), // 60 seconds per test by default
 }); 

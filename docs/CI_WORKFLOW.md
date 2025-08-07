@@ -32,6 +32,30 @@ You can trigger the workflow manually and skip specific stages:
    - Skip Performance Tests
    - Skip End-to-End Tests
 
+## 🎭 Playwright Configuration Options
+
+The CI pipeline now supports extensive configuration for Playwright tests. You can customize:
+
+### Core Settings
+- **Workers**: Number of parallel test workers (default: 11)
+- **Retries**: Number of retry attempts for failed tests (default: 2)  
+- **Timeout**: Test timeout in milliseconds (default: 30000)
+
+### Browser & Device Selection
+- **Browsers**: Choose which browsers to test (chromium, firefox, webkit, or combinations)
+- **Devices**: Select device types (desktop, mobile, tablet, or combinations)
+- **Screen Sizes**: Test different viewport sizes (desktop-large, desktop-small)
+
+### Development Features
+- **Headed Mode**: Run tests with visible browser UI for debugging
+- **Debug Mode**: Enable step-by-step test debugging
+- **Custom Base URL**: Override the default test environment URL
+
+### Reporting
+- **Reporter Format**: Choose from junit, html, json, list, dot, line, or github formats
+
+For detailed information about all available options, see: [Playwright CI Configuration Guide](./CI_PLAYWRIGHT_CONFIG.md)
+
 ## 📊 Artifacts & Reports
 
 Each stage generates specific artifacts that are stored for 30 days:

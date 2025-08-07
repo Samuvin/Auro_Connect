@@ -13,8 +13,8 @@ export default defineConfig({
   testDir: '.',
   fullyParallel: false, // Performance tests should run sequentially
   forbidOnly: !!process.env.CI,
-  retries: process.env.CI ? 2 : 0,
-  workers: 1, // Single worker for consistent performance measurements
+  retries: process.env.CI ? parseInt(process.env.PLAYWRIGHT_RETRIES || '2') : 0,
+  workers: parseInt(process.env.PLAYWRIGHT_WORKERS || '1'), // Single worker for consistent performance measurements by default
   reporter: [
     ['html', { outputFolder: '../../playwright-report' }],
     ['json', { outputFile: '../../test-results/performance-results.json' }],
@@ -23,7 +23,7 @@ export default defineConfig({
   
   use: {
     // Global test settings
-    baseURL: 'https://auro-connect-r9mk.onrender.com',
+    baseURL: process.env.PLAYWRIGHT_BASE_URL || 'https://auro-connect-r9mk.onrender.com',
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',
@@ -33,8 +33,8 @@ export default defineConfig({
     ignoreHTTPSErrors: true,
     
     // Performance-focused settings
-    actionTimeout: 30000,
-    navigationTimeout: 30000,
+    actionTimeout: parseInt(process.env.PLAYWRIGHT_TIMEOUT || '30000'),
+    navigationTimeout: parseInt(process.env.PLAYWRIGHT_TIMEOUT || '30000'),
   },
 
   projects: [
