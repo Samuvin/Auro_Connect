@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Slack Notification Script
-# Handles complex Slack message generation and sending
+# Handles Slack message generation and sending for CI/CD pipeline results
 
 set -e
 
@@ -41,9 +41,8 @@ determine_status() {
 
 # Function to build field value based on job result
 build_field_value() {
-    local job_name="$1"
-    local job_result="$2"
-    local additional_info="$3"
+    local job_result="$1"
+    local additional_info="$2"
     
     case "$job_result" in
         "success")
@@ -61,17 +60,28 @@ build_field_value() {
     esac
 }
 
-# Read job results from artifacts (simplified approach)
-# In a real implementation, you'd parse the actual job results from GitHub context
-# For now, we'll use placeholder logic
+# Get job results from environment variables or use defaults
+SETUP_RESULT="${SETUP_RESULT:-success}"
+LINT_RESULT="${LINT_RESULT:-success}"
+TEST_RESULTS="${TEST_RESULTS:-success}"
+PERFORMANCE_RESULTS="${PERFORMANCE_RESULTS:-success}"
 
-STATUS_INFO=$(determine_status "success" "success" "success" "success")
+STATUS_INFO=$(determine_status "$SETUP_RESULT" "$LINT_RESULT" "$TEST_RESULTS" "$PERFORMANCE_RESULTS")
 STATUS=$(echo "$STATUS_INFO" | head -n1)
 COLOR=$(echo "$STATUS_INFO" | tail -n1)
 
-# Build the comprehensive Slack message
-cat << EOF > slack_message.json
+# Check Slack configuration
+echo "🔍 Checking Slack configuration..."
+if [ -n "$SLACK_TOKEN" ]; then
+    echo "✅ SLACK_TOKEN is configured"
+    # Use same channel as CI workflow
+    SLACK_CHANNEL="${SLACK_CHANNEL:-#auro-connect}"
+    echo "📤 Sending notification via Slack Bot API to $SLACK_CHANNEL..."
+    
+    # Create comprehensive message for Slack API
+    cat << EOF > slack_api_message.json
 {
+  "channel": "$SLACK_CHANNEL",
   "text": "$STATUS",
   "attachments": [
     {
@@ -79,42 +89,22 @@ cat << EOF > slack_message.json
       "fields": [
         {
           "title": "📦 Setup & Dependencies",
-          "value": "$(build_field_value "setup" "success")",
+          "value": "$(build_field_value "$SETUP_RESULT")",
           "short": true
         },
         {
           "title": "🔍 Code Quality & Linting",
-          "value": "$(build_field_value "lint" "success" "Frontend: 0 warnings, 0 errors\\nBackend: 0 warnings, 0 errors")",
+          "value": "$(build_field_value "$LINT_RESULT")",
           "short": true
         },
         {
-          "title": "🧪 Unit Tests",
-          "value": "$(build_field_value "unit-tests" "success" "Frontend: Passed\\nBackend: Passed")",
+          "title": "🧪 Tests",
+          "value": "$(build_field_value "$TEST_RESULTS")",
           "short": true
         },
         {
-          "title": "🔗 Integration Tests",
-          "value": "$(build_field_value "integration-tests" "success")",
-          "short": true
-        },
-        {
-          "title": "📸 Snapshot Tests",
-          "value": "$(build_field_value "snapshot-tests" "success")",
-          "short": true
-        },
-        {
-          "title": "🧠 Memory Leak Tests",
-          "value": "$(build_field_value "memory-leak-tests" "success")",
-          "short": true
-        },
-        {
-          "title": "⚡ Performance Tests",
-          "value": "$(build_field_value "performance-tests" "success")",
-          "short": true
-        },
-        {
-          "title": "🎭 End-to-End Tests",
-          "value": "$(build_field_value "e2e-tests" "success")",
+          "title": "⚡ Performance",
+          "value": "$(build_field_value "$PERFORMANCE_RESULTS")",
           "short": true
         }
       ],
@@ -135,52 +125,66 @@ cat << EOF > slack_message.json
   ]
 }
 EOF
-
-# Send to Slack
-echo "🔍 Checking Slack configuration..."
-echo "SLACK_WEBHOOK_URL is set: $([ -n "$SLACK_WEBHOOK_URL" ] && echo "✅ Yes" || echo "❌ No")"
-echo "SLACK_TOKEN is set: $([ -n "$SLACK_TOKEN" ] && echo "✅ Yes" || echo "❌ No")"
-echo "SLACK_CHANNEL is set: $([ -n "$SLACK_CHANNEL" ] && echo "✅ Yes (${SLACK_CHANNEL})" || echo "❌ No")"
-
-if [ -n "$SLACK_WEBHOOK_URL" ]; then
-    echo "📤 Sending notification via webhook..."
-    curl -X POST -H 'Content-type: application/json' \
-         --data @slack_message.json \
-         "$SLACK_WEBHOOK_URL"
-    echo "✅ Webhook notification sent"
-elif [ -n "$SLACK_TOKEN" ]; then
-    echo "📤 Sending notification via Slack API..."
-    # Use Slack Web API with bot token
-    # Extract channel from environment or use default
-    SLACK_CHANNEL="${SLACK_CHANNEL:-#general}"
-    
-    # Convert attachment-style message to blocks for Web API
-    ATTACHMENT_COLOR=$(cat slack_message.json | jq -r '.attachments[0].color')
-    STATUS_TEXT=$(cat slack_message.json | jq -r '.text')
-    
-    # Create a simpler message for Web API
-    cat << EOF > slack_api_message.json
-{
-  "channel": "$SLACK_CHANNEL",
-  "text": "$STATUS_TEXT",
-  "attachments": $(cat slack_message.json | jq '.attachments')
-}
-EOF
     
     curl -X POST -H "Authorization: Bearer $SLACK_TOKEN" \
          -H 'Content-type: application/json' \
          --data @slack_api_message.json \
          "https://slack.com/api/chat.postMessage"
-    echo "✅ API notification sent"
+    echo "✅ Bot API notification sent to $SLACK_CHANNEL"
+    
+elif [ -n "$SLACK_WEBHOOK_URL" ]; then
+    echo "📤 Sending notification via webhook (fallback)..."
+    
+    # Create webhook message
+    cat << EOF > slack_webhook_message.json
+{
+  "text": "$STATUS",
+  "attachments": [
+    {
+      "color": "$COLOR",
+      "fields": [
+        {
+          "title": "📦 Setup & Dependencies",
+          "value": "$(build_field_value "$SETUP_RESULT")",
+          "short": true
+        },
+        {
+          "title": "🔍 Code Quality & Linting",
+          "value": "$(build_field_value "$LINT_RESULT")",
+          "short": true
+        },
+        {
+          "title": "🧪 Tests",
+          "value": "$(build_field_value "$TEST_RESULTS")",
+          "short": true
+        },
+        {
+          "title": "⚡ Performance",
+          "value": "$(build_field_value "$PERFORMANCE_RESULTS")",
+          "short": true
+        }
+      ],
+      "footer": "GitHub Actions CI/CD",
+      "footer_icon": "https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png",
+      "ts": $(date +%s)
+    }
+  ]
+}
+EOF
+    
+    curl -X POST -H 'Content-type: application/json' \
+         --data @slack_webhook_message.json \
+         "$SLACK_WEBHOOK_URL"
+    echo "✅ Webhook notification sent"
+    
 else
-    echo "⚠️  Neither SLACK_WEBHOOK_URL nor SLACK_TOKEN is set, skipping notification"
-    echo ""
-    echo "To enable Slack notifications, set one of the following GitHub secrets:"
-    echo "  - SLACK_WEBHOOK_URL: Your Slack webhook URL (https://hooks.slack.com/services/...)"
-    echo "  - SLACK_TOKEN: Your Slack bot token (xoxb-...) + SLACK_CHANNEL: Target channel"
+    echo "⚠️  Neither SLACK_TOKEN nor SLACK_WEBHOOK_URL is set, skipping notification"
+    echo "To enable Slack notifications, set one of:"
+    echo "  - SLACK_TOKEN: Your Slack bot token (recommended)"
+    echo "  - SLACK_WEBHOOK_URL: Your Slack webhook URL (fallback)"
     echo ""
     echo "ℹ️  This is not an error - Slack notifications are optional"
 fi
 
 # Cleanup temporary files
-rm -f slack_message.json slack_api_message.json 
+rm -f slack_api_message.json slack_webhook_message.json 
