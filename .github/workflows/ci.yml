@@ -45,7 +45,7 @@ on:
 
 env:
   NODE_VERSION: '18'
-  SLACK_TOKEN: ${{ secrets.SLACK_TOKEN }}
+  SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
 
 jobs:
   # ========================================================================================
@@ -54,6 +54,8 @@ jobs:
   setup:
     name: 📦 Setup & Install Dependencies
     runs-on: ubuntu-latest
+    outputs:
+      cache-hit: ${{ steps.cache-deps.outputs.cache-hit }}
     steps:
       - name: 🔍 Checkout Repository
         uses: actions/checkout@v4
@@ -64,20 +66,8 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
 
-      - name: 🔨 Install Root Dependencies
-        run: npm ci
-
-      - name: 🔨 Install Frontend Dependencies
-        working-directory: frontend
-        run: |
-          npm ci
-          npx playwright install
-
-      - name: 🔨 Install Backend Dependencies
-        working-directory: backend
-        run: npm ci
-
-      - name: 📦 Cache Node Modules
+      - name: 📦 Cache Dependencies
+        id: cache-deps
         uses: actions/cache@v4
         with:
           path: |
@@ -86,15 +76,24 @@ jobs:
             backend/node_modules
             ~/.cache/ms-playwright
           key: ${{ runner.os }}-node-${{ env.NODE_VERSION }}-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-${{ env.NODE_VERSION }}-
 
-      - name: 📢 Notify Setup Success
-        if: success()
+      - name: 🔨 Install Root Dependencies
+        if: steps.cache-deps.outputs.cache-hit != 'true'
+        run: npm ci
+
+      - name: 🔨 Install Frontend Dependencies
+        if: steps.cache-deps.outputs.cache-hit != 'true'
+        working-directory: frontend
         run: |
-          curl -X POST -H 'Content-type: application/json' -H 'Authorization: Bearer ${{ env.SLACK_TOKEN }}' --data "{
-            \"channel\": \"#auro-connect\",
-            \"text\": \"✅ Setup & Dependencies - SUCCESS\",
-            \"color\": \"good\"
-          }" https://slack.com/api/chat.postMessage
+          npm ci
+          npx playwright install
+
+      - name: 🔨 Install Backend Dependencies
+        if: steps.cache-deps.outputs.cache-hit != 'true'
+        working-directory: backend
+        run: npm ci
 
   # ========================================================================================
   # STAGE 2: LINTING & CODE QUALITY
@@ -104,6 +103,11 @@ jobs:
     runs-on: ubuntu-latest
     needs: setup
     if: github.event.inputs.skip_lint != 'true'
+    outputs:
+      frontend-warnings: ${{ steps.lint-frontend.outputs.warnings }}
+      frontend-errors: ${{ steps.lint-frontend.outputs.errors }}
+      backend-warnings: ${{ steps.lint-backend.outputs.warnings }}
+      backend-errors: ${{ steps.lint-backend.outputs.errors }}
     steps:
       - name: 🔍 Checkout Repository
         uses: actions/checkout@v4
@@ -114,44 +118,48 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
 
-      - name: 🔨 Install Dependencies
-        run: |
-          npm ci
-          cd frontend && npm ci
-          cd ../backend && npm ci
+      - name: 📦 Restore Dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.npm
+            frontend/node_modules
+            backend/node_modules
+          key: ${{ runner.os }}-node-${{ env.NODE_VERSION }}-${{ hashFiles('**/package-lock.json') }}
 
       - name: 🔍 Run Frontend ESLint
+        id: lint-frontend
         working-directory: frontend
-        run: npm run lint:check
+        run: |
+          npm run lint:check 2>&1 | tee eslint-output.log || true
+          WARNINGS=$(grep -c "warning" eslint-output.log || echo "0")
+          ERRORS=$(grep -c "error" eslint-output.log || echo "0")
+          echo "warnings=$WARNINGS" >> $GITHUB_OUTPUT
+          echo "errors=$ERRORS" >> $GITHUB_OUTPUT
+          echo "Frontend: $WARNINGS warnings, $ERRORS errors"
+          if [ "$ERRORS" -gt "0" ]; then exit 1; fi
 
       - name: 🔍 Run Backend ESLint
+        id: lint-backend
         working-directory: backend
-        run: npm run lint:check
-
-      - name: 📊 Upload Frontend Lint Results
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: lint-results-frontend
-          path: frontend/eslint-report.json
-          retention-days: 30
-
-      - name: 📊 Upload Backend Lint Results
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: lint-results-backend
-          path: backend/eslint-report.json
-          retention-days: 30
-
-      - name: 📢 Notify Lint Success
-        if: success()
         run: |
-          curl -X POST -H 'Content-type: application/json' -H 'Authorization: Bearer ${{ env.SLACK_TOKEN }}' --data "{
-            \"channel\": \"#auro-connect\",
-            \"text\": \"✅ Frontend & Backend Lint - SUCCESS\",
-            \"color\": \"good\"
-          }" https://slack.com/api/chat.postMessage
+          npm run lint:check 2>&1 | tee eslint-output.log || true
+          WARNINGS=$(grep -c "warning" eslint-output.log || echo "0")
+          ERRORS=$(grep -c "error" eslint-output.log || echo "0")
+          echo "warnings=$WARNINGS" >> $GITHUB_OUTPUT
+          echo "errors=$ERRORS" >> $GITHUB_OUTPUT
+          echo "Backend: $WARNINGS warnings, $ERRORS errors"
+          if [ "$ERRORS" -gt "0" ]; then exit 1; fi
+
+      - name: 📊 Upload Lint Results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lint-results
+          path: |
+            frontend/eslint-output.log
+            backend/eslint-output.log
+          retention-days: 30
 
   # ========================================================================================
   # STAGE 3: UNIT TESTS
@@ -161,6 +169,15 @@ jobs:
     runs-on: ubuntu-latest
     needs: [setup, lint]
     if: always() && github.event.inputs.skip_unit_tests != 'true'
+    outputs:
+      frontend-coverage: ${{ steps.test-frontend.outputs.coverage }}
+      frontend-tests-passed: ${{ steps.test-frontend.outputs.passed }}
+      frontend-tests-failed: ${{ steps.test-frontend.outputs.failed }}
+      frontend-tests-total: ${{ steps.test-frontend.outputs.total }}
+      backend-coverage: ${{ steps.test-backend.outputs.coverage }}
+      backend-tests-passed: ${{ steps.test-backend.outputs.passed }}
+      backend-tests-failed: ${{ steps.test-backend.outputs.failed }}
+      backend-tests-total: ${{ steps.test-backend.outputs.total }}
     steps:
       - name: 🔍 Checkout Repository
         uses: actions/checkout@v4
@@ -171,60 +188,92 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
 
-      - name: 🔨 Install Dependencies
-        run: |
-          npm ci
-          cd frontend && npm ci
-          cd ../backend && npm ci
+      - name: 📦 Restore Dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.npm
+            frontend/node_modules
+            backend/node_modules
+          key: ${{ runner.os }}-node-${{ env.NODE_VERSION }}-${{ hashFiles('**/package-lock.json') }}
 
       - name: 🧪 Run Frontend Unit Tests
+        id: test-frontend
         working-directory: frontend
-        run: npm run test:ci
+        run: |
+          npm run test:ci 2>&1 | tee test-output.log
+          
+          # Parse Jest output for test counts
+          PASSED=$(grep -oP 'Tests:\s+\K\d+(?=\s+passed)' test-output.log || echo "0")
+          FAILED=$(grep -oP 'Tests:\s+\d+\s+passed,\s+\K\d+(?=\s+failed)' test-output.log || echo "0")
+          TOTAL=$(grep -oP 'Tests:\s+\K\d+(?=\s+total)' test-output.log || echo "0")
+          
+          # Parse coverage
+          if [ -f "coverage/coverage-summary.json" ]; then
+            COVERAGE=$(node -e "
+              const fs = require('fs');
+              try {
+                const coverage = JSON.parse(fs.readFileSync('coverage/coverage-summary.json', 'utf8'));
+                console.log(Math.round(coverage.total.lines.pct));
+              } catch(e) {
+                console.log('0');
+              }
+            ")
+          else
+            COVERAGE="0"
+          fi
+          
+          echo "passed=$PASSED" >> $GITHUB_OUTPUT
+          echo "failed=$FAILED" >> $GITHUB_OUTPUT
+          echo "total=$TOTAL" >> $GITHUB_OUTPUT
+          echo "coverage=$COVERAGE" >> $GITHUB_OUTPUT
+          
+          echo "Frontend Tests: $PASSED passed, $FAILED failed, $TOTAL total, $COVERAGE% coverage"
 
       - name: 🧪 Run Backend Unit Tests
+        id: test-backend
         working-directory: backend
-        run: npm run test:coverage
-
-      - name: 📊 Upload Frontend Coverage Reports
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: coverage-frontend
-          path: frontend/coverage/
-          retention-days: 30
-
-      - name: 📊 Upload Backend Coverage Reports
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: coverage-backend
-          path: backend/coverage/
-          retention-days: 30
-
-      - name: 📊 Upload Frontend Test Results
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: unit-test-results-frontend
-          path: frontend/test-results.xml
-          retention-days: 30
-
-      - name: 📊 Upload Backend Test Results
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: unit-test-results-backend
-          path: backend/test-results.xml
-          retention-days: 30
-
-      - name: 📢 Notify Unit Tests Success
-        if: success()
         run: |
-          curl -X POST -H 'Content-type: application/json' -H 'Authorization: Bearer ${{ env.SLACK_TOKEN }}' --data "{
-            \"channel\": \"#auro-connect\",
-            \"text\": \"✅ Frontend & Backend Unit Tests - SUCCESS\",
-            \"color\": \"good\"
-          }" https://slack.com/api/chat.postMessage
+          npm run test:coverage 2>&1 | tee test-output.log
+          
+          # Parse Jest output for test counts
+          PASSED=$(grep -oP 'Tests:\s+\K\d+(?=\s+passed)' test-output.log || echo "0")
+          FAILED=$(grep -oP 'Tests:\s+\d+\s+passed,\s+\K\d+(?=\s+failed)' test-output.log || echo "0")
+          TOTAL=$(grep -oP 'Tests:\s+\K\d+(?=\s+total)' test-output.log || echo "0")
+          
+          # Parse coverage
+          if [ -f "coverage/coverage-summary.json" ]; then
+            COVERAGE=$(node -e "
+              const fs = require('fs');
+              try {
+                const coverage = JSON.parse(fs.readFileSync('coverage/coverage-summary.json', 'utf8'));
+                console.log(Math.round(coverage.total.lines.pct));
+              } catch(e) {
+                console.log('0');
+              }
+            ")
+          else
+            COVERAGE="0"
+          fi
+          
+          echo "passed=$PASSED" >> $GITHUB_OUTPUT
+          echo "failed=$FAILED" >> $GITHUB_OUTPUT
+          echo "total=$TOTAL" >> $GITHUB_OUTPUT
+          echo "coverage=$COVERAGE" >> $GITHUB_OUTPUT
+          
+          echo "Backend Tests: $PASSED passed, $FAILED failed, $TOTAL total, $COVERAGE% coverage"
+
+      - name: 📊 Upload Test Results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: unit-test-results
+          path: |
+            frontend/coverage/
+            backend/coverage/
+            frontend/test-output.log
+            backend/test-output.log
+          retention-days: 30
 
   # ========================================================================================
   # STAGE 4: INTEGRATION TESTS
@@ -234,6 +283,13 @@ jobs:
     runs-on: ubuntu-latest
     needs: [setup, lint, unit-tests]
     if: always() && github.event.inputs.skip_integration_tests != 'true'
+    outputs:
+      frontend-passed: ${{ steps.integration-frontend.outputs.passed }}
+      frontend-failed: ${{ steps.integration-frontend.outputs.failed }}
+      frontend-total: ${{ steps.integration-frontend.outputs.total }}
+      backend-passed: ${{ steps.integration-backend.outputs.passed }}
+      backend-failed: ${{ steps.integration-backend.outputs.failed }}
+      backend-total: ${{ steps.integration-backend.outputs.total }}
     steps:
       - name: 🔍 Checkout Repository
         uses: actions/checkout@v4
@@ -244,50 +300,63 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
 
-      - name: 🔨 Install Dependencies
-        run: |
-          npm ci
-          cd frontend && npm ci && npx playwright install
-          cd ../backend && npm ci
+      - name: 📦 Restore Dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.npm
+            frontend/node_modules
+            backend/node_modules
+            ~/.cache/ms-playwright
+          key: ${{ runner.os }}-node-${{ env.NODE_VERSION }}-${{ hashFiles('**/package-lock.json') }}
 
       - name: 🔗 Run Frontend Integration Tests
+        id: integration-frontend
         working-directory: frontend
-        run: npm run test:integration:ci
+        run: |
+          npm run test:integration:ci 2>&1 | tee integration-output.log || true
+          
+          # Parse Playwright output
+          PASSED=$(grep -oP '\K\d+(?=\s+passed)' integration-output.log | tail -1 || echo "0")
+          FAILED=$(grep -oP '\K\d+(?=\s+failed)' integration-output.log | tail -1 || echo "0")
+          TOTAL=$((PASSED + FAILED))
+          
+          echo "passed=$PASSED" >> $GITHUB_OUTPUT
+          echo "failed=$FAILED" >> $GITHUB_OUTPUT
+          echo "total=$TOTAL" >> $GITHUB_OUTPUT
+          
+          echo "Frontend Integration: $PASSED passed, $FAILED failed"
+          if [ "$FAILED" -gt "0" ]; then exit 1; fi
 
       - name: 🔗 Run Backend Integration Tests
+        id: integration-backend
         working-directory: backend
-        run: npm run test:integration:ci
-
-      - name: 📊 Upload Frontend Integration Test Results
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: integration-test-results-frontend
-          path: |
-            frontend/tests/integration/integration-test-results/
-            frontend/tests/integration/integration-report/
-            frontend/integration-test-results.xml
-          retention-days: 30
-
-      - name: 📊 Upload Backend Integration Test Results
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: integration-test-results-backend
-          path: |
-            backend/tests/integration/integration-test-results/
-            backend/tests/integration/integration-report/
-            backend/integration-test-results.xml
-          retention-days: 30
-
-      - name: 📢 Notify Integration Tests Success
-        if: success()
         run: |
-          curl -X POST -H 'Content-type: application/json' -H 'Authorization: Bearer ${{ env.SLACK_TOKEN }}' --data "{
-            \"channel\": \"#auro-connect\",
-            \"text\": \"✅ Frontend & Backend Integration Tests - SUCCESS\",
-            \"color\": \"good\"
-          }" https://slack.com/api/chat.postMessage
+          npm run test:integration:ci 2>&1 | tee integration-output.log || true
+          
+          # Parse Jest output
+          PASSED=$(grep -oP 'Tests:\s+\K\d+(?=\s+passed)' integration-output.log || echo "0")
+          FAILED=$(grep -oP 'Tests:\s+\d+\s+passed,\s+\K\d+(?=\s+failed)' integration-output.log || echo "0")
+          TOTAL=$(grep -oP 'Tests:\s+\K\d+(?=\s+total)' integration-output.log || echo "0")
+          
+          echo "passed=$PASSED" >> $GITHUB_OUTPUT
+          echo "failed=$FAILED" >> $GITHUB_OUTPUT
+          echo "total=$TOTAL" >> $GITHUB_OUTPUT
+          
+          echo "Backend Integration: $PASSED passed, $FAILED failed"
+          if [ "$FAILED" -gt "0" ]; then exit 1; fi
+
+      - name: 📊 Upload Integration Results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: integration-test-results
+          path: |
+            frontend/integration-output.log
+            backend/integration-output.log
+            frontend/test-results/
+            frontend/playwright-report/
+          retention-days: 30
 
   # ========================================================================================
   # STAGE 5: SNAPSHOT TESTS
@@ -297,6 +366,11 @@ jobs:
     runs-on: ubuntu-latest
     needs: [setup, lint, integration-tests]
     if: always() && github.event.inputs.skip_snapshot_tests != 'true'
+    outputs:
+      frontend-passed: ${{ steps.snapshot-frontend.outputs.passed }}
+      frontend-failed: ${{ steps.snapshot-frontend.outputs.failed }}
+      backend-passed: ${{ steps.snapshot-backend.outputs.passed }}
+      backend-failed: ${{ steps.snapshot-backend.outputs.failed }}
     steps:
       - name: 🔍 Checkout Repository
         uses: actions/checkout@v4
@@ -307,44 +381,44 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
 
-      - name: 🔨 Install Dependencies
-        run: |
-          npm ci
-          cd frontend && npm ci
-          cd ../backend && npm ci
+      - name: 📦 Restore Dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.npm
+            frontend/node_modules
+            backend/node_modules
+          key: ${{ runner.os }}-node-${{ env.NODE_VERSION }}-${{ hashFiles('**/package-lock.json') }}
 
       - name: 📸 Run Frontend Snapshot Tests
+        id: snapshot-frontend
         working-directory: frontend
-        run: npm run test:snapshot:ci
+        run: |
+          npm run test:snapshot:ci 2>&1 | tee snapshot-output.log || true
+          
+          PASSED=$(grep -oP 'Tests:\s+\K\d+(?=\s+passed)' snapshot-output.log || echo "0")
+          FAILED=$(grep -oP 'Tests:\s+\d+\s+passed,\s+\K\d+(?=\s+failed)' snapshot-output.log || echo "0")
+          
+          echo "passed=$PASSED" >> $GITHUB_OUTPUT
+          echo "failed=$FAILED" >> $GITHUB_OUTPUT
+          
+          echo "Frontend Snapshots: $PASSED passed, $FAILED failed"
+          if [ "$FAILED" -gt "0" ]; then exit 1; fi
 
       - name: 📸 Run Backend Snapshot Tests
+        id: snapshot-backend
         working-directory: backend
-        run: npm run test:snapshot:ci
-
-      - name: 📊 Upload Frontend Snapshot Results
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: snapshots-frontend
-          path: frontend/**/__snapshots__/
-          retention-days: 30
-
-      - name: 📊 Upload Backend Snapshot Results
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: snapshots-backend
-          path: backend/**/__snapshots__/
-          retention-days: 30
-
-      - name: 📢 Notify Snapshot Tests Success
-        if: success()
         run: |
-          curl -X POST -H 'Content-type: application/json' -H 'Authorization: Bearer ${{ env.SLACK_TOKEN }}' --data "{
-            \"channel\": \"#auro-connect\",
-            \"text\": \"✅ Frontend & Backend Snapshot Tests - SUCCESS\",
-            \"color\": \"good\"
-          }" https://slack.com/api/chat.postMessage
+          npm run test:snapshot:ci 2>&1 | tee snapshot-output.log || true
+          
+          PASSED=$(grep -oP 'Tests:\s+\K\d+(?=\s+passed)' snapshot-output.log || echo "0")
+          FAILED=$(grep -oP 'Tests:\s+\d+\s+passed,\s+\K\d+(?=\s+failed)' snapshot-output.log || echo "0")
+          
+          echo "passed=$PASSED" >> $GITHUB_OUTPUT
+          echo "failed=$FAILED" >> $GITHUB_OUTPUT
+          
+          echo "Backend Snapshots: $PASSED passed, $FAILED failed"
+          if [ "$FAILED" -gt "0" ]; then exit 1; fi
 
   # ========================================================================================
   # STAGE 6: MEMORY LEAK TESTS
@@ -354,6 +428,11 @@ jobs:
     runs-on: ubuntu-latest
     needs: [setup, lint, unit-tests, integration-tests]
     if: always() && github.event.inputs.skip_memory_leak_tests != 'true'
+    outputs:
+      tests-passed: ${{ steps.memory-tests.outputs.passed }}
+      tests-failed: ${{ steps.memory-tests.outputs.failed }}
+      memory-usage: ${{ steps.memory-tests.outputs.memory_usage }}
+      leaks-detected: ${{ steps.memory-tests.outputs.leaks_detected }}
     steps:
       - name: 🔍 Checkout Repository
         uses: actions/checkout@v4
@@ -364,11 +443,15 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
 
-      - name: 🔨 Install Dependencies
-        run: |
-          npm ci
-          cd frontend && npm ci && npx playwright install
-          cd ../backend && npm ci
+      - name: 📦 Restore Dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.npm
+            frontend/node_modules
+            backend/node_modules
+            ~/.cache/ms-playwright
+          key: ${{ runner.os }}-node-${{ env.NODE_VERSION }}-${{ hashFiles('**/package-lock.json') }}
 
       - name: 🚀 Start Backend Server
         working-directory: backend
@@ -384,8 +467,26 @@ jobs:
         run: sleep 15
 
       - name: 🧠 Run Memory Leak Tests
+        id: memory-tests
         working-directory: frontend
-        run: npm run test:memory-leaks:ci
+        run: |
+          npm run test:memory-leaks:ci 2>&1 | tee memory-output.log || true
+          
+          # Parse memory test results
+          PASSED=$(grep -oP '\K\d+(?=\s+passed)' memory-output.log | tail -1 || echo "0")
+          FAILED=$(grep -oP '\K\d+(?=\s+failed)' memory-output.log | tail -1 || echo "0")
+          
+          # Extract memory usage info (if available in logs)
+          MEMORY_USAGE=$(grep -oP 'Memory usage:\s+\K[\d.]+\s*MB' memory-output.log | tail -1 || echo "N/A")
+          LEAKS_DETECTED=$(grep -c "Memory leak detected" memory-output.log || echo "0")
+          
+          echo "passed=$PASSED" >> $GITHUB_OUTPUT
+          echo "failed=$FAILED" >> $GITHUB_OUTPUT
+          echo "memory_usage=$MEMORY_USAGE" >> $GITHUB_OUTPUT
+          echo "leaks_detected=$LEAKS_DETECTED" >> $GITHUB_OUTPUT
+          
+          echo "Memory Tests: $PASSED passed, $FAILED failed, $LEAKS_DETECTED leaks detected"
+          if [ "$FAILED" -gt "0" ] || [ "$LEAKS_DETECTED" -gt "0" ]; then exit 1; fi
 
       - name: 🧹 Cleanup Servers
         if: always()
@@ -399,26 +500,17 @@ jobs:
             rm frontend-memory.pid
           fi
 
-      - name: 📊 Upload Memory Leak Results
+      - name: 📊 Upload Memory Test Results
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: memory-leak-test-results
           path: |
+            frontend/memory-output.log
             frontend/test-results/
-            frontend/playwright-report/
             backend-memory.log
             frontend-memory.log
           retention-days: 30
-
-      - name: 📢 Notify Memory Leak Tests Success
-        if: success()
-        run: |
-          curl -X POST -H 'Content-type: application/json' -H 'Authorization: Bearer ${{ env.SLACK_TOKEN }}' --data "{
-            \"channel\": \"#auro-connect\",
-            \"text\": \"✅ Memory Leak Tests - SUCCESS\",
-            \"color\": \"good\"
-          }" https://slack.com/api/chat.postMessage
 
   # ========================================================================================
   # STAGE 7: PERFORMANCE TESTS
@@ -428,6 +520,16 @@ jobs:
     runs-on: ubuntu-latest
     needs: [setup, lint, unit-tests, integration-tests]
     if: always() && github.event.inputs.skip_performance_tests != 'true'
+    outputs:
+      performance-score: ${{ steps.perf-tests.outputs.performance_score }}
+      accessibility-score: ${{ steps.perf-tests.outputs.accessibility_score }}
+      seo-score: ${{ steps.perf-tests.outputs.seo_score }}
+      best-practices-score: ${{ steps.perf-tests.outputs.best_practices_score }}
+      lcp-score: ${{ steps.perf-tests.outputs.lcp_score }}
+      fid-score: ${{ steps.perf-tests.outputs.fid_score }}
+      cls-score: ${{ steps.perf-tests.outputs.cls_score }}
+      tests-passed: ${{ steps.perf-tests.outputs.passed }}
+      tests-failed: ${{ steps.perf-tests.outputs.failed }}
     steps:
       - name: 🔍 Checkout Repository
         uses: actions/checkout@v4
@@ -438,11 +540,15 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
 
-      - name: 🔨 Install Dependencies
-        run: |
-          npm ci
-          cd frontend && npm ci && npx playwright install
-          cd ../backend && npm ci
+      - name: 📦 Restore Dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.npm
+            frontend/node_modules
+            backend/node_modules
+            ~/.cache/ms-playwright
+          key: ${{ runner.os }}-node-${{ env.NODE_VERSION }}-${{ hashFiles('**/package-lock.json') }}
 
       - name: 🚀 Start Backend Server
         working-directory: backend
@@ -459,11 +565,93 @@ jobs:
 
       - name: 🎭 Run Performance Tests
         working-directory: frontend
-        run: npm run test:perf:ci
+        run: |
+          npm run test:perf:ci 2>&1 | tee perf-output.log || true
 
       - name: 🔍 Run Lighthouse Tests
+        id: perf-tests
         working-directory: frontend
-        run: npm run test:lighthouse:ci
+        run: |
+          npm run test:lighthouse:ci 2>&1 | tee lighthouse-output.log || true
+          
+          # Parse Playwright test results
+          PASSED=$(grep -oP '\K\d+(?=\s+passed)' perf-output.log | tail -1 || echo "0")
+          FAILED=$(grep -oP '\K\d+(?=\s+failed)' perf-output.log | tail -1 || echo "0")
+          
+          # Parse Lighthouse scores from latest summary file
+          if [ -f "lighthouse-reports/"*"-summary.json" ]; then
+            LATEST_SUMMARY=$(ls -t lighthouse-reports/*-summary.json | head -1)
+            PERF_SCORE=$(node -e "
+              const fs = require('fs');
+              try {
+                const data = JSON.parse(fs.readFileSync('$LATEST_SUMMARY', 'utf8'));
+                console.log(data.scores.performance || 0);
+              } catch(e) { console.log('0'); }
+            ")
+            ACCESSIBILITY_SCORE=$(node -e "
+              const fs = require('fs');
+              try {
+                const data = JSON.parse(fs.readFileSync('$LATEST_SUMMARY', 'utf8'));
+                console.log(data.scores.accessibility || 0);
+              } catch(e) { console.log('0'); }
+            ")
+            SEO_SCORE=$(node -e "
+              const fs = require('fs');
+              try {
+                const data = JSON.parse(fs.readFileSync('$LATEST_SUMMARY', 'utf8'));
+                console.log(data.scores.seo || 0);
+              } catch(e) { console.log('0'); }
+            ")
+            BEST_PRACTICES_SCORE=$(node -e "
+              const fs = require('fs');
+              try {
+                const data = JSON.parse(fs.readFileSync('$LATEST_SUMMARY', 'utf8'));
+                console.log(data.scores['best-practices'] || 0);
+              } catch(e) { console.log('0'); }
+            ")
+            LCP_SCORE=$(node -e "
+              const fs = require('fs');
+              try {
+                const data = JSON.parse(fs.readFileSync('$LATEST_SUMMARY', 'utf8'));
+                console.log(data.coreWebVitals.LCP?.score || 0);
+              } catch(e) { console.log('0'); }
+            ")
+            FID_SCORE=$(node -e "
+              const fs = require('fs');
+              try {
+                const data = JSON.parse(fs.readFileSync('$LATEST_SUMMARY', 'utf8'));
+                console.log(data.coreWebVitals.FID?.score || 0);
+              } catch(e) { console.log('0'); }
+            ")
+            CLS_SCORE=$(node -e "
+              const fs = require('fs');
+              try {
+                const data = JSON.parse(fs.readFileSync('$LATEST_SUMMARY', 'utf8'));
+                console.log(data.coreWebVitals.CLS?.score || 0);
+              } catch(e) { console.log('0'); }
+            ")
+          else
+            PERF_SCORE="0"
+            ACCESSIBILITY_SCORE="0"
+            SEO_SCORE="0"
+            BEST_PRACTICES_SCORE="0"
+            LCP_SCORE="0"
+            FID_SCORE="0"
+            CLS_SCORE="0"
+          fi
+          
+          echo "passed=$PASSED" >> $GITHUB_OUTPUT
+          echo "failed=$FAILED" >> $GITHUB_OUTPUT
+          echo "performance_score=$PERF_SCORE" >> $GITHUB_OUTPUT
+          echo "accessibility_score=$ACCESSIBILITY_SCORE" >> $GITHUB_OUTPUT
+          echo "seo_score=$SEO_SCORE" >> $GITHUB_OUTPUT
+          echo "best_practices_score=$BEST_PRACTICES_SCORE" >> $GITHUB_OUTPUT
+          echo "lcp_score=$LCP_SCORE" >> $GITHUB_OUTPUT
+          echo "fid_score=$FID_SCORE" >> $GITHUB_OUTPUT
+          echo "cls_score=$CLS_SCORE" >> $GITHUB_OUTPUT
+          
+          echo "Performance: $PERF_SCORE, Accessibility: $ACCESSIBILITY_SCORE, SEO: $SEO_SCORE"
+          if [ "$FAILED" -gt "0" ]; then exit 1; fi
 
       - name: 🧹 Cleanup Servers
         if: always()
@@ -484,20 +672,12 @@ jobs:
           name: performance-test-results
           path: |
             frontend/lighthouse-reports/
+            frontend/perf-output.log
+            frontend/lighthouse-output.log
             frontend/test-results/
-            frontend/playwright-report/
             backend-perf.log
             frontend-perf.log
           retention-days: 30
-
-      - name: 📢 Notify Performance Tests Success
-        if: success()
-        run: |
-          curl -X POST -H 'Content-type: application/json' -H 'Authorization: Bearer ${{ env.SLACK_TOKEN }}' --data "{
-            \"channel\": \"#auro-connect\",
-            \"text\": \"✅ Performance Tests - SUCCESS\",
-            \"color\": \"good\"
-          }" https://slack.com/api/chat.postMessage
 
   # ========================================================================================
   # STAGE 8: END-TO-END TESTS
@@ -507,6 +687,11 @@ jobs:
     runs-on: ubuntu-latest
     needs: [setup, lint, unit-tests, integration-tests, snapshot-tests]
     if: always() && github.event.inputs.skip_e2e_tests != 'true'
+    outputs:
+      tests-passed: ${{ steps.e2e-tests.outputs.passed }}
+      tests-failed: ${{ steps.e2e-tests.outputs.failed }}
+      tests-total: ${{ steps.e2e-tests.outputs.total }}
+      test-duration: ${{ steps.e2e-tests.outputs.duration }}
     steps:
       - name: 🔍 Checkout Repository
         uses: actions/checkout@v4
@@ -517,11 +702,15 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
 
-      - name: 🔨 Install Dependencies
-        run: |
-          npm ci
-          cd frontend && npm ci && npx playwright install
-          cd ../backend && npm ci
+      - name: 📦 Restore Dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.npm
+            frontend/node_modules
+            backend/node_modules
+            ~/.cache/ms-playwright
+          key: ${{ runner.os }}-node-${{ env.NODE_VERSION }}-${{ hashFiles('**/package-lock.json') }}
 
       - name: 🚀 Start Backend Server
         working-directory: backend
@@ -537,8 +726,26 @@ jobs:
         run: sleep 15
 
       - name: 🎭 Run E2E Tests
+        id: e2e-tests
         working-directory: frontend
-        run: npm run test:e2e:ci
+        run: |
+          START_TIME=$(date +%s)
+          npm run test:e2e:ci 2>&1 | tee e2e-output.log || true
+          END_TIME=$(date +%s)
+          DURATION=$((END_TIME - START_TIME))
+          
+          # Parse Playwright output
+          PASSED=$(grep -oP '\K\d+(?=\s+passed)' e2e-output.log | tail -1 || echo "0")
+          FAILED=$(grep -oP '\K\d+(?=\s+failed)' e2e-output.log | tail -1 || echo "0")
+          TOTAL=$((PASSED + FAILED))
+          
+          echo "passed=$PASSED" >> $GITHUB_OUTPUT
+          echo "failed=$FAILED" >> $GITHUB_OUTPUT
+          echo "total=$TOTAL" >> $GITHUB_OUTPUT
+          echo "duration=${DURATION}s" >> $GITHUB_OUTPUT
+          
+          echo "E2E Tests: $PASSED passed, $FAILED failed, ${DURATION}s duration"
+          if [ "$FAILED" -gt "0" ]; then exit 1; fi
 
       - name: 🧹 Cleanup Servers
         if: always()
@@ -558,26 +765,18 @@ jobs:
         with:
           name: e2e-test-results
           path: |
+            frontend/e2e-output.log
             frontend/test-results/
             frontend/playwright-report/
             backend-e2e.log
             frontend-e2e.log
           retention-days: 30
 
-      - name: 📢 Notify E2E Tests Success
-        if: success()
-        run: |
-          curl -X POST -H 'Content-type: application/json' -H 'Authorization: Bearer ${{ env.SLACK_TOKEN }}' --data "{
-            \"channel\": \"#auro-connect\",
-            \"text\": \"✅ End-to-End Tests - SUCCESS\",
-            \"color\": \"good\"
-          }" https://slack.com/api/chat.postMessage
-
   # ========================================================================================
-  # STAGE 9: TEST SUMMARY & REPORTING
+  # STAGE 9: ENHANCED REPORTING & SLACK NOTIFICATIONS
   # ========================================================================================
   test-summary:
-    name: 📋 Test Summary & Reporting
+    name: 📋 Test Summary & Enhanced Reporting
     runs-on: ubuntu-latest
     needs: [setup, lint, unit-tests, integration-tests, snapshot-tests, memory-leak-tests, performance-tests, e2e-tests]
     if: always()
@@ -590,80 +789,125 @@ jobs:
         with:
           path: artifacts/
 
-      - name: 📊 Generate Detailed Test Summary
+      - name: 📊 Generate Comprehensive Test Summary
         run: |
-          echo "# 📋 CI Pipeline Test Summary" > test-summary.md
+          echo "# 📋 Comprehensive CI Pipeline Report" > test-summary.md
           echo "" >> test-summary.md
           echo "## 🔄 Pipeline Overview" >> test-summary.md
-          echo "- **Commit:** ${{ github.sha }}" >> test-summary.md
-          echo "- **Branch:** ${{ github.ref_name }}" >> test-summary.md
+          echo "- **Commit:** \`${{ github.sha }}\`" >> test-summary.md
+          echo "- **Branch:** \`${{ github.ref_name }}\`" >> test-summary.md
           echo "- **Author:** ${{ github.actor }}" >> test-summary.md
           echo "- **Triggered by:** ${{ github.event_name }}" >> test-summary.md
-          echo "" >> test-summary.md
-          echo "## 📊 Stage Results" >> test-summary.md
-          echo "| Stage | Status | Result |" >> test-summary.md
-          echo "|-------|--------|--------|" >> test-summary.md
-          echo "| 📦 Setup | ${{ needs.setup.result }} | Dependencies installed |" >> test-summary.md
-          echo "| 🔍 Lint | ${{ needs.lint.result }} | Frontend & Backend code quality checks |" >> test-summary.md
-          echo "| 🧪 Unit Tests | ${{ needs.unit-tests.result }} | Frontend & Backend unit tests |" >> test-summary.md
-          echo "| 🔗 Integration Tests | ${{ needs.integration-tests.result }} | Frontend & Backend API & component integration |" >> test-summary.md
-          echo "| 📸 Snapshot Tests | ${{ needs.snapshot-tests.result }} | Frontend & Backend component snapshots |" >> test-summary.md
-          echo "| 🧠 Memory Leak Tests | ${{ needs.memory-leak-tests.result }} | Frontend memory leak detection |" >> test-summary.md
-          echo "| ⚡ Performance Tests | ${{ needs.performance-tests.result }} | Frontend performance & Lighthouse |" >> test-summary.md
-          echo "| 🎭 E2E Tests | ${{ needs.e2e-tests.result }} | Full stack end-to-end scenarios |" >> test-summary.md
+          echo "- **Workflow:** ${{ github.workflow }}" >> test-summary.md
           echo "" >> test-summary.md
           
           # Determine overall status
+          OVERALL_STATUS="✅ SUCCESS"
+          OVERALL_COLOR="good"
+          
           if [[ "${{ needs.setup.result }}" == "failure" ]]; then
-            echo "## ❌ Overall Status: FAILED"
-            echo "Critical failure - cannot continue without dependencies"
-            exit 1
+            OVERALL_STATUS="❌ CRITICAL FAILURE"
+            OVERALL_COLOR="danger"
           elif [[ "${{ needs.lint.result }}" == "failure" || "${{ needs.unit-tests.result }}" == "failure" || "${{ needs.integration-tests.result }}" == "failure" || "${{ needs.snapshot-tests.result }}" == "failure" || "${{ needs.memory-leak-tests.result }}" == "failure" || "${{ needs.performance-tests.result }}" == "failure" || "${{ needs.e2e-tests.result }}" == "failure" ]]; then
-            echo "## 🟡 Overall Status: UNSTABLE"
-            echo "Some tests failed but build completed"
-          else
-            echo "## ✅ Overall Status: SUCCESS"
-            echo "All tests passed successfully"
+            OVERALL_STATUS="🟡 UNSTABLE"
+            OVERALL_COLOR="warning"
           fi
+          
+          echo "## $OVERALL_STATUS" >> test-summary.md
+          echo "" >> test-summary.md
 
-      - name: 📊 Upload Test Summary
-        uses: actions/upload-artifact@v4
-        with:
-          name: test-summary
-          path: test-summary.md
-          retention-days: 30
-
-      - name: 📊 Upload Combined Coverage
+      - name: 📢 Send Enhanced Slack Notification
         if: always()
+        run: |
+          # Determine status and color
+          if [[ "${{ needs.setup.result }}" == "failure" ]]; then
+            STATUS="❌ CI Pipeline FAILED"
+            COLOR="danger"
+          elif [[ "${{ needs.lint.result }}" == "failure" || "${{ needs.unit-tests.result }}" == "failure" || "${{ needs.integration-tests.result }}" == "failure" || "${{ needs.snapshot-tests.result }}" == "failure" || "${{ needs.memory-leak-tests.result }}" == "failure" || "${{ needs.performance-tests.result }}" == "failure" || "${{ needs.e2e-tests.result }}" == "failure" ]]; then
+            STATUS="🟡 CI Pipeline UNSTABLE"
+            COLOR="warning"
+          else
+            STATUS="✅ CI Pipeline SUCCESS"
+            COLOR="good"
+          fi
+          
+          # Build the comprehensive message
+          cat << EOF > slack_message.json
+          {
+            "text": "$STATUS",
+            "attachments": [
+              {
+                "color": "$COLOR",
+                "fields": [
+                  {
+                    "title": "📦 Setup & Dependencies",
+                    "value": "${{ needs.setup.result == 'success' && '✅ Success' || '❌ Failed' }}",
+                    "short": true
+                  },
+                  {
+                    "title": "🔍 Code Quality & Linting",
+                    "value": "${{ needs.lint.result == 'success' && format('✅ Success\nFrontend: {0} warnings, {1} errors\nBackend: {2} warnings, {3} errors', needs.lint.outputs.frontend-warnings || '0', needs.lint.outputs.frontend-errors || '0', needs.lint.outputs.backend-warnings || '0', needs.lint.outputs.backend-errors || '0') || needs.lint.result == 'skipped' && '⏭️ Skipped' || '❌ Failed' }}",
+                    "short": true
+                  },
+                  {
+                    "title": "🧪 Unit Tests",
+                    "value": "${{ needs.unit-tests.result == 'success' && format('✅ Success\nFrontend: {0}/{1} passed ({2}% coverage)\nBackend: {3}/{4} passed ({5}% coverage)', needs.unit-tests.outputs.frontend-tests-passed || '0', needs.unit-tests.outputs.frontend-tests-total || '0', needs.unit-tests.outputs.frontend-coverage || '0', needs.unit-tests.outputs.backend-tests-passed || '0', needs.unit-tests.outputs.backend-tests-total || '0', needs.unit-tests.outputs.backend-coverage || '0') || needs.unit-tests.result == 'skipped' && '⏭️ Skipped' || '❌ Failed' }}",
+                    "short": true
+                  },
+                  {
+                    "title": "🔗 Integration Tests",
+                    "value": "${{ needs.integration-tests.result == 'success' && format('✅ Success\nFrontend: {0}/{1} passed\nBackend: {2}/{3} passed', needs.integration-tests.outputs.frontend-passed || '0', needs.integration-tests.outputs.frontend-total || '0', needs.integration-tests.outputs.backend-passed || '0', needs.integration-tests.outputs.backend-total || '0') || needs.integration-tests.result == 'skipped' && '⏭️ Skipped' || '❌ Failed' }}",
+                    "short": true
+                  },
+                  {
+                    "title": "📸 Snapshot Tests",
+                    "value": "${{ needs.snapshot-tests.result == 'success' && format('✅ Success\nFrontend: {0} passed\nBackend: {1} passed', needs.snapshot-tests.outputs.frontend-passed || '0', needs.snapshot-tests.outputs.backend-passed || '0') || needs.snapshot-tests.result == 'skipped' && '⏭️ Skipped' || '❌ Failed' }}",
+                    "short": true
+                  },
+                  {
+                    "title": "🧠 Memory Leak Tests",
+                    "value": "${{ needs.memory-leak-tests.result == 'success' && format('✅ Success\n{0}/{1} passed\n{2} leaks detected\nMemory usage: {3}', needs.memory-leak-tests.outputs.tests-passed || '0', needs.memory-leak-tests.outputs.tests-passed + needs.memory-leak-tests.outputs.tests-failed || '0', needs.memory-leak-tests.outputs.leaks-detected || '0', needs.memory-leak-tests.outputs.memory-usage || 'N/A') || needs.memory-leak-tests.result == 'skipped' && '⏭️ Skipped' || '❌ Failed' }}",
+                    "short": true
+                  },
+                  {
+                    "title": "⚡ Performance Tests",
+                    "value": "${{ needs.performance-tests.result == 'success' && format('✅ Success\n{0}/{1} Playwright tests passed\nPerformance: {2}%\nAccessibility: {3}%\nSEO: {4}%\nBest Practices: {5}%\nCore Web Vitals:\n• LCP: {6}%\n• FID: {7}%\n• CLS: {8}%', needs.performance-tests.outputs.tests-passed || '0', needs.performance-tests.outputs.tests-passed + needs.performance-tests.outputs.tests-failed || '0', needs.performance-tests.outputs.performance-score || '0', needs.performance-tests.outputs.accessibility-score || '0', needs.performance-tests.outputs.seo-score || '0', needs.performance-tests.outputs.best-practices-score || '0', needs.performance-tests.outputs.lcp-score || '0', needs.performance-tests.outputs.fid-score || '0', needs.performance-tests.outputs.cls-score || '0') || needs.performance-tests.result == 'skipped' && '⏭️ Skipped' || '❌ Failed' }}",
+                    "short": true
+                  },
+                  {
+                    "title": "🎭 End-to-End Tests",
+                    "value": "${{ needs.e2e-tests.result == 'success' && format('✅ Success\n{0}/{1} tests passed\nDuration: {2}', needs.e2e-tests.outputs.tests-passed || '0', needs.e2e-tests.outputs.tests-total || '0', needs.e2e-tests.outputs.test-duration || 'N/A') || needs.e2e-tests.result == 'skipped' && '⏭️ Skipped' || '❌ Failed' }}",
+                    "short": true
+                  }
+                ],
+                "footer": "GitHub Actions CI/CD",
+                "footer_icon": "https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png",
+                "ts": $(date +%s)
+              },
+              {
+                "color": "$COLOR",
+                "fields": [
+                  {
+                    "title": "📝 Details",
+                    "value": "• **Commit:** \`${{ github.sha }}\`\n• **Branch:** \`${{ github.ref_name }}\`\n• **Author:** ${{ github.actor }}\n• **Workflow:** <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View Details>",
+                    "short": false
+                  }
+                ]
+              }
+            ]
+          }
+          EOF
+          
+          # Send to Slack
+          curl -X POST -H 'Content-type: application/json' \
+               --data @slack_message.json \
+               ${{ env.SLACK_WEBHOOK_URL }}
+
+      - name: 📊 Upload Enhanced Test Summary
         uses: actions/upload-artifact@v4
         with:
-          name: combined-coverage
-          path: artifacts/coverage-*/
-          retention-days: 30
-
-      - name: 📢 Slack Final Summary - Success
-        if: needs.setup.result == 'success' && needs.lint.result != 'failure' && needs.unit-tests.result != 'failure' && needs.integration-tests.result != 'failure' && needs.snapshot-tests.result != 'failure' && needs.memory-leak-tests.result != 'failure' && needs.performance-tests.result != 'failure' && needs.e2e-tests.result != 'failure'
-        run: |
-          curl -X POST -H 'Content-type: application/json' -H 'Authorization: Bearer ${{ env.SLACK_TOKEN }}' --data "{
-            \"channel\": \"#auro-connect\",
-            \"text\": \"✅ CI Pipeline COMPLETED SUCCESSFULLY\\n\\n📦 Setup: ✅\\n🔍 Lint: ✅\\n🧪 Unit Tests: ✅\\n🔗 Integration Tests: ✅\\n📸 Snapshot Tests: ✅\\n🧠 Memory Leak Tests: ✅\\n⚡ Performance Tests: ✅\\n🎭 E2E Tests: ✅\\n\\nCommit: ${{ github.sha }}\\nBranch: ${{ github.ref_name }}\\nAuthor: ${{ github.actor }}\",
-            \"color\": \"good\"
-          }" https://slack.com/api/chat.postMessage
-
-      - name: 📢 Slack Final Summary - Unstable
-        if: needs.setup.result != 'failure' && (needs.lint.result == 'failure' || needs.unit-tests.result == 'failure' || needs.integration-tests.result == 'failure' || needs.snapshot-tests.result == 'failure' || needs.memory-leak-tests.result == 'failure' || needs.performance-tests.result == 'failure' || needs.e2e-tests.result == 'failure')
-        run: |
-          curl -X POST -H 'Content-type: application/json' -H 'Authorization: Bearer ${{ env.SLACK_TOKEN }}' --data "{
-            \"channel\": \"#auro-connect\",
-            \"text\": \"🟡 CI Pipeline COMPLETED WITH FAILURES\\n\\n📦 Setup: ${{ needs.setup.result }}\\n🔍 Lint: ${{ needs.lint.result }}\\n🧪 Unit Tests: ${{ needs.unit-tests.result }}\\n🔗 Integration Tests: ${{ needs.integration-tests.result }}\\n📸 Snapshot Tests: ${{ needs.snapshot-tests.result }}\\n🧠 Memory Leak Tests: ${{ needs.memory-leak-tests.result }}\\n⚡ Performance Tests: ${{ needs.performance-tests.result }}\\n🎭 E2E Tests: ${{ needs.e2e-tests.result }}\\n\\nCommit: ${{ github.sha }}\\nBranch: ${{ github.ref_name }}\\nAuthor: ${{ github.actor }}\\nCheck: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}\",
-            \"color\": \"warning\"
-          }" https://slack.com/api/chat.postMessage
-
-      - name: 📢 Slack Final Summary - Failure
-        if: needs.setup.result == 'failure'
-        run: |
-          curl -X POST -H 'Content-type: application/json' -H 'Authorization: Bearer ${{ env.SLACK_TOKEN }}' --data "{
-            \"channel\": \"#auro-connect\",
-            \"text\": \"❌ CI Pipeline FAILED\\n\\n📦 Setup: ❌ FAILED\\n\\nCommit: ${{ github.sha }}\\nBranch: ${{ github.ref_name }}\\nAuthor: ${{ github.actor }}\\nCheck: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}\",
-            \"color\": \"danger\"
-          }" https://slack.com/api/chat.postMessage 
+          name: comprehensive-test-summary
+          path: |
+            test-summary.md
+            slack_message.json
+          retention-days: 30 

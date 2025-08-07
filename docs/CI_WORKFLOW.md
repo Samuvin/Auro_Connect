@@ -2,18 +2,18 @@
 
 ## 📋 Pipeline Overview
 
-The Auro Connect CI pipeline is organized into **9 distinct stages** that run in a logical sequence to ensure code quality, functionality, and performance:
+The Auro Connect CI pipeline is organized into **9 distinct stages** that run in a logical sequence to ensure code quality, functionality, and performance for the entire monorepo:
 
 ### Pipeline Stages
 
-1. **📦 Setup & Dependencies** - Install and cache all project dependencies
-2. **🔍 Lint & Code Quality** - Run ESLint and code quality checks
-3. **🧪 Unit Tests** - Execute unit tests with coverage reporting
-4. **🔗 Integration Tests** - Run API and component integration tests
-5. **📸 Snapshot Tests** - Verify component rendering consistency
+1. **📦 Setup & Dependencies** - Install and cache all project dependencies for both frontend and backend
+2. **🔍 Lint & Code Quality** - Run ESLint and code quality checks on both frontend and backend
+3. **🧪 Unit Tests** - Execute unit tests with coverage reporting for both frontend and backend
+4. **🔗 Integration Tests** - Run API and component integration tests for both frontend and backend
+5. **📸 Snapshot Tests** - Verify component rendering consistency for both frontend and backend
 6. **🧠 Memory Leak Tests** - Detect memory leaks in frontend applications
-7. **⚡ Performance Tests** - Run performance and Lighthouse audits
-8. **🎭 End-to-End Tests** - Full application workflow testing
+7. **⚡ Performance Tests** - Run performance and Lighthouse audits on frontend
+8. **🎭 End-to-End Tests** - Full application workflow testing across the entire stack
 9. **📋 Test Summary & Reporting** - Generate comprehensive test reports
 
 ## 🎛️ Manual Controls
@@ -36,11 +36,11 @@ You can trigger the workflow manually and skip specific stages:
 
 Each stage generates specific artifacts that are stored for 30 days:
 
-- **Lint Results**: ESLint reports in JSON format
-- **Coverage Reports**: HTML and LCOV coverage reports
-- **Test Results**: JUnit XML test results
+- **Lint Results**: ESLint reports in JSON format for both frontend and backend
+- **Coverage Reports**: HTML and LCOV coverage reports for both frontend and backend
+- **Test Results**: JUnit XML test results for both frontend and backend
 - **Integration Test Results**: Frontend Playwright and backend Jest integration test reports
-- **Snapshots**: Component and API snapshot files
+- **Snapshots**: Component and API snapshot files for both frontend and backend
 - **Performance Reports**: Lighthouse reports and performance metrics
 - **E2E Reports**: Playwright HTML reports and screenshots
 - **Server Logs**: Backend and frontend server logs for debugging
@@ -84,6 +84,11 @@ graph TD
 
 ## 📋 Available Scripts
 
+### Root Scripts (Monorepo)
+- `npm run build` - Build both frontend and backend
+- `npm run test` - Run tests for both frontend and backend
+- `npm run test:coverage` - Run coverage tests for both frontend and backend
+
 ### Frontend Scripts
 - `npm run lint:check` - ESLint check
 - `npm run test:ci` - Unit tests for CI
@@ -98,28 +103,21 @@ graph TD
 - `npm run lint:check` - ESLint check
 - `npm run test:coverage` - Unit tests with coverage
 - `npm run test:snapshot:ci` - Snapshot tests
+- `npm run test:integration:ci` - Integration tests for CI
 - `npm start` - Start production server
 
 ## 🎯 Best Practices
 
 1. **Fail Fast**: Linting runs early to catch code quality issues
-2. **Parallel Execution**: Independent stages run in parallel for efficiency
-3. **Resource Management**: Servers are properly started and cleaned up
-4. **Artifact Retention**: Important test results are preserved for debugging
-5. **Clear Visibility**: Each stage has distinct names and purposes
-6. **Flexible Execution**: Individual stages can be skipped when needed
-7. **Comprehensive Reporting**: Detailed summaries show overall pipeline health
+2. **Unified Testing**: Frontend and backend are tested together as a cohesive monorepo
+3. **Comprehensive Coverage**: All aspects from unit tests to E2E tests are covered
+4. **Artifact Preservation**: All test results and reports are preserved for analysis
+5. **Slack Integration**: Real-time notifications keep the team informed
 
-## 🐛 Troubleshooting
+## 🏗️ Monorepo Architecture
 
-### Common Issues
-1. **Memory Leak Tests Failing**: Check if servers are starting properly
-2. **E2E Tests Timeout**: Increase server startup wait time
-3. **Performance Tests Inconsistent**: Run on dedicated CI runners
-4. **Artifacts Missing**: Check artifact upload paths and retention settings
-
-### Debugging Steps
-1. Check server logs in artifacts
-2. Review Playwright reports for visual debugging
-3. Examine coverage reports for test completeness
-4. Use Slack notifications to identify failing stages quickly 
+The pipeline now treats the project as a unified monorepo:
+- **Single Setup Stage**: Installs dependencies for both frontend and backend
+- **Unified Stages**: Each testing stage runs both frontend and backend tests
+- **Combined Artifacts**: Artifacts are organized by component (frontend/backend) but managed centrally
+- **Holistic Reporting**: Test summary provides a complete view of the entire application 
