@@ -83,7 +83,7 @@ jobs:
     if: github.event.inputs.skip_lint != 'true'
     uses: ./.github/workflows/lint.yml
     with:
-      node-version: ${{ env.NODE_VERSION }}
+      node-version: '18'
       
   test:
     name: 🧪 Tests
@@ -91,7 +91,7 @@ jobs:
     if: always()
     uses: ./.github/workflows/test.yml
     with:
-      node-version: ${{ env.NODE_VERSION }}
+      node-version: '18'
       skip-unit-tests: ${{ github.event.inputs.skip_unit_tests == 'true' }}
       skip-integration-tests: ${{ github.event.inputs.skip_integration_tests == 'true' }}
       skip-snapshot-tests: ${{ github.event.inputs.skip_snapshot_tests == 'true' }}
@@ -102,7 +102,7 @@ jobs:
     if: always()
     uses: ./.github/workflows/performance.yml
     with:
-      node-version: ${{ env.NODE_VERSION }}
+      node-version: '18'
       skip-performance-tests: ${{ github.event.inputs.skip_performance_tests == 'true' }}
       skip-e2e-tests: ${{ github.event.inputs.skip_e2e_tests == 'true' }}
       playwright-workers: ${{ github.event.inputs.playwright_workers || '11' }}
@@ -116,6 +116,6 @@ jobs:
     if: always()
     uses: ./.github/workflows/report.yml
     with:
-      node-version: ${{ env.NODE_VERSION }}
+      node-version: '18'
     secrets:
       slack-webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }} 
