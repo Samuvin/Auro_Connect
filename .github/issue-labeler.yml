@@ -1,0 +1,28 @@
+# Auto-label issues based on content
+
+bug:
+  - '\b(bug|error|issue|problem|broken|fail|crash)\b'
+
+feature:
+  - '\b(feature|enhancement|improve|add|new)\b'
+
+documentation:
+  - '\b(doc|documentation|readme|guide|tutorial)\b'
+
+question:
+  - '\b(question|help|how|why|what)\b'
+
+performance:
+  - '\b(performance|slow|speed|optimize|fast)\b'
+
+security:
+  - '\b(security|vulnerability|exploit|CVE)\b'
+
+frontend:
+  - '\b(frontend|UI|UX|react|vue|angular|css|html)\b'
+
+backend:
+  - '\b(backend|API|server|database|mongo)\b'
+
+dependencies:
+  - '\b(dependency|package|npm|update|upgrade)\b' 

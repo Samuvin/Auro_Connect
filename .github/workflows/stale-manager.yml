@@ -1,0 +1,74 @@
+name: 🗂️ Stale Manager
+
+on:
+  schedule:
+    # Run daily at 1 AM UTC
+    - cron: '0 1 * * *'
+  workflow_dispatch:
+
+permissions:
+  issues: write
+  pull-requests: write
+
+jobs:
+  stale:
+    name: 🗂️ Mark Stale Issues/PRs
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 🗂️ Stale Issues and PRs
+        uses: actions/stale@v9
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          
+          # Issues
+          stale-issue-message: |
+            👋 This issue has been automatically marked as stale because it has not had recent activity.
+            
+            **Next steps:**
+            - 🔄 If this is still relevant, please comment to keep it open
+            - 🏷️ Add the `keep-open` label to prevent auto-closure
+            - 📝 Provide additional context if needed
+            
+            This issue will be closed in 7 days if no further activity occurs.
+          close-issue-message: |
+            🗂️ This issue was automatically closed due to inactivity.
+            
+            **To reopen:**
+            - 💬 Comment on this issue
+            - 📬 Create a new issue with updated information
+            
+            Thank you for your contribution! 🙏
+          
+          # Pull Requests  
+          stale-pr-message: |
+            👋 This pull request has been automatically marked as stale because it has not had recent activity.
+            
+            **Next steps:**
+            - 🔄 Rebase with the latest main branch
+            - 🏷️ Add the `keep-open` label to prevent auto-closure
+            - 📝 Address any review comments
+            
+            This PR will be closed in 7 days if no further activity occurs.
+          close-pr-message: |
+            🗂️ This pull request was automatically closed due to inactivity.
+            
+            **To reopen:**
+            - 🔄 Rebase and address conflicts
+            - 💬 Comment with updates
+            - 📬 Create a fresh PR if needed
+            
+            Thank you for your contribution! 🙏
+          
+          # Timing
+          days-before-stale: 30
+          days-before-close: 7
+          
+          # Labels
+          stale-issue-label: 'stale'
+          stale-pr-label: 'stale'
+          exempt-issue-labels: 'keep-open,pinned,security'
+          exempt-pr-labels: 'keep-open,pinned,work-in-progress'
+          
+          # Limits
+          operations-per-run: 50 
