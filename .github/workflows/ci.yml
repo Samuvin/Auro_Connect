@@ -831,6 +831,84 @@ jobs:
             COLOR="good"
           fi
           
+          # Build individual field values
+          
+          # Setup field
+          if [[ "${{ needs.setup.result }}" == "success" ]]; then
+            SETUP_VALUE="✅ Success"
+          else
+            SETUP_VALUE="❌ Failed"
+          fi
+          
+          # Lint field
+          if [[ "${{ needs.lint.result }}" == "success" ]]; then
+            LINT_VALUE="✅ Success\\nFrontend: ${{ needs.lint.outputs.frontend-warnings || '0' }} warnings, ${{ needs.lint.outputs.frontend-errors || '0' }} errors\\nBackend: ${{ needs.lint.outputs.backend-warnings || '0' }} warnings, ${{ needs.lint.outputs.backend-errors || '0' }} errors"
+          elif [[ "${{ needs.lint.result }}" == "skipped" ]]; then
+            LINT_VALUE="⏭️ Skipped"
+          else
+            LINT_VALUE="❌ Failed"
+          fi
+          
+          # Unit Tests field
+          if [[ "${{ needs.unit-tests.result }}" == "success" ]]; then
+            UNIT_VALUE="✅ Success\\nFrontend: ${{ needs.unit-tests.outputs.frontend-tests-passed || '0' }}/${{ needs.unit-tests.outputs.frontend-tests-total || '0' }} passed (${{ needs.unit-tests.outputs.frontend-coverage || '0' }}% coverage)\\nBackend: ${{ needs.unit-tests.outputs.backend-tests-passed || '0' }}/${{ needs.unit-tests.outputs.backend-tests-total || '0' }} passed (${{ needs.unit-tests.outputs.backend-coverage || '0' }}% coverage)"
+          elif [[ "${{ needs.unit-tests.result }}" == "skipped" ]]; then
+            UNIT_VALUE="⏭️ Skipped"
+          else
+            UNIT_VALUE="❌ Failed"
+          fi
+          
+          # Integration Tests field
+          if [[ "${{ needs.integration-tests.result }}" == "success" ]]; then
+            INTEGRATION_VALUE="✅ Success\\nFrontend: ${{ needs.integration-tests.outputs.frontend-passed || '0' }}/${{ needs.integration-tests.outputs.frontend-total || '0' }} passed\\nBackend: ${{ needs.integration-tests.outputs.backend-passed || '0' }}/${{ needs.integration-tests.outputs.backend-total || '0' }} passed"
+          elif [[ "${{ needs.integration-tests.result }}" == "skipped" ]]; then
+            INTEGRATION_VALUE="⏭️ Skipped"
+          else
+            INTEGRATION_VALUE="❌ Failed"
+          fi
+          
+          # Snapshot Tests field
+          if [[ "${{ needs.snapshot-tests.result }}" == "success" ]]; then
+            SNAPSHOT_VALUE="✅ Success\\nFrontend: ${{ needs.snapshot-tests.outputs.frontend-passed || '0' }} passed\\nBackend: ${{ needs.snapshot-tests.outputs.backend-passed || '0' }} passed"
+          elif [[ "${{ needs.snapshot-tests.result }}" == "skipped" ]]; then
+            SNAPSHOT_VALUE="⏭️ Skipped"
+          else
+            SNAPSHOT_VALUE="❌ Failed"
+          fi
+          
+          # Memory Leak Tests field
+          if [[ "${{ needs.memory-leak-tests.result }}" == "success" ]]; then
+            MEMORY_PASSED="${{ needs.memory-leak-tests.outputs.tests-passed || '0' }}"
+            MEMORY_FAILED="${{ needs.memory-leak-tests.outputs.tests-failed || '0' }}"
+            MEMORY_TOTAL=$((MEMORY_PASSED + MEMORY_FAILED))
+            MEMORY_VALUE="✅ Success\\n${MEMORY_PASSED}/${MEMORY_TOTAL} passed\\n${{ needs.memory-leak-tests.outputs.leaks-detected || '0' }} leaks detected\\nMemory usage: ${{ needs.memory-leak-tests.outputs.memory-usage || 'N/A' }}"
+          elif [[ "${{ needs.memory-leak-tests.result }}" == "skipped" ]]; then
+            MEMORY_VALUE="⏭️ Skipped"
+          else
+            MEMORY_VALUE="❌ Failed"
+          fi
+          
+          # Performance Tests field
+          if [[ "${{ needs.performance-tests.result }}" == "success" ]]; then
+            PERF_PASSED="${{ needs.performance-tests.outputs.tests-passed || '0' }}"
+            PERF_FAILED="${{ needs.performance-tests.outputs.tests-failed || '0' }}"
+            PERF_TOTAL=$((PERF_PASSED + PERF_FAILED))
+            PERFORMANCE_VALUE="✅ Success\\n${PERF_PASSED}/${PERF_TOTAL} Playwright tests passed\\nPerformance: ${{ needs.performance-tests.outputs.performance-score || '0' }}%\\nAccessibility: ${{ needs.performance-tests.outputs.accessibility-score || '0' }}%\\nSEO: ${{ needs.performance-tests.outputs.seo-score || '0' }}%\\nBest Practices: ${{ needs.performance-tests.outputs.best-practices-score || '0' }}%\\nCore Web Vitals:\\n• LCP: ${{ needs.performance-tests.outputs.lcp-score || '0' }}%\\n• FID: ${{ needs.performance-tests.outputs.fid-score || '0' }}%\\n• CLS: ${{ needs.performance-tests.outputs.cls-score || '0' }}%"
+          elif [[ "${{ needs.performance-tests.result }}" == "skipped" ]]; then
+            PERFORMANCE_VALUE="⏭️ Skipped"
+          else
+            PERFORMANCE_VALUE="❌ Failed"
+          fi
+          
+          # E2E Tests field
+          if [[ "${{ needs.e2e-tests.result }}" == "success" ]]; then
+            E2E_VALUE="✅ Success\\n${{ needs.e2e-tests.outputs.tests-passed || '0' }}/${{ needs.e2e-tests.outputs.tests-total || '0' }} tests passed\\nDuration: ${{ needs.e2e-tests.outputs.test-duration || 'N/A' }}"
+          elif [[ "${{ needs.e2e-tests.result }}" == "skipped" ]]; then
+            E2E_VALUE="⏭️ Skipped"
+          else
+            E2E_VALUE="❌ Failed"
+          fi
+          
           # Build the comprehensive message
           cat << EOF > slack_message.json
           {
@@ -841,42 +919,42 @@ jobs:
                 "fields": [
                   {
                     "title": "📦 Setup & Dependencies",
-                    "value": "${{ needs.setup.result == 'success' && '✅ Success' || '❌ Failed' }}",
+                    "value": "$SETUP_VALUE",
                     "short": true
                   },
                   {
                     "title": "🔍 Code Quality & Linting",
-                    "value": "${{ needs.lint.result == 'success' && format('✅ Success\nFrontend: {0} warnings, {1} errors\nBackend: {2} warnings, {3} errors', needs.lint.outputs.frontend-warnings || '0', needs.lint.outputs.frontend-errors || '0', needs.lint.outputs.backend-warnings || '0', needs.lint.outputs.backend-errors || '0') || needs.lint.result == 'skipped' && '⏭️ Skipped' || '❌ Failed' }}",
+                    "value": "$LINT_VALUE",
                     "short": true
                   },
                   {
                     "title": "🧪 Unit Tests",
-                    "value": "${{ needs.unit-tests.result == 'success' && format('✅ Success\nFrontend: {0}/{1} passed ({2}% coverage)\nBackend: {3}/{4} passed ({5}% coverage)', needs.unit-tests.outputs.frontend-tests-passed || '0', needs.unit-tests.outputs.frontend-tests-total || '0', needs.unit-tests.outputs.frontend-coverage || '0', needs.unit-tests.outputs.backend-tests-passed || '0', needs.unit-tests.outputs.backend-tests-total || '0', needs.unit-tests.outputs.backend-coverage || '0') || needs.unit-tests.result == 'skipped' && '⏭️ Skipped' || '❌ Failed' }}",
+                    "value": "$UNIT_VALUE",
                     "short": true
                   },
                   {
                     "title": "🔗 Integration Tests",
-                    "value": "${{ needs.integration-tests.result == 'success' && format('✅ Success\nFrontend: {0}/{1} passed\nBackend: {2}/{3} passed', needs.integration-tests.outputs.frontend-passed || '0', needs.integration-tests.outputs.frontend-total || '0', needs.integration-tests.outputs.backend-passed || '0', needs.integration-tests.outputs.backend-total || '0') || needs.integration-tests.result == 'skipped' && '⏭️ Skipped' || '❌ Failed' }}",
+                    "value": "$INTEGRATION_VALUE",
                     "short": true
                   },
                   {
                     "title": "📸 Snapshot Tests",
-                    "value": "${{ needs.snapshot-tests.result == 'success' && format('✅ Success\nFrontend: {0} passed\nBackend: {1} passed', needs.snapshot-tests.outputs.frontend-passed || '0', needs.snapshot-tests.outputs.backend-passed || '0') || needs.snapshot-tests.result == 'skipped' && '⏭️ Skipped' || '❌ Failed' }}",
+                    "value": "$SNAPSHOT_VALUE",
                     "short": true
                   },
                   {
                     "title": "🧠 Memory Leak Tests",
-                    "value": "${{ needs.memory-leak-tests.result == 'success' && format('✅ Success\n{0}/{1} passed\n{2} leaks detected\nMemory usage: {3}', needs.memory-leak-tests.outputs.tests-passed || '0', needs.memory-leak-tests.outputs.tests-passed + needs.memory-leak-tests.outputs.tests-failed || '0', needs.memory-leak-tests.outputs.leaks-detected || '0', needs.memory-leak-tests.outputs.memory-usage || 'N/A') || needs.memory-leak-tests.result == 'skipped' && '⏭️ Skipped' || '❌ Failed' }}",
+                    "value": "$MEMORY_VALUE",
                     "short": true
                   },
                   {
                     "title": "⚡ Performance Tests",
-                    "value": "${{ needs.performance-tests.result == 'success' && format('✅ Success\n{0}/{1} Playwright tests passed\nPerformance: {2}%\nAccessibility: {3}%\nSEO: {4}%\nBest Practices: {5}%\nCore Web Vitals:\n• LCP: {6}%\n• FID: {7}%\n• CLS: {8}%', needs.performance-tests.outputs.tests-passed || '0', needs.performance-tests.outputs.tests-passed + needs.performance-tests.outputs.tests-failed || '0', needs.performance-tests.outputs.performance-score || '0', needs.performance-tests.outputs.accessibility-score || '0', needs.performance-tests.outputs.seo-score || '0', needs.performance-tests.outputs.best-practices-score || '0', needs.performance-tests.outputs.lcp-score || '0', needs.performance-tests.outputs.fid-score || '0', needs.performance-tests.outputs.cls-score || '0') || needs.performance-tests.result == 'skipped' && '⏭️ Skipped' || '❌ Failed' }}",
+                    "value": "$PERFORMANCE_VALUE",
                     "short": true
                   },
                   {
                     "title": "🎭 End-to-End Tests",
-                    "value": "${{ needs.e2e-tests.result == 'success' && format('✅ Success\n{0}/{1} tests passed\nDuration: {2}', needs.e2e-tests.outputs.tests-passed || '0', needs.e2e-tests.outputs.tests-total || '0', needs.e2e-tests.outputs.test-duration || 'N/A') || needs.e2e-tests.result == 'skipped' && '⏭️ Skipped' || '❌ Failed' }}",
+                    "value": "$E2E_VALUE",
                     "short": true
                   }
                 ],
@@ -889,7 +967,7 @@ jobs:
                 "fields": [
                   {
                     "title": "📝 Details",
-                    "value": "• **Commit:** \`${{ github.sha }}\`\n• **Branch:** \`${{ github.ref_name }}\`\n• **Author:** ${{ github.actor }}\n• **Workflow:** <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View Details>",
+                    "value": "• **Commit:** \`${{ github.sha }}\`\\n• **Branch:** \`${{ github.ref_name }}\`\\n• **Author:** ${{ github.actor }}\\n• **Workflow:** <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View Details>",
                     "short": false
                   }
                 ]
