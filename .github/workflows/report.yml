@@ -1,55 +1,55 @@
-name: Test Summary & Reporting
-
-on:
-  workflow_call:
-    inputs:
-      node-version:
-        description: 'Node.js version to use'
-        required: true
-        type: string
-    secrets:
-      slack-webhook-url:
-        description: 'Slack webhook URL for notifications'
-        required: true
-
-jobs:
-  test-summary:
-    name: 📋 Test Summary & Enhanced Reporting
-    runs-on: ubuntu-latest
-    steps:
-      - name: 🔍 Checkout Repository
-        uses: actions/checkout@v4
-
-      - name: 📊 Download All Artifacts
-        uses: actions/download-artifact@v4
-        with:
-          path: artifacts/
-
-      - name: 📊 Generate Comprehensive Test Summary
-        run: |
-          echo "# 📋 Comprehensive CI Pipeline Report" > test-summary.md
-          echo "" >> test-summary.md
-          echo "## 🔄 Pipeline Overview" >> test-summary.md
-          echo "- **Commit:** \`${{ github.sha }}\`" >> test-summary.md
-          echo "- **Branch:** \`${{ github.ref_name }}\`" >> test-summary.md
-          echo "- **Author:** ${{ github.actor }}" >> test-summary.md
-          echo "- **Triggered by:** ${{ github.event_name }}" >> test-summary.md
-          echo "- **Workflow:** ${{ github.workflow }}" >> test-summary.md
-
-      - name: 📢 Send Enhanced Slack Notification
-        if: always()
-        run: |
-          # Use external script for complex Slack notification logic
-          ./scripts/send-slack-notification.sh
-        env:
-          SLACK_WEBHOOK_URL: ${{ secrets.slack-webhook-url }}
-          GITHUB_CONTEXT: ${{ toJson(github) }}
-
-      - name: 📊 Upload Enhanced Test Summary
-        uses: actions/upload-artifact@v4
-        with:
-          name: comprehensive-test-summary
-          path: |
-            test-summary.md
-            slack_message.json
+name: Test Summary & Reporting
+
+on:
+  workflow_call:
+    inputs:
+      node-version:
+        description: 'Node.js version to use'
+        required: true
+        type: string
+    secrets:
+      slack-webhook-url:
+        description: 'Slack webhook URL for notifications'
+        required: true
+
+jobs:
+  test-summary:
+    name:  Test Summary & Enhanced Reporting
+    runs-on: ubuntu-latest
+    steps:
+      - name:  Checkout Repository
+        uses: actions/checkout@v4
+
+      - name:  Download All Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts/
+
+      - name:  Generate Comprehensive Test Summary
+        run: |
+          echo "#  Comprehensive CI Pipeline Report" > test-summary.md
+          echo "" >> test-summary.md
+          echo "##  Pipeline Overview" >> test-summary.md
+          echo "- **Commit:** \`${{ github.sha }}\`" >> test-summary.md
+          echo "- **Branch:** \`${{ github.ref_name }}\`" >> test-summary.md
+          echo "- **Author:** ${{ github.actor }}" >> test-summary.md
+          echo "- **Triggered by:** ${{ github.event_name }}" >> test-summary.md
+          echo "- **Workflow:** ${{ github.workflow }}" >> test-summary.md
+
+      - name:  Send Enhanced Slack Notification
+        if: always()
+        run: |
+          # Use external script for complex Slack notification logic
+          ./scripts/send-slack-notification.sh
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.slack-webhook-url }}
+          GITHUB_CONTEXT: ${{ toJson(github) }}
+
+      - name:  Upload Enhanced Test Summary
+        uses: actions/upload-artifact@v4
+        with:
+          name: comprehensive-test-summary
+          path: |
+            test-summary.md
+            slack_message.json
           retention-days: 30 

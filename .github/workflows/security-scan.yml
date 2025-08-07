@@ -1,92 +1,92 @@
-name: 🔒 Security Scan
-
-on:
-  push:
-    branches: [ main, develop ]
-  pull_request:
-    branches: [ main, develop ]
-  schedule:
-    # Run security scan daily at 2 AM UTC
-    - cron: '0 2 * * *'
-  workflow_dispatch:
-
-env:
-  NODE_VERSION: '18'
-
-jobs:
-  # Dependency vulnerability scanning
-  dependency-scan:
-    name: 🔍 Dependency Vulnerabilities
-    runs-on: ubuntu-latest
-    steps:
-      - name: 🔍 Checkout Repository
-        uses: actions/checkout@v4
-
-      - name: 🔧 Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
-
-      - name: 🔒 Run npm audit (Backend)
-        working-directory: backend
-        run: |
-          npm install
-          npm audit --audit-level=moderate || echo "⚠️ Vulnerabilities found in backend dependencies"
-        continue-on-error: true
-
-      - name: 🔒 Run npm audit (Frontend)
-        working-directory: frontend
-        run: |
-          npm install
-          npm audit --audit-level=moderate || echo "⚠️ Vulnerabilities found in frontend dependencies"
-        continue-on-error: true
-
-      - name: 📊 Generate Security Report
-        run: |
-          echo "## 🔒 Security Scan Summary" >> $GITHUB_STEP_SUMMARY
-          echo "- ✅ Dependency vulnerabilities checked" >> $GITHUB_STEP_SUMMARY
-          echo "- 📝 Check job logs for details" >> $GITHUB_STEP_SUMMARY
-
-  # Secret scanning
-  secret-scan:
-    name: 🕵️ Secret Detection
-    runs-on: ubuntu-latest
-    steps:
-      - name: 🔍 Checkout Repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: 🕵️ Run TruffleHog
-        uses: trufflesecurity/trufflehog@main
-        with:
-          path: ./
-          base: main
-          head: HEAD
-
-  # License compliance check
-  license-check:
-    name: 📜 License Compliance
-    runs-on: ubuntu-latest
-    steps:
-      - name: 🔍 Checkout Repository
-        uses: actions/checkout@v4
-
-      - name: 🔧 Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
-
-      - name: 📜 Check Licenses (Backend)
-        working-directory: backend
-        run: |
-          npm install
-          npx license-checker --summary || echo "⚠️ License check completed for backend"
-
-      - name: 📜 Check Licenses (Frontend)
-        working-directory: frontend
-        run: |
-          npm install
+name:  Security Scan
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+  schedule:
+    # Run security scan daily at 2 AM UTC
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+
+env:
+  NODE_VERSION: '18'
+
+jobs:
+  # Dependency vulnerability scanning
+  dependency-scan:
+    name:  Dependency Vulnerabilities
+    runs-on: ubuntu-latest
+    steps:
+      - name:  Checkout Repository
+        uses: actions/checkout@v4
+
+      - name:  Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name:  Run npm audit (Backend)
+        working-directory: backend
+        run: |
+          npm install
+          npm audit --audit-level=moderate || echo "⚠️ Vulnerabilities found in backend dependencies"
+        continue-on-error: true
+
+      - name:  Run npm audit (Frontend)
+        working-directory: frontend
+        run: |
+          npm install
+          npm audit --audit-level=moderate || echo "⚠️ Vulnerabilities found in frontend dependencies"
+        continue-on-error: true
+
+      - name:  Generate Security Report
+        run: |
+          echo "##  Security Scan Summary" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Dependency vulnerabilities checked" >> $GITHUB_STEP_SUMMARY
+          echo "-  Check job logs for details" >> $GITHUB_STEP_SUMMARY
+
+  # Secret scanning
+  secret-scan:
+    name: ️ Secret Detection
+    runs-on: ubuntu-latest
+    steps:
+      - name:  Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: ️ Run TruffleHog
+        uses: trufflesecurity/trufflehog@main
+        with:
+          path: ./
+          base: main
+          head: HEAD
+
+  # License compliance check
+  license-check:
+    name:  License Compliance
+    runs-on: ubuntu-latest
+    steps:
+      - name:  Checkout Repository
+        uses: actions/checkout@v4
+
+      - name:  Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name:  Check Licenses (Backend)
+        working-directory: backend
+        run: |
+          npm install
+          npx license-checker --summary || echo "⚠️ License check completed for backend"
+
+      - name:  Check Licenses (Frontend)
+        working-directory: frontend
+        run: |
+          npm install
           npx license-checker --summary || echo "⚠️ License check completed for frontend" 

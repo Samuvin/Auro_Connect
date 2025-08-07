@@ -1,44 +1,56 @@
-name: Setup & Dependencies
-
-on:
-  workflow_call:
-    outputs:
-      cache-hit:
-        description: "Whether dependencies were cached"
-        value: ${{ jobs.setup.outputs.cache-hit }}
-
-jobs:
-  setup:
-    name: 📦 Setup & Install Dependencies
-    runs-on: ubuntu-latest
-    outputs:
-      cache-hit: ${{ steps.cache-deps.outputs.cache-hit }}
-    steps:
-      - name: 🔍 Checkout Repository
-        uses: actions/checkout@v4
-
-      - name: 🔧 Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '18'
-          cache: 'npm'
-
-      - name: 📦 Cache Dependencies
-        id: cache-deps
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.npm
-            frontend/node_modules
-            backend/node_modules
-            ~/.cache/ms-playwright
-          key: ${{ runner.os }}-node-18-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-node-18-
-
-      - name: 🔨 Install Dependencies
-        if: steps.cache-deps.outputs.cache-hit != 'true'
-        run: |
-          npm ci
-          cd frontend && npm ci && npx playwright install
-          cd ../backend && npm ci 
+name: Setup & Dependencies
+
+on:
+  workflow_call:
+    outputs:
+      cache-hit:
+        description: "Whether dependencies were cached"
+        value: ${{ jobs.setup.outputs.cache-hit }}
+
+jobs:
+  setup:
+    name:  Setup & Install Dependencies
+    runs-on: ubuntu-latest
+    outputs:
+      cache-hit: ${{ steps.cache-deps.outputs.cache-hit }}
+    steps:
+      - name:  Checkout Repository
+        uses: actions/checkout@v4
+
+      - name:  Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name:  Cache Dependencies
+        id: cache-deps
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.npm
+            frontend/node_modules
+            backend/node_modules
+            ~/.cache/ms-playwright
+          key: ${{ runner.os }}-node-18-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-18-
+
+      - name:  Install Root Dependencies
+        if: steps.cache-deps.outputs.cache-hit != 'true'
+        run: npm ci
+
+      - name:  Install Frontend Dependencies
+        if: steps.cache-deps.outputs.cache-hit != 'true'
+        working-directory: frontend
+        run: npm ci
+
+      - name:  Install Backend Dependencies
+        if: steps.cache-deps.outputs.cache-hit != 'true'
+        working-directory: backend
+        run: npm ci
+
+      - name:  Install Playwright Browsers
+        if: steps.cache-deps.outputs.cache-hit != 'true'
+        working-directory: frontend
+        run: npx playwright install 

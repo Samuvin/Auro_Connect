@@ -1,106 +1,106 @@
-name: Performance & E2E Tests
-
-on:
-  workflow_call:
-    inputs:
-      node-version:
-        description: 'Node.js version to use'
-        required: true
-        type: string
-      skip-performance-tests:
-        description: 'Skip performance tests'
-        required: false
-        type: boolean
-        default: false
-      skip-e2e-tests:
-        description: 'Skip E2E tests'
-        required: false
-        type: boolean
-        default: false
-      playwright-workers:
-        description: 'Number of Playwright workers'
-        required: false
-        type: string
-        default: '11'
-      playwright-browsers:
-        description: 'Browsers to test'
-        required: false
-        type: string
-        default: 'all'
-      playwright-devices:
-        description: 'Device types to test'
-        required: false
-        type: string
-        default: 'all'
-      playwright-retries:
-        description: 'Number of test retries'
-        required: false
-        type: string
-        default: '2'
-
-jobs:
-  performance-tests:
-    name: ⚡ Performance Tests
-    runs-on: ubuntu-latest
-    if: ${{ !inputs.skip-performance-tests }}
-    steps:
-      - uses: ./.github/actions/setup-test-env
-        with:
-          node-version: ${{ inputs.node-version }}
-          include-playwright: true
-          
-      - name: 🎭 Run Performance Tests
-        working-directory: frontend
-        env:
-          PLAYWRIGHT_BASE_URL: https://auro-connect-r9mk.onrender.com
-        run: npm run test:perf:ci
-
-      - name: 🔍 Run Lighthouse Tests
-        working-directory: frontend
-        env:
-          PLAYWRIGHT_BASE_URL: https://auro-connect-r9mk.onrender.com
-        run: npm run test:lighthouse:ci
-        
-      - name: 📊 Upload Performance Results
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: performance-test-results
-          path: |
-            frontend/lighthouse-reports/
-            frontend/perf-output.log
-            frontend/lighthouse-output.log
-            frontend/test-results/
-          retention-days: 30
-
-  e2e-tests:
-    name: 🎭 End-to-End Tests
-    runs-on: ubuntu-latest
-    if: ${{ !inputs.skip-e2e-tests }}
-    steps:
-      - uses: ./.github/actions/setup-test-env
-        with:
-          node-version: ${{ inputs.node-version }}
-          include-playwright: true
-          
-      - name: 🎭 Run E2E Tests
-        working-directory: frontend
-        env:
-          PLAYWRIGHT_WORKERS: ${{ inputs.playwright-workers }}
-          PLAYWRIGHT_BROWSERS: ${{ inputs.playwright-browsers }}
-          PLAYWRIGHT_DEVICES: ${{ inputs.playwright-devices }}
-          PLAYWRIGHT_RETRIES: ${{ inputs.playwright-retries }}
-          PLAYWRIGHT_BASE_URL: https://auro-connect-r9mk.onrender.com
-        run: |
-          ./../scripts/run-e2e-tests.sh
-        
-      - name: 📊 Upload E2E Test Results
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: e2e-test-results
-          path: |
-            frontend/e2e-output.log
-            frontend/test-results/
-            frontend/playwright-report/
+name: Performance & E2E Tests
+
+on:
+  workflow_call:
+    inputs:
+      node-version:
+        description: 'Node.js version to use'
+        required: true
+        type: string
+      skip-performance-tests:
+        description: 'Skip performance tests'
+        required: false
+        type: boolean
+        default: false
+      skip-e2e-tests:
+        description: 'Skip E2E tests'
+        required: false
+        type: boolean
+        default: false
+      playwright-workers:
+        description: 'Number of Playwright workers'
+        required: false
+        type: string
+        default: '11'
+      playwright-browsers:
+        description: 'Browsers to test'
+        required: false
+        type: string
+        default: 'all'
+      playwright-devices:
+        description: 'Device types to test'
+        required: false
+        type: string
+        default: 'all'
+      playwright-retries:
+        description: 'Number of test retries'
+        required: false
+        type: string
+        default: '2'
+
+jobs:
+  performance-tests:
+    name: ⚡ Performance Tests
+    runs-on: ubuntu-latest
+    if: ${{ !inputs.skip-performance-tests }}
+    steps:
+      - uses: ./.github/actions/setup-test-env
+        with:
+          node-version: ${{ inputs.node-version }}
+          include-playwright: true
+          
+      - name:  Run Performance Tests
+        working-directory: frontend
+        env:
+          PLAYWRIGHT_BASE_URL: https://auro-connect-r9mk.onrender.com
+        run: npm run test:perf:ci
+
+      - name:  Run Lighthouse Tests
+        working-directory: frontend
+        env:
+          PLAYWRIGHT_BASE_URL: https://auro-connect-r9mk.onrender.com
+        run: npm run test:lighthouse:ci
+        
+      - name:  Upload Performance Results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: performance-test-results
+          path: |
+            frontend/lighthouse-reports/
+            frontend/perf-output.log
+            frontend/lighthouse-output.log
+            frontend/test-results/
+          retention-days: 30
+
+  e2e-tests:
+    name:  End-to-End Tests
+    runs-on: ubuntu-latest
+    if: ${{ !inputs.skip-e2e-tests }}
+    steps:
+      - uses: ./.github/actions/setup-test-env
+        with:
+          node-version: ${{ inputs.node-version }}
+          include-playwright: true
+          
+      - name:  Run E2E Tests
+        working-directory: frontend
+        env:
+          PLAYWRIGHT_WORKERS: ${{ inputs.playwright-workers }}
+          PLAYWRIGHT_BROWSERS: ${{ inputs.playwright-browsers }}
+          PLAYWRIGHT_DEVICES: ${{ inputs.playwright-devices }}
+          PLAYWRIGHT_RETRIES: ${{ inputs.playwright-retries }}
+          PLAYWRIGHT_BASE_URL: https://auro-connect-r9mk.onrender.com
+        run: |
+          ./../scripts/run-e2e-tests.sh
+        
+      - name:  Upload E2E Test Results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-test-results
+          path: |
+            frontend/e2e-output.log
+            frontend/test-results/
+            frontend/playwright-report/
           retention-days: 30 

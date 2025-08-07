@@ -22,7 +22,7 @@ runs:
         node-version: ${{ inputs.node-version }}
         cache: 'npm'
 
-    - name: 📦 Restore Dependencies
+    - name: 📦 Cache Dependencies
       uses: actions/cache@v4
       with:
         path: |
@@ -30,6 +30,26 @@ runs:
           frontend/node_modules
           backend/node_modules
           ${{ inputs.include-playwright == 'true' && '~/.cache/ms-playwright' || '' }}
-        key: ${{ runner.os }}-node-${{ inputs.node-version }}-${{ hashFiles('**/package-lock.json') }}
+        key: ${{ runner.os }}-node-${{ inputs.node-version }}-${{ hashFiles('**/package-lock.json') }}-playwright-${{ inputs.include-playwright }}
         restore-keys: |
-          ${{ runner.os }}-node-${{ inputs.node-version }}- 
+          ${{ runner.os }}-node-${{ inputs.node-version }}-
+
+    - name: 🔨 Install Root Dependencies
+      shell: bash
+      run: npm ci
+
+    - name: 🔨 Install Frontend Dependencies
+      shell: bash
+      working-directory: frontend
+      run: npm ci
+
+    - name: 🔨 Install Backend Dependencies
+      shell: bash
+      working-directory: backend
+      run: npm ci
+
+    - name: 🎭 Install Playwright Browsers
+      if: inputs.include-playwright == 'true'
+      shell: bash
+      working-directory: frontend
+      run: npx playwright install 
