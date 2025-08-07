@@ -1,121 +1,121 @@
-name:  Continuous Integration
-
-on:
-  push:
-    branches: [ main, develop ]
-  pull_request:
-    branches: [ main, develop ]
-  workflow_dispatch:
-    inputs:
-      skip_lint:
-        description: 'Skip Linting'
-        required: false
-        default: false
-        type: boolean
-      skip_unit_tests:
-        description: 'Skip Unit Tests'
-        required: false
-        default: false
-        type: boolean
-      skip_snapshot_tests:
-        description: 'Skip Snapshot Tests'
-        required: false
-        default: false
-        type: boolean
-      skip_performance_tests:
-        description: 'Skip Performance Tests'
-        required: false
-        default: false
-        type: boolean
-      skip_e2e_tests:
-        description: 'Skip End-to-End Tests'
-        required: false
-        default: false
-        type: boolean
-      skip_integration_tests:
-        description: 'Skip Integration Tests'
-        required: false
-        default: false
-        type: boolean
-      playwright_workers:
-        description: 'Number of Playwright workers'
-        required: false
-        default: '11'
-        type: string
-      playwright_browsers:
-        description: 'Browsers to test'
-        required: false
-        default: 'all'
-        type: choice
-        options:
-          - all
-          - chromium
-          - firefox
-          - webkit
-      playwright_devices:
-        description: 'Device types to test'
-        required: false
-        default: 'all'
-        type: choice
-        options:
-          - all
-          - desktop
-          - mobile
-          - tablet
-      playwright_retries:
-        description: 'Number of test retries'
-        required: false
-        default: '2'
-        type: string
-
-env:
-  NODE_VERSION: '18'
-  SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-
-jobs:
-  setup:
-    name:  Setup & Dependencies
-    uses: ./.github/workflows/setup.yml
-    
-  lint:
-    name:  Lint & Code Quality
-    needs: setup
-    if: github.event.inputs.skip_lint != 'true'
-    uses: ./.github/workflows/lint.yml
-    with:
-      node-version: '18'
-      
-  test:
-    name:  Tests
-    needs: [setup, lint]
-    if: always()
-    uses: ./.github/workflows/test.yml
-    with:
-      node-version: '18'
-      skip-unit-tests: ${{ github.event.inputs.skip_unit_tests == 'true' }}
-      skip-integration-tests: ${{ github.event.inputs.skip_integration_tests == 'true' }}
-      skip-snapshot-tests: ${{ github.event.inputs.skip_snapshot_tests == 'true' }}
-      
-  performance:
-    name: ⚡ Performance & E2E
-    needs: [setup, lint, test]
-    if: always()
-    uses: ./.github/workflows/performance.yml
-    with:
-      node-version: '18'
-      skip-performance-tests: ${{ github.event.inputs.skip_performance_tests == 'true' }}
-      skip-e2e-tests: ${{ github.event.inputs.skip_e2e_tests == 'true' }}
-      playwright-workers: ${{ github.event.inputs.playwright_workers || '11' }}
-      playwright-browsers: ${{ github.event.inputs.playwright_browsers || 'all' }}
-      playwright-devices: ${{ github.event.inputs.playwright_devices || 'all' }}
-      playwright-retries: ${{ github.event.inputs.playwright_retries || '2' }}
-      
-  report:
-    name:  Test Summary & Reporting
-    needs: [setup, lint, test, performance]
-    if: always()
-    uses: ./.github/workflows/report.yml
-    with:
-      node-version: '18'
-    secrets:
+name: 🚀 Continuous Integration
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+  workflow_dispatch:
+    inputs:
+      skip_lint:
+        description: 'Skip Linting'
+        required: false
+        default: false
+        type: boolean
+      skip_unit_tests:
+        description: 'Skip Unit Tests'
+        required: false
+        default: false
+        type: boolean
+      skip_snapshot_tests:
+        description: 'Skip Snapshot Tests'
+        required: false
+        default: false
+        type: boolean
+      skip_performance_tests:
+        description: 'Skip Performance Tests'
+        required: false
+        default: false
+        type: boolean
+      skip_e2e_tests:
+        description: 'Skip End-to-End Tests'
+        required: false
+        default: false
+        type: boolean
+      skip_integration_tests:
+        description: 'Skip Integration Tests'
+        required: false
+        default: false
+        type: boolean
+      playwright_workers:
+        description: 'Number of Playwright workers'
+        required: false
+        default: '11'
+        type: string
+      playwright_browsers:
+        description: 'Browsers to test'
+        required: false
+        default: 'all'
+        type: choice
+        options:
+          - all
+          - chromium
+          - firefox
+          - webkit
+      playwright_devices:
+        description: 'Device types to test'
+        required: false
+        default: 'all'
+        type: choice
+        options:
+          - all
+          - desktop
+          - mobile
+          - tablet
+      playwright_retries:
+        description: 'Number of test retries'
+        required: false
+        default: '2'
+        type: string
+
+env:
+  NODE_VERSION: '18'
+  SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+jobs:
+  setup:
+    name: 🔧 Setup & Dependencies
+    uses: ./.github/workflows/setup.yml
+    
+  lint:
+    name: 🔍 Lint & Code Quality
+    needs: setup
+    if: github.event.inputs.skip_lint != 'true'
+    uses: ./.github/workflows/lint.yml
+    with:
+      node-version: '18'
+      
+  test:
+    name: 🧪 Tests
+    needs: [setup, lint]
+    if: always()
+    uses: ./.github/workflows/test.yml
+    with:
+      node-version: '18'
+      skip-unit-tests: ${{ github.event.inputs.skip_unit_tests == 'true' }}
+      skip-integration-tests: ${{ github.event.inputs.skip_integration_tests == 'true' }}
+      skip-snapshot-tests: ${{ github.event.inputs.skip_snapshot_tests == 'true' }}
+      
+  performance:
+    name: ⚡ Performance & E2E
+    needs: [setup, lint, test]
+    if: always()
+    uses: ./.github/workflows/performance.yml
+    with:
+      node-version: '18'
+      skip-performance-tests: ${{ github.event.inputs.skip_performance_tests == 'true' }}
+      skip-e2e-tests: ${{ github.event.inputs.skip_e2e_tests == 'true' }}
+      playwright-workers: ${{ github.event.inputs.playwright_workers || '11' }}
+      playwright-browsers: ${{ github.event.inputs.playwright_browsers || 'all' }}
+      playwright-devices: ${{ github.event.inputs.playwright_devices || 'all' }}
+      playwright-retries: ${{ github.event.inputs.playwright_retries || '2' }}
+      
+  report:
+    name: 📊 Test Summary & Reporting
+    needs: [setup, lint, test, performance]
+    if: always()
+    uses: ./.github/workflows/report.yml
+    with:
+      node-version: '18'
+    secrets:
       slack-webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }} 

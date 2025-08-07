@@ -1,125 +1,137 @@
-name: Test Suite
-
-on:
-  workflow_call:
-    inputs:
-      node-version:
-        description: 'Node.js version to use'
-        required: true
-        type: string
-      skip-unit-tests:
-        description: 'Skip unit tests'
-        required: false
-        type: boolean
-        default: false
-      skip-integration-tests:
-        description: 'Skip integration tests'
-        required: false
-        type: boolean
-        default: false
-      skip-snapshot-tests:
-        description: 'Skip snapshot tests'
-        required: false
-        type: boolean
-        default: false
-
-jobs:
-  unit-tests:
-    name:  Unit Tests
-    runs-on: ubuntu-latest
-    if: ${{ !inputs.skip-unit-tests }}
-    strategy:
-      matrix:
-        component: [frontend, backend]
-    steps:
-      - uses: ./.github/actions/setup-test-env
-        with:
-          node-version: ${{ inputs.node-version }}
-          
-      - name:  Run Unit Tests
-        working-directory: ${{ matrix.component }}
-        run: |
-          if [ "${{ matrix.component }}" = "frontend" ]; then
-            npm run test:ci
-          else
-            npm run test:coverage
-          fi
-          
-      - name:  Upload Test Results
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: unit-test-results-${{ matrix.component }}
-          path: |
-            ${{ matrix.component }}/coverage/
-            ${{ matrix.component }}/test-output.log
-          retention-days: 30
-
-  integration-tests:
-    name:  Integration Tests
-    runs-on: ubuntu-latest
-    if: ${{ !inputs.skip-integration-tests }}
-    strategy:
-      matrix:
-        component: [frontend, backend]
-    steps:
-      - uses: ./.github/actions/setup-test-env
-        with:
-          node-version: ${{ inputs.node-version }}
-          include-playwright: true
-          
-      - name:  Run Integration Tests
-        working-directory: ${{ matrix.component }}
-        run: npm run test:integration:ci
-          
-      - name:  Upload Integration Results
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: integration-test-results-${{ matrix.component }}
-          path: |
-            ${{ matrix.component }}/integration-output.log
-            ${{ matrix.component }}/test-results/
-            ${{ matrix.component }}/playwright-report/
-          retention-days: 30
-
-  snapshot-tests:
-    name:  Snapshot Tests
-    runs-on: ubuntu-latest
-    if: ${{ !inputs.skip-snapshot-tests }}
-    strategy:
-      matrix:
-        component: [frontend, backend]
-    steps:
-      - uses: ./.github/actions/setup-test-env
-        with:
-          node-version: ${{ inputs.node-version }}
-          
-      - name:  Run Snapshot Tests
-        working-directory: ${{ matrix.component }}
-        run: npm run test:snapshot:ci
-
-  memory-leak-tests:
-    name:  Memory Leak Tests
-    runs-on: ubuntu-latest
-    steps:
-      - uses: ./.github/actions/setup-test-env
-        with:
-          node-version: ${{ inputs.node-version }}
-          include-playwright: true
-          
-      - name:  Run Memory Leak Tests
-        working-directory: frontend
-        env:
-          PLAYWRIGHT_BASE_URL: https://auro-connect-r9mk.onrender.com
-        run: npm run test:memory-leaks:ci
-        
-      - name:  Upload Memory Test Results
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: memory-leak-test-results
-          path: |
-            frontend/memory-output.log
-            frontend/test-results/
+name: 🧪 Test Suite
+
+on:
+  workflow_call:
+    inputs:
+      node-version:
+        description: 'Node.js version to use'
+        required: true
+        type: string
+      skip-unit-tests:
+        description: 'Skip unit tests'
+        required: false
+        type: boolean
+        default: false
+      skip-integration-tests:
+        description: 'Skip integration tests'
+        required: false
+        type: boolean
+        default: false
+      skip-snapshot-tests:
+        description: 'Skip snapshot tests'
+        required: false
+        type: boolean
+        default: false
+
+jobs:
+  unit-tests:
+    name: 🧪 Unit Tests
+    runs-on: ubuntu-latest
+    if: ${{ !inputs.skip-unit-tests }}
+    strategy:
+      matrix:
+        component: [frontend, backend]
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+        
+      - uses: ./.github/actions/setup-test-env
+        with:
+          node-version: ${{ inputs.node-version }}
+          
+      - name: 🧪 Run Unit Tests
+        working-directory: ${{ matrix.component }}
+        run: |
+          if [ "${{ matrix.component }}" = "frontend" ]; then
+            npm run test:ci
+          else
+            npm run test:coverage
+          fi
+          
+      - name: 📤 Upload Test Results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: unit-test-results-${{ matrix.component }}
+          path: |
+            ${{ matrix.component }}/coverage/
+            ${{ matrix.component }}/test-output.log
+          retention-days: 30
+
+  integration-tests:
+    name: 🔗 Integration Tests
+    runs-on: ubuntu-latest
+    if: ${{ !inputs.skip-integration-tests }}
+    strategy:
+      matrix:
+        component: [frontend, backend]
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+        
+      - uses: ./.github/actions/setup-test-env
+        with:
+          node-version: ${{ inputs.node-version }}
+          include-playwright: true
+          
+      - name: 🔗 Run Integration Tests
+        working-directory: ${{ matrix.component }}
+        run: npm run test:integration:ci
+          
+      - name: 📤 Upload Integration Results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: integration-test-results-${{ matrix.component }}
+          path: |
+            ${{ matrix.component }}/integration-output.log
+            ${{ matrix.component }}/test-results/
+            ${{ matrix.component }}/playwright-report/
+          retention-days: 30
+
+  snapshot-tests:
+    name: 📸 Snapshot Tests
+    runs-on: ubuntu-latest
+    if: ${{ !inputs.skip-snapshot-tests }}
+    strategy:
+      matrix:
+        component: [frontend, backend]
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+        
+      - uses: ./.github/actions/setup-test-env
+        with:
+          node-version: ${{ inputs.node-version }}
+          
+      - name: 📸 Run Snapshot Tests
+        working-directory: ${{ matrix.component }}
+        run: npm run test:snapshot:ci
+
+  memory-leak-tests:
+    name: 🧠 Memory Leak Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+        
+      - uses: ./.github/actions/setup-test-env
+        with:
+          node-version: ${{ inputs.node-version }}
+          include-playwright: true
+          
+      - name: 🧠 Run Memory Leak Tests
+        working-directory: frontend
+        env:
+          PLAYWRIGHT_BASE_URL: https://auro-connect-r9mk.onrender.com
+        run: npm run test:memory-leaks:ci
+        
+      - name: 📤 Upload Memory Test Results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: memory-leak-test-results
+          path: |
+            frontend/memory-output.log
+            frontend/test-results/
           retention-days: 30 

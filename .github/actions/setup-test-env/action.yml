@@ -13,9 +13,6 @@ inputs:
 runs:
   using: 'composite'
   steps:
-    - name: 🔍 Checkout Repository
-      uses: actions/checkout@v4
-
     - name: 🔧 Setup Node.js
       uses: actions/setup-node@v4
       with:
@@ -23,6 +20,7 @@ runs:
         cache: 'npm'
 
     - name: 📦 Cache Dependencies
+      id: cache-deps
       uses: actions/cache@v4
       with:
         path: |
@@ -35,21 +33,24 @@ runs:
           ${{ runner.os }}-node-${{ inputs.node-version }}-
 
     - name: 🔨 Install Root Dependencies
+      if: steps.cache-deps.outputs.cache-hit != 'true'
       shell: bash
       run: npm ci
 
     - name: 🔨 Install Frontend Dependencies
+      if: steps.cache-deps.outputs.cache-hit != 'true'
       shell: bash
       working-directory: frontend
       run: npm ci
 
     - name: 🔨 Install Backend Dependencies
+      if: steps.cache-deps.outputs.cache-hit != 'true'
       shell: bash
       working-directory: backend
       run: npm ci
 
     - name: 🎭 Install Playwright Browsers
-      if: inputs.include-playwright == 'true'
+      if: inputs.include-playwright == 'true' && steps.cache-deps.outputs.cache-hit != 'true'
       shell: bash
       working-directory: frontend
       run: npx playwright install 
