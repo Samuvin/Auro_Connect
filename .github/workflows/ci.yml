@@ -94,8 +94,8 @@ jobs:
       skip-unit-tests: ${{ github.event.inputs.skip_unit_tests == 'true' }}
       skip-integration-tests: ${{ github.event.inputs.skip_integration_tests == 'true' }}
       skip-snapshot-tests: ${{ github.event.inputs.skip_snapshot_tests == 'true' }}
-
-  visual-regression:
+      
+  visual_regression:
     name: 👁️ Visual Regression
     needs: [setup, lint]
     if: always()
@@ -106,10 +106,10 @@ jobs:
       playwright-workers: '1'
       playwright-browsers: ${{ github.event.inputs.playwright_browsers || 'all' }}
       update-snapshots: false
-
+        
   performance:
     name: ⚡ Performance & E2E
-    needs: [setup, lint, test, visual-regression]
+    needs: [setup, lint, test, visual_regression]
     if: always()
     uses: ./.github/workflows/performance.yml
     with:
@@ -123,7 +123,7 @@ jobs:
       
   report:
     name: 📊 Test Summary & Reporting
-    needs: [setup, lint, test, visual-regression, performance]
+    needs: [setup, lint, test, visual_regression, performance]
     if: always()
     uses: ./.github/workflows/report.yml
     with:
