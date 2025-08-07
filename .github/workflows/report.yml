@@ -22,6 +22,11 @@ on:
         required: false
         type: string
         default: 'success'
+      visual-regression-result:
+        description: 'Visual regression job result'
+        required: false
+        type: string
+        default: 'success'
       performance-result:
         description: 'Performance job result'
         required: false

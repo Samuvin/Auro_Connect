@@ -303,6 +303,7 @@ node {
         // Generate test summary without re-running tests
         echo "=== Test Summary ==="
         echo "Unit Tests Success: ${unitTestsSuccess}"
+        echo "Visual Tests Success: ${visualTestsSuccess}"
         echo "E2E Tests Success: ${e2eTestsSuccess}"
         echo "Build Success: ${buildSuccess}"
         echo "Has Failures: ${hasFailures}"

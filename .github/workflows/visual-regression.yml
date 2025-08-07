@@ -1,0 +1,140 @@
+name: 👁️ Visual Regression Tests
+
+on:
+  workflow_call:
+    inputs:
+      node-version:
+        description: 'Node.js version to use'
+        required: true
+        type: string
+      skip-visual-tests:
+        description: 'Skip visual regression tests'
+        required: false
+        type: boolean
+        default: false
+      playwright-workers:
+        description: 'Number of Playwright workers'
+        required: false
+        type: string
+        default: '1'
+      playwright-browsers:
+        description: 'Browsers to test'
+        required: false
+        type: string
+        default: 'all'
+      update-snapshots:
+        description: 'Update visual snapshots'
+        required: false
+        type: boolean
+        default: false
+
+jobs:
+  visual-regression-tests:
+    name: 👁️ Visual Regression Tests
+    runs-on: ubuntu-latest
+    if: ${{ !inputs.skip-visual-tests }}
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+        
+      - uses: ./.github/actions/setup-test-env
+        with:
+          node-version: ${{ inputs.node-version }}
+          include-playwright: true
+          
+      - name: 🐳 Start Storybook with Docker
+        working-directory: .
+        run: |
+          echo "🚀 Starting Storybook Docker container..."
+          npm run storybook:docker:compose &
+          
+          # Wait for Storybook to be ready
+          echo "⏳ Waiting for Storybook to be ready..."
+          timeout 120s bash -c 'until curl -f http://localhost:6006; do sleep 2; done' || {
+            echo "❌ Storybook failed to start within timeout"
+            docker-compose -f docker-compose.storybook.yml logs
+            exit 1
+          }
+          echo "✅ Storybook is ready!"
+          
+      - name: 👁️ Run Visual Regression Tests
+        working-directory: frontend
+        env:
+          PLAYWRIGHT_WORKERS: ${{ inputs.playwright-workers }}
+          CI: true
+        run: |
+          if [ "${{ inputs.update-snapshots }}" = "true" ]; then
+            echo "📸 Updating visual snapshots..."
+            npm run test:visual:update
+          else
+            echo "🧪 Running visual regression tests..."
+            npm run test:visual
+          fi
+          
+      - name: 📤 Upload Visual Test Results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: visual-test-results
+          path: |
+            frontend/visual-test-results/
+            frontend/tests/visual/**/*-snapshots/
+          retention-days: 30
+          
+      - name: 📊 Upload Visual Test Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: visual-regression-report
+          path: frontend/visual-test-results/html-report/
+          retention-days: 30
+          
+      - name: 💬 Comment on PR with Visual Changes
+        if: failure() && github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const path = require('path');
+            
+            // Check if visual test results exist
+            const reportPath = 'frontend/visual-test-results/reports/test-results.json';
+            if (fs.existsSync(reportPath)) {
+              const results = JSON.parse(fs.readFileSync(reportPath, 'utf8'));
+              const failedTests = results.suites?.flatMap(suite => 
+                suite.specs?.filter(spec => spec.tests?.some(test => test.results?.some(result => result.status === 'failed')))
+              ) || [];
+              
+              if (failedTests.length > 0) {
+                const comment = `## 👁️ Visual Regression Test Results
+                
+            ❌ **${failedTests.length} visual test(s) failed**
+            
+            Visual differences were detected. This could indicate:
+            - Intentional UI changes that need snapshot updates
+            - Unintended visual regressions
+            
+            ### Actions:
+            - Review the visual diff report in the [workflow artifacts](${context.payload.repository.html_url}/actions/runs/${context.runId})
+            - If changes are intentional, update snapshots by running: \`npm run test:visual:update\`
+            - If unintended, fix the visual regression
+            
+            ### View Results:
+            - Download the \`visual-regression-report\` artifact to see detailed diffs
+            - Check the \`visual-test-results\` artifact for complete test output`;
+                
+                github.rest.issues.createComment({
+                  issue_number: context.issue.number,
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  body: comment
+                });
+              }
+            }
+          
+      - name: 🛑 Stop Storybook Container
+        if: always()
+        working-directory: .
+        run: |
+          echo "🛑 Stopping Storybook Docker container..."
+          npm run storybook:docker:compose:down || true 
