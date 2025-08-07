@@ -53,9 +53,9 @@ jobs:
 
       - name: 🔨 Install Dependencies
         run: |
-          npm install
-          cd frontend && npm install && npx playwright install
-          cd ../backend && npm install
+          npm ci
+          cd frontend && npm ci && npx playwright install
+          cd ../backend && npm ci
 
   # Stage: Parallel - Lint & Code Quality
   lint:
@@ -80,9 +80,9 @@ jobs:
       - name: 🔨 Install Dependencies
         run: |
           if [ "${{ matrix.component }}" = "frontend" ]; then
-            cd frontend && npm install
+            cd frontend && npm ci
           else
-            cd backend && npm install
+            cd backend && npm ci
           fi
 
       - name: 🔍 Run Linting
@@ -113,9 +113,9 @@ jobs:
       - name: 🔨 Install Dependencies
         run: |
           if [ "${{ matrix.component }}" = "frontend" ]; then
-            cd frontend && npm install
+            cd frontend && npm ci
           else
-            cd backend && npm install
+            cd backend && npm ci
           fi
 
       - name: 🧪 Run Tests
@@ -154,9 +154,9 @@ jobs:
 
       - name: 🔨 Install Dependencies
         run: |
-          npm install
-          cd frontend && npm install && npx playwright install
-          cd ../backend && npm install
+          npm ci
+          cd frontend && npm ci && npx playwright install
+          cd ../backend && npm ci
 
       - name: 🚀 Start Backend Server
         working-directory: backend
@@ -218,9 +218,9 @@ jobs:
 
       - name: 🔨 Install Dependencies
         run: |
-          npm install
-          cd frontend && npm install && npx playwright install
-          cd ../backend && npm install
+          npm ci
+          cd frontend && npm ci && npx playwright install
+          cd ../backend && npm ci
 
       - name: 🚀 Start Backend Server
         working-directory: backend
