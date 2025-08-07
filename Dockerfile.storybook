@@ -1,0 +1,64 @@
+# Multi-stage build for better caching and smaller final image
+FROM node:20-alpine as dependencies
+
+# Set working directory
+WORKDIR /app
+
+# Copy package files for better layer caching
+COPY package*.json ./
+COPY frontend/package*.json ./frontend/
+
+# Install dependencies with npm ci for faster, reliable, reproducible builds
+RUN npm ci --only=production && npm cache clean --force
+RUN npm ci --prefix frontend --only=production && npm cache clean --force
+
+# Development dependencies stage
+FROM node:20-alpine as dev-dependencies
+
+WORKDIR /app
+
+# Copy package files
+COPY package*.json ./
+COPY frontend/package*.json ./frontend/
+
+# Install all dependencies including dev dependencies for Storybook
+RUN npm ci && npm cache clean --force
+RUN npm ci --prefix frontend && npm cache clean --force
+
+# Final stage
+FROM node:20-alpine as runtime
+
+# Install dumb-init for proper signal handling
+RUN apk add --no-cache dumb-init curl
+
+WORKDIR /app
+
+# Copy dependencies from previous stages
+COPY --from=dev-dependencies /app/node_modules ./node_modules
+COPY --from=dev-dependencies /app/frontend/node_modules ./frontend/node_modules
+
+# Copy source code
+COPY . .
+
+# Create cache directories and set permissions to be world-writable for Storybook
+RUN mkdir -p /app/frontend/node_modules/.cache/storybook && \
+    chmod -R 777 /app/frontend/node_modules/.cache
+
+# Set environment variables for Storybook cache
+ENV STORYBOOK_CACHE_DIR=/app/frontend/node_modules/.cache/storybook
+
+# Expose Storybook port
+EXPOSE 6006
+
+# Set working directory to frontend
+WORKDIR /app/frontend
+
+# Health check for container monitoring
+HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
+  CMD curl -f http://localhost:6006 || exit 1
+
+# Use dumb-init to handle signals properly
+ENTRYPOINT ["dumb-init", "--"]
+
+# Start Storybook with host binding for container access
+CMD ["npm", "run", "storybook", "--", "--host", "0.0.0.0", "--port", "6006", "--no-open"] 

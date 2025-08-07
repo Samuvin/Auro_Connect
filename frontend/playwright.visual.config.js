@@ -1,0 +1,66 @@
+import { defineConfig, devices } from '@playwright/test';
+
+export default defineConfig({
+  testDir: './tests/visual',
+  fullyParallel: true,
+  forbidOnly: !!process.env.CI,
+  retries: process.env.CI ? 2 : 0,
+  workers: process.env.CI ? 1 : undefined,
+  reporter: [
+    ['html', { outputFolder: 'visual-test-results/html-report' }],
+    ['json', { outputFile: 'visual-test-results/reports/test-results.json' }]
+  ],
+  outputDir: 'visual-test-results/artifacts/',
+  
+  use: {
+    baseURL: 'http://localhost:6006',
+    trace: 'on-first-retry',
+    screenshot: 'only-on-failure',
+    video: 'retain-on-failure',
+  },
+
+  expect: {
+    // Visual comparison settings
+    toHaveScreenshot: {
+      threshold: 0.2, // 20% threshold for visual differences (more lenient)
+      maxDiffPixels: 2000,
+      animations: 'disabled',
+      mode: 'rgb'
+    },
+    toMatchSnapshot: {
+      threshold: 0.2,
+      maxDiffPixels: 2000,
+      animations: 'disabled'
+    }
+  },
+
+  projects: [
+    {
+      name: 'Desktop Chrome',
+      use: { 
+        ...devices['Desktop Chrome'],
+        viewport: { width: 1024, height: 768 }
+      },
+    },
+    {
+      name: 'Desktop Firefox',
+      use: { 
+        ...devices['Desktop Firefox'],
+        viewport: { width: 1024, height: 768 }
+      },
+    },
+    {
+      name: 'Mobile Safari',
+      use: { 
+        ...devices['iPhone 12'],
+      },
+    },
+  ],
+
+  webServer: {
+    command: 'echo "Using existing Storybook Docker container"',
+    url: 'http://localhost:6006',
+    reuseExistingServer: true,
+    timeout: 10000,
+  },
+}); 

@@ -1,0 +1,567 @@
+{
+  "config": {
+    "configFile": "C:\\Users\\jenishs\\OneDrive - Autodesk\\Desktop\\Test\\sjs\\Pro\\test\\Auro_Connect\\frontend\\playwright.visual.config.js",
+    "rootDir": "C:/Users/jenishs/OneDrive - Autodesk/Desktop/Test/sjs/Pro/test/Auro_Connect/frontend/tests/visual",
+    "forbidOnly": false,
+    "fullyParallel": true,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 9
+    },
+    "preserveOutput": "always",
+    "reporter": [
+      [
+        "html",
+        {
+          "outputFolder": "visual-test-results/html-report"
+        }
+      ],
+      [
+        "json",
+        {
+          "outputFile": "visual-test-results/reports/test-results.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "quiet": false,
+    "projects": [
+      {
+        "outputDir": "C:/Users/jenishs/OneDrive - Autodesk/Desktop/Test/sjs/Pro/test/Auro_Connect/frontend/visual-test-results/artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 9
+        },
+        "id": "Desktop Chrome",
+        "name": "Desktop Chrome",
+        "testDir": "C:/Users/jenishs/OneDrive - Autodesk/Desktop/Test/sjs/Pro/test/Auro_Connect/frontend/tests/visual",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "C:/Users/jenishs/OneDrive - Autodesk/Desktop/Test/sjs/Pro/test/Auro_Connect/frontend/visual-test-results/artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 9
+        },
+        "id": "Desktop Firefox",
+        "name": "Desktop Firefox",
+        "testDir": "C:/Users/jenishs/OneDrive - Autodesk/Desktop/Test/sjs/Pro/test/Auro_Connect/frontend/tests/visual",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "C:/Users/jenishs/OneDrive - Autodesk/Desktop/Test/sjs/Pro/test/Auro_Connect/frontend/visual-test-results/artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 9
+        },
+        "id": "Mobile Safari",
+        "name": "Mobile Safari",
+        "testDir": "C:/Users/jenishs/OneDrive - Autodesk/Desktop/Test/sjs/Pro/test/Auro_Connect/frontend/tests/visual",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      }
+    ],
+    "shard": null,
+    "updateSnapshots": "changed",
+    "updateSourceMethod": "patch",
+    "version": "1.54.2",
+    "workers": 11,
+    "webServer": {
+      "command": "echo \"Using existing Storybook Docker container\"",
+      "url": "http://localhost:6006",
+      "reuseExistingServer": true,
+      "timeout": 10000
+    }
+  },
+  "suites": [
+    {
+      "title": "loginpage.visual.spec.js",
+      "file": "loginpage.visual.spec.js",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "LoginPage Visual Regression Tests",
+          "file": "loginpage.visual.spec.js",
+          "line": 3,
+          "column": 6,
+          "specs": [
+            {
+              "title": "Complete LoginPage - Desktop View",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Desktop Chrome",
+                  "projectName": "Desktop Chrome",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 27152,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "A snapshot doesn't exist at C:\\Users\\jenishs\\OneDrive - Autodesk\\Desktop\\Test\\sjs\\Pro\\test\\Auro_Connect\\frontend\\tests\\visual\\loginpage.visual.spec.js-snapshots\\loginpage-desktop-Desktop-Chrome-win32.png, writing actual.\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-07T20:21:34.252Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "loginpage-desktop-expected.png",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\jenishs\\OneDrive - Autodesk\\Desktop\\Test\\sjs\\Pro\\test\\Auro_Connect\\frontend\\tests\\visual\\loginpage.visual.spec.js-snapshots\\loginpage-desktop-Desktop-Chrome-win32.png"
+                        },
+                        {
+                          "name": "loginpage-desktop-actual.png",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\jenishs\\OneDrive - Autodesk\\Desktop\\Test\\sjs\\Pro\\test\\Auro_Connect\\frontend\\visual-test-results\\artifacts\\loginpage.visual-LoginPage-53b81-te-LoginPage---Desktop-View-Desktop-Chrome\\loginpage-desktop-actual.png"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "ca63f5e538ef4d8b60ec-414b7661ca7db9ffbcec",
+              "file": "loginpage.visual.spec.js",
+              "line": 5,
+              "column": 3
+            },
+            {
+              "title": "Complete LoginPage - Mobile View",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Desktop Chrome",
+                  "projectName": "Desktop Chrome",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 28106,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "A snapshot doesn't exist at C:\\Users\\jenishs\\OneDrive - Autodesk\\Desktop\\Test\\sjs\\Pro\\test\\Auro_Connect\\frontend\\tests\\visual\\loginpage.visual.spec.js-snapshots\\loginpage-mobile-Desktop-Chrome-win32.png, writing actual.\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-07T20:21:34.610Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "loginpage-mobile-expected.png",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\jenishs\\OneDrive - Autodesk\\Desktop\\Test\\sjs\\Pro\\test\\Auro_Connect\\frontend\\tests\\visual\\loginpage.visual.spec.js-snapshots\\loginpage-mobile-Desktop-Chrome-win32.png"
+                        },
+                        {
+                          "name": "loginpage-mobile-actual.png",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\jenishs\\OneDrive - Autodesk\\Desktop\\Test\\sjs\\Pro\\test\\Auro_Connect\\frontend\\visual-test-results\\artifacts\\loginpage.visual-LoginPage-01ddd-ete-LoginPage---Mobile-View-Desktop-Chrome\\loginpage-mobile-actual.png"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "ca63f5e538ef4d8b60ec-be0ef0cb4ae59b6efa87",
+              "file": "loginpage.visual.spec.js",
+              "line": 16,
+              "column": 3
+            },
+            {
+              "title": "Complete LoginPage - Tablet View",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Desktop Chrome",
+                  "projectName": "Desktop Chrome",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 2,
+                      "status": "passed",
+                      "duration": 26391,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "A snapshot doesn't exist at C:\\Users\\jenishs\\OneDrive - Autodesk\\Desktop\\Test\\sjs\\Pro\\test\\Auro_Connect\\frontend\\tests\\visual\\loginpage.visual.spec.js-snapshots\\loginpage-tablet-Desktop-Chrome-win32.png, writing actual.\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-07T20:21:35.195Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "loginpage-tablet-expected.png",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\jenishs\\OneDrive - Autodesk\\Desktop\\Test\\sjs\\Pro\\test\\Auro_Connect\\frontend\\tests\\visual\\loginpage.visual.spec.js-snapshots\\loginpage-tablet-Desktop-Chrome-win32.png"
+                        },
+                        {
+                          "name": "loginpage-tablet-actual.png",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\jenishs\\OneDrive - Autodesk\\Desktop\\Test\\sjs\\Pro\\test\\Auro_Connect\\frontend\\visual-test-results\\artifacts\\loginpage.visual-LoginPage-ecd80-ete-LoginPage---Tablet-View-Desktop-Chrome\\loginpage-tablet-actual.png"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "ca63f5e538ef4d8b60ec-3edd319e4eda14fd68e3",
+              "file": "loginpage.visual.spec.js",
+              "line": 27,
+              "column": 3
+            },
+            {
+              "title": "Complete LoginPage - Desktop View",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Desktop Firefox",
+                  "projectName": "Desktop Firefox",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 3,
+                      "status": "passed",
+                      "duration": 14760,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "A snapshot doesn't exist at C:\\Users\\jenishs\\OneDrive - Autodesk\\Desktop\\Test\\sjs\\Pro\\test\\Auro_Connect\\frontend\\tests\\visual\\loginpage.visual.spec.js-snapshots\\loginpage-desktop-Desktop-Firefox-win32.png, writing actual.\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-07T20:21:34.953Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "loginpage-desktop-expected.png",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\jenishs\\OneDrive - Autodesk\\Desktop\\Test\\sjs\\Pro\\test\\Auro_Connect\\frontend\\tests\\visual\\loginpage.visual.spec.js-snapshots\\loginpage-desktop-Desktop-Firefox-win32.png"
+                        },
+                        {
+                          "name": "loginpage-desktop-actual.png",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\jenishs\\OneDrive - Autodesk\\Desktop\\Test\\sjs\\Pro\\test\\Auro_Connect\\frontend\\visual-test-results\\artifacts\\loginpage.visual-LoginPage-53b81-te-LoginPage---Desktop-View-Desktop-Firefox\\loginpage-desktop-actual.png"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "ca63f5e538ef4d8b60ec-55fe27f2601b0f8d5635",
+              "file": "loginpage.visual.spec.js",
+              "line": 5,
+              "column": 3
+            },
+            {
+              "title": "Complete LoginPage - Mobile View",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Desktop Firefox",
+                  "projectName": "Desktop Firefox",
+                  "results": [
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 4,
+                      "status": "passed",
+                      "duration": 12868,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "A snapshot doesn't exist at C:\\Users\\jenishs\\OneDrive - Autodesk\\Desktop\\Test\\sjs\\Pro\\test\\Auro_Connect\\frontend\\tests\\visual\\loginpage.visual.spec.js-snapshots\\loginpage-mobile-Desktop-Firefox-win32.png, writing actual.\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-07T20:21:35.563Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "loginpage-mobile-expected.png",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\jenishs\\OneDrive - Autodesk\\Desktop\\Test\\sjs\\Pro\\test\\Auro_Connect\\frontend\\tests\\visual\\loginpage.visual.spec.js-snapshots\\loginpage-mobile-Desktop-Firefox-win32.png"
+                        },
+                        {
+                          "name": "loginpage-mobile-actual.png",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\jenishs\\OneDrive - Autodesk\\Desktop\\Test\\sjs\\Pro\\test\\Auro_Connect\\frontend\\visual-test-results\\artifacts\\loginpage.visual-LoginPage-01ddd-ete-LoginPage---Mobile-View-Desktop-Firefox\\loginpage-mobile-actual.png"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "ca63f5e538ef4d8b60ec-9423a5a0f83fb10b3d4a",
+              "file": "loginpage.visual.spec.js",
+              "line": 16,
+              "column": 3
+            },
+            {
+              "title": "Complete LoginPage - Tablet View",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Desktop Firefox",
+                  "projectName": "Desktop Firefox",
+                  "results": [
+                    {
+                      "workerIndex": 5,
+                      "parallelIndex": 5,
+                      "status": "passed",
+                      "duration": 12587,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "A snapshot doesn't exist at C:\\Users\\jenishs\\OneDrive - Autodesk\\Desktop\\Test\\sjs\\Pro\\test\\Auro_Connect\\frontend\\tests\\visual\\loginpage.visual.spec.js-snapshots\\loginpage-tablet-Desktop-Firefox-win32.png, writing actual.\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-07T20:21:36.473Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "loginpage-tablet-expected.png",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\jenishs\\OneDrive - Autodesk\\Desktop\\Test\\sjs\\Pro\\test\\Auro_Connect\\frontend\\tests\\visual\\loginpage.visual.spec.js-snapshots\\loginpage-tablet-Desktop-Firefox-win32.png"
+                        },
+                        {
+                          "name": "loginpage-tablet-actual.png",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\jenishs\\OneDrive - Autodesk\\Desktop\\Test\\sjs\\Pro\\test\\Auro_Connect\\frontend\\visual-test-results\\artifacts\\loginpage.visual-LoginPage-ecd80-ete-LoginPage---Tablet-View-Desktop-Firefox\\loginpage-tablet-actual.png"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "ca63f5e538ef4d8b60ec-304ac5eab7d8a2990138",
+              "file": "loginpage.visual.spec.js",
+              "line": 27,
+              "column": 3
+            },
+            {
+              "title": "Complete LoginPage - Desktop View",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Safari",
+                  "projectName": "Mobile Safari",
+                  "results": [
+                    {
+                      "workerIndex": 6,
+                      "parallelIndex": 6,
+                      "status": "passed",
+                      "duration": 10329,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "A snapshot doesn't exist at C:\\Users\\jenishs\\OneDrive - Autodesk\\Desktop\\Test\\sjs\\Pro\\test\\Auro_Connect\\frontend\\tests\\visual\\loginpage.visual.spec.js-snapshots\\loginpage-desktop-Mobile-Safari-win32.png, writing actual.\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-07T20:21:36.286Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "loginpage-desktop-expected.png",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\jenishs\\OneDrive - Autodesk\\Desktop\\Test\\sjs\\Pro\\test\\Auro_Connect\\frontend\\tests\\visual\\loginpage.visual.spec.js-snapshots\\loginpage-desktop-Mobile-Safari-win32.png"
+                        },
+                        {
+                          "name": "loginpage-desktop-actual.png",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\jenishs\\OneDrive - Autodesk\\Desktop\\Test\\sjs\\Pro\\test\\Auro_Connect\\frontend\\visual-test-results\\artifacts\\loginpage.visual-LoginPage-53b81-te-LoginPage---Desktop-View-Mobile-Safari\\loginpage-desktop-actual.png"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "ca63f5e538ef4d8b60ec-8c10cdec942365aaa071",
+              "file": "loginpage.visual.spec.js",
+              "line": 5,
+              "column": 3
+            },
+            {
+              "title": "Complete LoginPage - Mobile View",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Safari",
+                  "projectName": "Mobile Safari",
+                  "results": [
+                    {
+                      "workerIndex": 7,
+                      "parallelIndex": 7,
+                      "status": "passed",
+                      "duration": 8855,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "A snapshot doesn't exist at C:\\Users\\jenishs\\OneDrive - Autodesk\\Desktop\\Test\\sjs\\Pro\\test\\Auro_Connect\\frontend\\tests\\visual\\loginpage.visual.spec.js-snapshots\\loginpage-mobile-Mobile-Safari-win32.png, writing actual.\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-07T20:21:35.244Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "loginpage-mobile-expected.png",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\jenishs\\OneDrive - Autodesk\\Desktop\\Test\\sjs\\Pro\\test\\Auro_Connect\\frontend\\tests\\visual\\loginpage.visual.spec.js-snapshots\\loginpage-mobile-Mobile-Safari-win32.png"
+                        },
+                        {
+                          "name": "loginpage-mobile-actual.png",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\jenishs\\OneDrive - Autodesk\\Desktop\\Test\\sjs\\Pro\\test\\Auro_Connect\\frontend\\visual-test-results\\artifacts\\loginpage.visual-LoginPage-01ddd-ete-LoginPage---Mobile-View-Mobile-Safari\\loginpage-mobile-actual.png"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "ca63f5e538ef4d8b60ec-17d13df28c919c26771a",
+              "file": "loginpage.visual.spec.js",
+              "line": 16,
+              "column": 3
+            },
+            {
+              "title": "Complete LoginPage - Tablet View",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Safari",
+                  "projectName": "Mobile Safari",
+                  "results": [
+                    {
+                      "workerIndex": 8,
+                      "parallelIndex": 8,
+                      "status": "passed",
+                      "duration": 10200,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "A snapshot doesn't exist at C:\\Users\\jenishs\\OneDrive - Autodesk\\Desktop\\Test\\sjs\\Pro\\test\\Auro_Connect\\frontend\\tests\\visual\\loginpage.visual.spec.js-snapshots\\loginpage-tablet-Mobile-Safari-win32.png, writing actual.\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-07T20:21:36.599Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "loginpage-tablet-expected.png",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\jenishs\\OneDrive - Autodesk\\Desktop\\Test\\sjs\\Pro\\test\\Auro_Connect\\frontend\\tests\\visual\\loginpage.visual.spec.js-snapshots\\loginpage-tablet-Mobile-Safari-win32.png"
+                        },
+                        {
+                          "name": "loginpage-tablet-actual.png",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\jenishs\\OneDrive - Autodesk\\Desktop\\Test\\sjs\\Pro\\test\\Auro_Connect\\frontend\\visual-test-results\\artifacts\\loginpage.visual-LoginPage-ecd80-ete-LoginPage---Tablet-View-Mobile-Safari\\loginpage-tablet-actual.png"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "ca63f5e538ef4d8b60ec-e8677bda8792fd67174b",
+              "file": "loginpage.visual.spec.js",
+              "line": 27,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2025-08-07T20:21:24.483Z",
+    "duration": 45139.577,
+    "expected": 9,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

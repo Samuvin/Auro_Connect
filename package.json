@@ -14,7 +14,13 @@
 		"test:frontend:watch": "npm run test:watch --prefix frontend",
 		"test:backend:coverage": "npm run test:coverage --prefix backend",
 		"test:frontend:coverage": "npm run test:coverage --prefix frontend",
-		"test:coverage": "npm run test:backend:coverage && npm run test:frontend:coverage"
+		"test:coverage": "npm run test:backend:coverage && npm run test:frontend:coverage",
+		"storybook:docker:build": "docker build -f Dockerfile.storybook -t storybook-app .",
+		"storybook:docker:run": "docker run -p 6006:6006 storybook-app",
+		"storybook:docker": "npm run storybook:docker:build && npm run storybook:docker:run",
+		"storybook:docker:compose": "docker-compose -f docker-compose.storybook.yml up --build",
+		"storybook:docker:compose:down": "docker-compose -f docker-compose.storybook.yml down",
+		"storybook:docker:dev": "docker-compose -f docker-compose.storybook.yml up --build --watch"
 	},
 	"keywords": [],
 	"author": "",
@@ -35,6 +41,7 @@
 		"mongoose": "^8.6.1"
 	},
 	"devDependencies": {
+		"@storybook/test": "^8.6.14",
 		"nodemon": "^3.1.4"
 	},
 	"packageManager": "yarn@1.22.22+sha512.a6b2f7906b721bba3d67d4aff083df04dad64c399707841b7acf00f6b133b7ac24255f2652fa22ae3534329dc6180534e98d17432037ff6fd140556e2bb3137e"

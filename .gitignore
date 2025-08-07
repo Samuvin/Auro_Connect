@@ -43,3 +43,6 @@ playwright/.cache/
 performance-*.json
 lighthouse-*.html
 lighthouse-*.json
+
+*storybook.log
+storybook-static

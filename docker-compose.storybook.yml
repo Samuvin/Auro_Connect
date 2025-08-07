@@ -1,0 +1,20 @@
+services:
+  storybook:
+    build:
+      context: .
+      dockerfile: Dockerfile.storybook
+    ports:
+      - "6006:6006"
+    volumes:
+      # Mount source code for hot reloading during development
+      - ./frontend/src:/app/frontend/src:ro
+      - ./frontend/.storybook:/app/frontend/.storybook:ro
+      - ./frontend/public:/app/frontend/public:ro
+    environment:
+      - NODE_ENV=development
+    networks:
+      - storybook-network
+
+networks:
+  storybook-network:
+    driver: bridge 
