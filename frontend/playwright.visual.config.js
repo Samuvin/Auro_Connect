@@ -43,6 +43,7 @@ export default defineConfig({
   snapshotPathTemplate: '{testDir}/{testFileDir}/{testFileName}-snapshots/{arg}-{projectName}{ext}',
 
   projects: [
+    // Desktop Browsers
     {
       name: 'Desktop Chrome',
       use: { 
@@ -58,14 +59,84 @@ export default defineConfig({
       },
     },
     {
-      name: 'Mobile Safari',
+      name: 'Desktop Edge',
       use: { 
-        ...devices['iPhone 12'],
-        // Increased timeouts specifically for mobile
-        actionTimeout: 45000, // 45 seconds for mobile actions
-        navigationTimeout: 90000, // 1.5 minutes for mobile navigation
+        ...devices['Desktop Edge'],
+        viewport: { width: 1024, height: 768 }
       },
     },
+    
+    // Mobile Devices (Chrome-based, more reliable than Safari)
+    {
+      name: 'iPhone 12',
+      use: { 
+        ...devices['iPhone 12'],
+        actionTimeout: 45000,
+        navigationTimeout: 90000,
+      },
+    },
+    {
+      name: 'iPhone 14 Pro',
+      use: { 
+        ...devices['iPhone 14 Pro'],
+        actionTimeout: 45000,
+        navigationTimeout: 90000,
+      },
+    },
+    {
+      name: 'Samsung Galaxy S21',
+      use: { 
+        ...devices['Galaxy S III'], // Using available device
+        viewport: { width: 360, height: 800 }, // Modern Android size
+        actionTimeout: 45000,
+        navigationTimeout: 90000,
+      },
+    },
+    
+    // Tablet Devices
+    {
+      name: 'iPad Pro',
+      use: { 
+        ...devices['iPad Pro'],
+        actionTimeout: 45000,
+        navigationTimeout: 90000,
+      },
+    },
+    {
+      name: 'iPad Mini',
+      use: { 
+        ...devices['iPad Mini'],
+        actionTimeout: 45000,
+        navigationTimeout: 90000,
+      },
+    },
+    
+    // Different Viewport Sizes
+    {
+      name: 'Large Desktop',
+      use: { 
+        ...devices['Desktop Chrome'],
+        viewport: { width: 1920, height: 1080 }
+      },
+    },
+    {
+      name: 'Small Desktop',
+      use: { 
+        ...devices['Desktop Chrome'],
+        viewport: { width: 1366, height: 768 }
+      },
+    },
+    
+    // Mobile Safari disabled - WebKit has dependency issues in CI
+    // Re-enable when CI environment supports all WebKit dependencies
+    // {
+    //   name: 'Mobile Safari',
+    //   use: { 
+    //     ...devices['iPhone 12'],
+    //     actionTimeout: 45000,
+    //     navigationTimeout: 90000,
+    //   },
+    // },
   ],
 
   webServer: {
