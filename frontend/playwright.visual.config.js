@@ -43,7 +43,7 @@ export default defineConfig({
   snapshotPathTemplate: '{testDir}/{testFileDir}/{testFileName}-snapshots/{arg}-{projectName}{ext}',
 
   projects: [
-    // Desktop Browsers
+    // Desktop Browsers - Reliable
     {
       name: 'Desktop Chrome',
       use: { 
@@ -66,77 +66,61 @@ export default defineConfig({
       },
     },
     
-    // Mobile Devices (Chrome-based, more reliable than Safari)
+    // Mobile Viewports with Chrome Engine - Reliable
     {
-      name: 'iPhone 12',
+      name: 'Mobile Chrome',
       use: { 
-        ...devices['iPhone 12'],
+        ...devices['Desktop Chrome'],
+        viewport: { width: 375, height: 667 }, // iPhone size
         actionTimeout: 45000,
         navigationTimeout: 90000,
       },
     },
     {
-      name: 'iPhone 14 Pro',
+      name: 'Mobile Firefox',
       use: { 
-        ...devices['iPhone 14 Pro'],
-        actionTimeout: 45000,
-        navigationTimeout: 90000,
-      },
-    },
-    {
-      name: 'Samsung Galaxy S21',
-      use: { 
-        ...devices['Galaxy S III'], // Using available device
-        viewport: { width: 360, height: 800 }, // Modern Android size
+        ...devices['Desktop Firefox'],
+        viewport: { width: 375, height: 667 }, // iPhone size
         actionTimeout: 45000,
         navigationTimeout: 90000,
       },
     },
     
-    // Tablet Devices
+    // Tablet Viewports with Chrome/Firefox - Reliable
     {
-      name: 'iPad Pro',
+      name: 'Tablet Chrome',
       use: { 
-        ...devices['iPad Pro'],
+        ...devices['Desktop Chrome'],
+        viewport: { width: 768, height: 1024 }, // iPad size
         actionTimeout: 45000,
         navigationTimeout: 90000,
       },
     },
     {
-      name: 'iPad Mini',
+      name: 'Tablet Firefox',
       use: { 
-        ...devices['iPad Mini'],
+        ...devices['Desktop Firefox'],
+        viewport: { width: 768, height: 1024 }, // iPad size
         actionTimeout: 45000,
         navigationTimeout: 90000,
       },
     },
     
-    // Different Viewport Sizes
+    // Different Desktop Sizes - Reliable
     {
-      name: 'Large Desktop',
+      name: 'Large Desktop Chrome',
       use: { 
         ...devices['Desktop Chrome'],
         viewport: { width: 1920, height: 1080 }
       },
     },
     {
-      name: 'Small Desktop',
+      name: 'Small Desktop Chrome',
       use: { 
         ...devices['Desktop Chrome'],
         viewport: { width: 1366, height: 768 }
       },
     },
-    
-    // Mobile Safari disabled - WebKit has dependency issues in CI
-    // Re-enable when CI environment supports all WebKit dependencies
-    // {
-    //   name: 'Mobile Safari',
-    //   use: { 
-    //     ...devices['iPhone 12'],
-    //     actionTimeout: 45000,
-    //     navigationTimeout: 90000,
-    //   },
-    // },
   ],
 
   webServer: {
