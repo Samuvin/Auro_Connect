@@ -131,7 +131,12 @@ jobs:
             git checkout -b "$BRANCH_NAME"
             
             # Add and commit the changes
-            git add frontend/tests/visual/**/*-snapshots/
+            if find frontend/tests/visual -name "*-snapshots" -type d | head -1 | grep -q .; then
+              git add frontend/tests/visual/**/*-snapshots/*
+            else
+              echo "⚠️ No snapshot directories found to commit"
+              exit 0
+            fi
             git commit -m "📸 Update visual regression snapshots
 
             Updated by GitHub Action workflow: ${{ github.workflow }}
@@ -181,7 +186,7 @@ jobs:
           name: visual-regression-report
           path: |
             frontend/visual-test-results/
-            frontend/tests/visual/**/*-snapshots/
+            frontend/tests/visual/**/*-snapshots/*
           retention-days: 30
           
       - name: 💬 Comment on PR with Visual Changes
