@@ -1,7 +1,7 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { MemoryRouter } from "react-router-dom";
 import LoginPage from "./LoginPage";
-import Navbar from "../../components/layout/Navbar";
+import Layout from "../../components/layout/Layout";
 import { Toaster } from "react-hot-toast";
 
 const meta = {
@@ -31,10 +31,9 @@ const meta = {
       return (
         <QueryClientProvider client={queryClient}>
           <MemoryRouter>
-            <div className='min-h-screen bg-base-100'>
-              <Navbar />
+            <Layout>
               <Story />
-            </div>
+            </Layout>
             <Toaster />
           </MemoryRouter>
         </QueryClientProvider>
