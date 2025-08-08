@@ -1,8 +1,8 @@
 {
   "config": {
-    "configFile": "C:\\Users\\jenishs\\OneDrive - Autodesk\\Desktop\\Test\\sjs\\Pro\\test\\Auro_Connect\\frontend\\playwright.visual.config.js",
-    "rootDir": "C:/Users/jenishs/OneDrive - Autodesk/Desktop/Test/sjs/Pro/test/Auro_Connect/frontend/tests/visual",
-    "forbidOnly": false,
+    "configFile": "/home/runner/work/Auro_Connect/Auro_Connect/frontend/playwright.visual.config.js",
+    "rootDir": "/home/runner/work/Auro_Connect/Auro_Connect/frontend/tests/visual",
+    "forbidOnly": true,
     "fullyParallel": true,
     "globalSetup": null,
     "globalTeardown": null,
@@ -11,7 +11,29 @@
     "grepInvert": null,
     "maxFailures": 0,
     "metadata": {
-      "actualWorkers": 9
+      "ci": {
+        "commitHref": "https://github.com/Samuvin/Auro_Connect/commit/f01b71f7c3757576254dac9a7324acde89c03ac1",
+        "commitHash": "f01b71f7c3757576254dac9a7324acde89c03ac1",
+        "buildHref": "https://github.com/Samuvin/Auro_Connect/actions/runs/16822788950"
+      },
+      "gitCommit": {
+        "shortHash": "f01b71f",
+        "hash": "f01b71f7c3757576254dac9a7324acde89c03ac1",
+        "subject": "Update visual-regression.yml",
+        "body": "Update visual-regression.yml\n",
+        "author": {
+          "name": "Samuvin",
+          "email": "samuvin.j@gmail.com",
+          "time": 1754629219000
+        },
+        "committer": {
+          "name": "Samuvin",
+          "email": "samuvin.j@gmail.com",
+          "time": 1754629219000
+        },
+        "branch": "main"
+      },
+      "actualWorkers": 1
     },
     "preserveOutput": "always",
     "reporter": [
@@ -35,64 +57,358 @@
     "quiet": false,
     "projects": [
       {
-        "outputDir": "C:/Users/jenishs/OneDrive - Autodesk/Desktop/Test/sjs/Pro/test/Auro_Connect/frontend/visual-test-results/artifacts",
+        "outputDir": "/home/runner/work/Auro_Connect/Auro_Connect/frontend/visual-test-results/artifacts",
         "repeatEach": 1,
-        "retries": 0,
+        "retries": 2,
         "metadata": {
-          "actualWorkers": 9
+          "ci": {
+            "commitHref": "https://github.com/Samuvin/Auro_Connect/commit/f01b71f7c3757576254dac9a7324acde89c03ac1",
+            "commitHash": "f01b71f7c3757576254dac9a7324acde89c03ac1",
+            "buildHref": "https://github.com/Samuvin/Auro_Connect/actions/runs/16822788950"
+          },
+          "gitCommit": {
+            "shortHash": "f01b71f",
+            "hash": "f01b71f7c3757576254dac9a7324acde89c03ac1",
+            "subject": "Update visual-regression.yml",
+            "body": "Update visual-regression.yml\n",
+            "author": {
+              "name": "Samuvin",
+              "email": "samuvin.j@gmail.com",
+              "time": 1754629219000
+            },
+            "committer": {
+              "name": "Samuvin",
+              "email": "samuvin.j@gmail.com",
+              "time": 1754629219000
+            },
+            "branch": "main"
+          },
+          "actualWorkers": 1
         },
         "id": "Desktop Chrome",
         "name": "Desktop Chrome",
-        "testDir": "C:/Users/jenishs/OneDrive - Autodesk/Desktop/Test/sjs/Pro/test/Auro_Connect/frontend/tests/visual",
+        "testDir": "/home/runner/work/Auro_Connect/Auro_Connect/frontend/tests/visual",
         "testIgnore": [],
         "testMatch": [
           "**/*.@(spec|test).?(c|m)[jt]s?(x)"
         ],
-        "timeout": 30000
+        "timeout": 120000
       },
       {
-        "outputDir": "C:/Users/jenishs/OneDrive - Autodesk/Desktop/Test/sjs/Pro/test/Auro_Connect/frontend/visual-test-results/artifacts",
+        "outputDir": "/home/runner/work/Auro_Connect/Auro_Connect/frontend/visual-test-results/artifacts",
         "repeatEach": 1,
-        "retries": 0,
+        "retries": 2,
         "metadata": {
-          "actualWorkers": 9
+          "ci": {
+            "commitHref": "https://github.com/Samuvin/Auro_Connect/commit/f01b71f7c3757576254dac9a7324acde89c03ac1",
+            "commitHash": "f01b71f7c3757576254dac9a7324acde89c03ac1",
+            "buildHref": "https://github.com/Samuvin/Auro_Connect/actions/runs/16822788950"
+          },
+          "gitCommit": {
+            "shortHash": "f01b71f",
+            "hash": "f01b71f7c3757576254dac9a7324acde89c03ac1",
+            "subject": "Update visual-regression.yml",
+            "body": "Update visual-regression.yml\n",
+            "author": {
+              "name": "Samuvin",
+              "email": "samuvin.j@gmail.com",
+              "time": 1754629219000
+            },
+            "committer": {
+              "name": "Samuvin",
+              "email": "samuvin.j@gmail.com",
+              "time": 1754629219000
+            },
+            "branch": "main"
+          },
+          "actualWorkers": 1
         },
         "id": "Desktop Firefox",
         "name": "Desktop Firefox",
-        "testDir": "C:/Users/jenishs/OneDrive - Autodesk/Desktop/Test/sjs/Pro/test/Auro_Connect/frontend/tests/visual",
+        "testDir": "/home/runner/work/Auro_Connect/Auro_Connect/frontend/tests/visual",
         "testIgnore": [],
         "testMatch": [
           "**/*.@(spec|test).?(c|m)[jt]s?(x)"
         ],
-        "timeout": 30000
+        "timeout": 120000
       },
       {
-        "outputDir": "C:/Users/jenishs/OneDrive - Autodesk/Desktop/Test/sjs/Pro/test/Auro_Connect/frontend/visual-test-results/artifacts",
+        "outputDir": "/home/runner/work/Auro_Connect/Auro_Connect/frontend/visual-test-results/artifacts",
         "repeatEach": 1,
-        "retries": 0,
+        "retries": 2,
         "metadata": {
-          "actualWorkers": 9
+          "ci": {
+            "commitHref": "https://github.com/Samuvin/Auro_Connect/commit/f01b71f7c3757576254dac9a7324acde89c03ac1",
+            "commitHash": "f01b71f7c3757576254dac9a7324acde89c03ac1",
+            "buildHref": "https://github.com/Samuvin/Auro_Connect/actions/runs/16822788950"
+          },
+          "gitCommit": {
+            "shortHash": "f01b71f",
+            "hash": "f01b71f7c3757576254dac9a7324acde89c03ac1",
+            "subject": "Update visual-regression.yml",
+            "body": "Update visual-regression.yml\n",
+            "author": {
+              "name": "Samuvin",
+              "email": "samuvin.j@gmail.com",
+              "time": 1754629219000
+            },
+            "committer": {
+              "name": "Samuvin",
+              "email": "samuvin.j@gmail.com",
+              "time": 1754629219000
+            },
+            "branch": "main"
+          },
+          "actualWorkers": 1
         },
-        "id": "Mobile Safari",
-        "name": "Mobile Safari",
-        "testDir": "C:/Users/jenishs/OneDrive - Autodesk/Desktop/Test/sjs/Pro/test/Auro_Connect/frontend/tests/visual",
+        "id": "Desktop Edge",
+        "name": "Desktop Edge",
+        "testDir": "/home/runner/work/Auro_Connect/Auro_Connect/frontend/tests/visual",
         "testIgnore": [],
         "testMatch": [
           "**/*.@(spec|test).?(c|m)[jt]s?(x)"
         ],
-        "timeout": 30000
+        "timeout": 120000
+      },
+      {
+        "outputDir": "/home/runner/work/Auro_Connect/Auro_Connect/frontend/visual-test-results/artifacts",
+        "repeatEach": 1,
+        "retries": 2,
+        "metadata": {
+          "ci": {
+            "commitHref": "https://github.com/Samuvin/Auro_Connect/commit/f01b71f7c3757576254dac9a7324acde89c03ac1",
+            "commitHash": "f01b71f7c3757576254dac9a7324acde89c03ac1",
+            "buildHref": "https://github.com/Samuvin/Auro_Connect/actions/runs/16822788950"
+          },
+          "gitCommit": {
+            "shortHash": "f01b71f",
+            "hash": "f01b71f7c3757576254dac9a7324acde89c03ac1",
+            "subject": "Update visual-regression.yml",
+            "body": "Update visual-regression.yml\n",
+            "author": {
+              "name": "Samuvin",
+              "email": "samuvin.j@gmail.com",
+              "time": 1754629219000
+            },
+            "committer": {
+              "name": "Samuvin",
+              "email": "samuvin.j@gmail.com",
+              "time": 1754629219000
+            },
+            "branch": "main"
+          },
+          "actualWorkers": 1
+        },
+        "id": "Mobile Chrome",
+        "name": "Mobile Chrome",
+        "testDir": "/home/runner/work/Auro_Connect/Auro_Connect/frontend/tests/visual",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 120000
+      },
+      {
+        "outputDir": "/home/runner/work/Auro_Connect/Auro_Connect/frontend/visual-test-results/artifacts",
+        "repeatEach": 1,
+        "retries": 2,
+        "metadata": {
+          "ci": {
+            "commitHref": "https://github.com/Samuvin/Auro_Connect/commit/f01b71f7c3757576254dac9a7324acde89c03ac1",
+            "commitHash": "f01b71f7c3757576254dac9a7324acde89c03ac1",
+            "buildHref": "https://github.com/Samuvin/Auro_Connect/actions/runs/16822788950"
+          },
+          "gitCommit": {
+            "shortHash": "f01b71f",
+            "hash": "f01b71f7c3757576254dac9a7324acde89c03ac1",
+            "subject": "Update visual-regression.yml",
+            "body": "Update visual-regression.yml\n",
+            "author": {
+              "name": "Samuvin",
+              "email": "samuvin.j@gmail.com",
+              "time": 1754629219000
+            },
+            "committer": {
+              "name": "Samuvin",
+              "email": "samuvin.j@gmail.com",
+              "time": 1754629219000
+            },
+            "branch": "main"
+          },
+          "actualWorkers": 1
+        },
+        "id": "Mobile Firefox",
+        "name": "Mobile Firefox",
+        "testDir": "/home/runner/work/Auro_Connect/Auro_Connect/frontend/tests/visual",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 120000
+      },
+      {
+        "outputDir": "/home/runner/work/Auro_Connect/Auro_Connect/frontend/visual-test-results/artifacts",
+        "repeatEach": 1,
+        "retries": 2,
+        "metadata": {
+          "ci": {
+            "commitHref": "https://github.com/Samuvin/Auro_Connect/commit/f01b71f7c3757576254dac9a7324acde89c03ac1",
+            "commitHash": "f01b71f7c3757576254dac9a7324acde89c03ac1",
+            "buildHref": "https://github.com/Samuvin/Auro_Connect/actions/runs/16822788950"
+          },
+          "gitCommit": {
+            "shortHash": "f01b71f",
+            "hash": "f01b71f7c3757576254dac9a7324acde89c03ac1",
+            "subject": "Update visual-regression.yml",
+            "body": "Update visual-regression.yml\n",
+            "author": {
+              "name": "Samuvin",
+              "email": "samuvin.j@gmail.com",
+              "time": 1754629219000
+            },
+            "committer": {
+              "name": "Samuvin",
+              "email": "samuvin.j@gmail.com",
+              "time": 1754629219000
+            },
+            "branch": "main"
+          },
+          "actualWorkers": 1
+        },
+        "id": "Tablet Chrome",
+        "name": "Tablet Chrome",
+        "testDir": "/home/runner/work/Auro_Connect/Auro_Connect/frontend/tests/visual",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 120000
+      },
+      {
+        "outputDir": "/home/runner/work/Auro_Connect/Auro_Connect/frontend/visual-test-results/artifacts",
+        "repeatEach": 1,
+        "retries": 2,
+        "metadata": {
+          "ci": {
+            "commitHref": "https://github.com/Samuvin/Auro_Connect/commit/f01b71f7c3757576254dac9a7324acde89c03ac1",
+            "commitHash": "f01b71f7c3757576254dac9a7324acde89c03ac1",
+            "buildHref": "https://github.com/Samuvin/Auro_Connect/actions/runs/16822788950"
+          },
+          "gitCommit": {
+            "shortHash": "f01b71f",
+            "hash": "f01b71f7c3757576254dac9a7324acde89c03ac1",
+            "subject": "Update visual-regression.yml",
+            "body": "Update visual-regression.yml\n",
+            "author": {
+              "name": "Samuvin",
+              "email": "samuvin.j@gmail.com",
+              "time": 1754629219000
+            },
+            "committer": {
+              "name": "Samuvin",
+              "email": "samuvin.j@gmail.com",
+              "time": 1754629219000
+            },
+            "branch": "main"
+          },
+          "actualWorkers": 1
+        },
+        "id": "Tablet Firefox",
+        "name": "Tablet Firefox",
+        "testDir": "/home/runner/work/Auro_Connect/Auro_Connect/frontend/tests/visual",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 120000
+      },
+      {
+        "outputDir": "/home/runner/work/Auro_Connect/Auro_Connect/frontend/visual-test-results/artifacts",
+        "repeatEach": 1,
+        "retries": 2,
+        "metadata": {
+          "ci": {
+            "commitHref": "https://github.com/Samuvin/Auro_Connect/commit/f01b71f7c3757576254dac9a7324acde89c03ac1",
+            "commitHash": "f01b71f7c3757576254dac9a7324acde89c03ac1",
+            "buildHref": "https://github.com/Samuvin/Auro_Connect/actions/runs/16822788950"
+          },
+          "gitCommit": {
+            "shortHash": "f01b71f",
+            "hash": "f01b71f7c3757576254dac9a7324acde89c03ac1",
+            "subject": "Update visual-regression.yml",
+            "body": "Update visual-regression.yml\n",
+            "author": {
+              "name": "Samuvin",
+              "email": "samuvin.j@gmail.com",
+              "time": 1754629219000
+            },
+            "committer": {
+              "name": "Samuvin",
+              "email": "samuvin.j@gmail.com",
+              "time": 1754629219000
+            },
+            "branch": "main"
+          },
+          "actualWorkers": 1
+        },
+        "id": "Large Desktop Chrome",
+        "name": "Large Desktop Chrome",
+        "testDir": "/home/runner/work/Auro_Connect/Auro_Connect/frontend/tests/visual",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 120000
+      },
+      {
+        "outputDir": "/home/runner/work/Auro_Connect/Auro_Connect/frontend/visual-test-results/artifacts",
+        "repeatEach": 1,
+        "retries": 2,
+        "metadata": {
+          "ci": {
+            "commitHref": "https://github.com/Samuvin/Auro_Connect/commit/f01b71f7c3757576254dac9a7324acde89c03ac1",
+            "commitHash": "f01b71f7c3757576254dac9a7324acde89c03ac1",
+            "buildHref": "https://github.com/Samuvin/Auro_Connect/actions/runs/16822788950"
+          },
+          "gitCommit": {
+            "shortHash": "f01b71f",
+            "hash": "f01b71f7c3757576254dac9a7324acde89c03ac1",
+            "subject": "Update visual-regression.yml",
+            "body": "Update visual-regression.yml\n",
+            "author": {
+              "name": "Samuvin",
+              "email": "samuvin.j@gmail.com",
+              "time": 1754629219000
+            },
+            "committer": {
+              "name": "Samuvin",
+              "email": "samuvin.j@gmail.com",
+              "time": 1754629219000
+            },
+            "branch": "main"
+          },
+          "actualWorkers": 1
+        },
+        "id": "Small Desktop Chrome",
+        "name": "Small Desktop Chrome",
+        "testDir": "/home/runner/work/Auro_Connect/Auro_Connect/frontend/tests/visual",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 120000
       }
     ],
     "shard": null,
     "updateSnapshots": "changed",
     "updateSourceMethod": "patch",
     "version": "1.54.2",
-    "workers": 11,
+    "workers": 1,
     "webServer": {
       "command": "echo \"Using existing Storybook Docker container\"",
       "url": "http://localhost:6006",
       "reuseExistingServer": true,
-      "timeout": 10000
+      "timeout": 30000
     }
   },
   "suites": [
@@ -115,7 +431,7 @@
               "tags": [],
               "tests": [
                 {
-                  "timeout": 30000,
+                  "timeout": 120000,
                   "annotations": [],
                   "expectedStatus": "passed",
                   "projectId": "Desktop Chrome",
@@ -125,29 +441,18 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 19440,
+                      "duration": 3508,
                       "errors": [],
                       "stdout": [
                         {
-                          "text": "A snapshot doesn't exist at C:\\Users\\jenishs\\OneDrive - Autodesk\\Desktop\\Test\\sjs\\Pro\\test\\Auro_Connect\\frontend\\tests\\visual\\loginpage.visual.spec.js-snapshots\\loginpage-desktop-Desktop-Chrome.png, writing actual.\n"
+                          "text": "/home/runner/work/Auro_Connect/Auro_Connect/frontend/tests/visual/loginpage.visual.spec.js-snapshots/loginpage-desktop-Desktop-Chrome.png is re-generated, writing actual.\n"
                         }
                       ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2025-08-08T02:33:26.100Z",
+                      "startTime": "2025-08-08T05:37:50.011Z",
                       "annotations": [],
-                      "attachments": [
-                        {
-                          "name": "loginpage-desktop-expected.png",
-                          "contentType": "image/png",
-                          "path": "C:\\Users\\jenishs\\OneDrive - Autodesk\\Desktop\\Test\\sjs\\Pro\\test\\Auro_Connect\\frontend\\tests\\visual\\loginpage.visual.spec.js-snapshots\\loginpage-desktop-Desktop-Chrome.png"
-                        },
-                        {
-                          "name": "loginpage-desktop-actual.png",
-                          "contentType": "image/png",
-                          "path": "C:\\Users\\jenishs\\OneDrive - Autodesk\\Desktop\\Test\\sjs\\Pro\\test\\Auro_Connect\\frontend\\visual-test-results\\artifacts\\loginpage.visual-LoginPage-53b81-te-LoginPage---Desktop-View-Desktop-Chrome\\loginpage-desktop-actual.png"
-                        }
-                      ]
+                      "attachments": []
                     }
                   ],
                   "status": "expected"
@@ -164,39 +469,28 @@
               "tags": [],
               "tests": [
                 {
-                  "timeout": 30000,
+                  "timeout": 120000,
                   "annotations": [],
                   "expectedStatus": "passed",
                   "projectId": "Desktop Chrome",
                   "projectName": "Desktop Chrome",
                   "results": [
                     {
-                      "workerIndex": 1,
-                      "parallelIndex": 1,
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 19590,
+                      "duration": 1997,
                       "errors": [],
                       "stdout": [
                         {
-                          "text": "A snapshot doesn't exist at C:\\Users\\jenishs\\OneDrive - Autodesk\\Desktop\\Test\\sjs\\Pro\\test\\Auro_Connect\\frontend\\tests\\visual\\loginpage.visual.spec.js-snapshots\\loginpage-mobile-Desktop-Chrome.png, writing actual.\n"
+                          "text": "/home/runner/work/Auro_Connect/Auro_Connect/frontend/tests/visual/loginpage.visual.spec.js-snapshots/loginpage-mobile-Desktop-Chrome.png is re-generated, writing actual.\n"
                         }
                       ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2025-08-08T02:33:25.395Z",
+                      "startTime": "2025-08-08T05:37:56.756Z",
                       "annotations": [],
-                      "attachments": [
-                        {
-                          "name": "loginpage-mobile-expected.png",
-                          "contentType": "image/png",
-                          "path": "C:\\Users\\jenishs\\OneDrive - Autodesk\\Desktop\\Test\\sjs\\Pro\\test\\Auro_Connect\\frontend\\tests\\visual\\loginpage.visual.spec.js-snapshots\\loginpage-mobile-Desktop-Chrome.png"
-                        },
-                        {
-                          "name": "loginpage-mobile-actual.png",
-                          "contentType": "image/png",
-                          "path": "C:\\Users\\jenishs\\OneDrive - Autodesk\\Desktop\\Test\\sjs\\Pro\\test\\Auro_Connect\\frontend\\visual-test-results\\artifacts\\loginpage.visual-LoginPage-01ddd-ete-LoginPage---Mobile-View-Desktop-Chrome\\loginpage-mobile-actual.png"
-                        }
-                      ]
+                      "attachments": []
                     }
                   ],
                   "status": "expected"
@@ -213,39 +507,28 @@
               "tags": [],
               "tests": [
                 {
-                  "timeout": 30000,
+                  "timeout": 120000,
                   "annotations": [],
                   "expectedStatus": "passed",
                   "projectId": "Desktop Chrome",
                   "projectName": "Desktop Chrome",
                   "results": [
                     {
-                      "workerIndex": 2,
-                      "parallelIndex": 2,
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 19557,
+                      "duration": 1928,
                       "errors": [],
                       "stdout": [
                         {
-                          "text": "A snapshot doesn't exist at C:\\Users\\jenishs\\OneDrive - Autodesk\\Desktop\\Test\\sjs\\Pro\\test\\Auro_Connect\\frontend\\tests\\visual\\loginpage.visual.spec.js-snapshots\\loginpage-tablet-Desktop-Chrome.png, writing actual.\n"
+                          "text": "/home/runner/work/Auro_Connect/Auro_Connect/frontend/tests/visual/loginpage.visual.spec.js-snapshots/loginpage-tablet-Desktop-Chrome.png is re-generated, writing actual.\n"
                         }
                       ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2025-08-08T02:33:25.734Z",
+                      "startTime": "2025-08-08T05:37:58.761Z",
                       "annotations": [],
-                      "attachments": [
-                        {
-                          "name": "loginpage-tablet-expected.png",
-                          "contentType": "image/png",
-                          "path": "C:\\Users\\jenishs\\OneDrive - Autodesk\\Desktop\\Test\\sjs\\Pro\\test\\Auro_Connect\\frontend\\tests\\visual\\loginpage.visual.spec.js-snapshots\\loginpage-tablet-Desktop-Chrome.png"
-                        },
-                        {
-                          "name": "loginpage-tablet-actual.png",
-                          "contentType": "image/png",
-                          "path": "C:\\Users\\jenishs\\OneDrive - Autodesk\\Desktop\\Test\\sjs\\Pro\\test\\Auro_Connect\\frontend\\visual-test-results\\artifacts\\loginpage.visual-LoginPage-ecd80-ete-LoginPage---Tablet-View-Desktop-Chrome\\loginpage-tablet-actual.png"
-                        }
-                      ]
+                      "attachments": []
                     }
                   ],
                   "status": "expected"
@@ -262,39 +545,28 @@
               "tags": [],
               "tests": [
                 {
-                  "timeout": 30000,
+                  "timeout": 120000,
                   "annotations": [],
                   "expectedStatus": "passed",
                   "projectId": "Desktop Firefox",
                   "projectName": "Desktop Firefox",
                   "results": [
                     {
-                      "workerIndex": 3,
-                      "parallelIndex": 3,
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 11941,
+                      "duration": 2868,
                       "errors": [],
                       "stdout": [
                         {
-                          "text": "A snapshot doesn't exist at C:\\Users\\jenishs\\OneDrive - Autodesk\\Desktop\\Test\\sjs\\Pro\\test\\Auro_Connect\\frontend\\tests\\visual\\loginpage.visual.spec.js-snapshots\\loginpage-desktop-Desktop-Firefox.png, writing actual.\n"
+                          "text": "/home/runner/work/Auro_Connect/Auro_Connect/frontend/tests/visual/loginpage.visual.spec.js-snapshots/loginpage-desktop-Desktop-Firefox.png is re-generated, writing actual.\n"
                         }
                       ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2025-08-08T02:33:25.779Z",
+                      "startTime": "2025-08-08T05:38:01.478Z",
                       "annotations": [],
-                      "attachments": [
-                        {
-                          "name": "loginpage-desktop-expected.png",
-                          "contentType": "image/png",
-                          "path": "C:\\Users\\jenishs\\OneDrive - Autodesk\\Desktop\\Test\\sjs\\Pro\\test\\Auro_Connect\\frontend\\tests\\visual\\loginpage.visual.spec.js-snapshots\\loginpage-desktop-Desktop-Firefox.png"
-                        },
-                        {
-                          "name": "loginpage-desktop-actual.png",
-                          "contentType": "image/png",
-                          "path": "C:\\Users\\jenishs\\OneDrive - Autodesk\\Desktop\\Test\\sjs\\Pro\\test\\Auro_Connect\\frontend\\visual-test-results\\artifacts\\loginpage.visual-LoginPage-53b81-te-LoginPage---Desktop-View-Desktop-Firefox\\loginpage-desktop-actual.png"
-                        }
-                      ]
+                      "attachments": []
                     }
                   ],
                   "status": "expected"
@@ -311,39 +583,28 @@
               "tags": [],
               "tests": [
                 {
-                  "timeout": 30000,
+                  "timeout": 120000,
                   "annotations": [],
                   "expectedStatus": "passed",
                   "projectId": "Desktop Firefox",
                   "projectName": "Desktop Firefox",
                   "results": [
                     {
-                      "workerIndex": 4,
-                      "parallelIndex": 4,
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 15439,
+                      "duration": 1900,
                       "errors": [],
                       "stdout": [
                         {
-                          "text": "A snapshot doesn't exist at C:\\Users\\jenishs\\OneDrive - Autodesk\\Desktop\\Test\\sjs\\Pro\\test\\Auro_Connect\\frontend\\tests\\visual\\loginpage.visual.spec.js-snapshots\\loginpage-mobile-Desktop-Firefox.png, writing actual.\n"
+                          "text": "/home/runner/work/Auro_Connect/Auro_Connect/frontend/tests/visual/loginpage.visual.spec.js-snapshots/loginpage-mobile-Desktop-Firefox.png is re-generated, writing actual.\n"
                         }
                       ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2025-08-08T02:33:26.268Z",
+                      "startTime": "2025-08-08T05:38:05.148Z",
                       "annotations": [],
-                      "attachments": [
-                        {
-                          "name": "loginpage-mobile-expected.png",
-                          "contentType": "image/png",
-                          "path": "C:\\Users\\jenishs\\OneDrive - Autodesk\\Desktop\\Test\\sjs\\Pro\\test\\Auro_Connect\\frontend\\tests\\visual\\loginpage.visual.spec.js-snapshots\\loginpage-mobile-Desktop-Firefox.png"
-                        },
-                        {
-                          "name": "loginpage-mobile-actual.png",
-                          "contentType": "image/png",
-                          "path": "C:\\Users\\jenishs\\OneDrive - Autodesk\\Desktop\\Test\\sjs\\Pro\\test\\Auro_Connect\\frontend\\visual-test-results\\artifacts\\loginpage.visual-LoginPage-01ddd-ete-LoginPage---Mobile-View-Desktop-Firefox\\loginpage-mobile-actual.png"
-                        }
-                      ]
+                      "attachments": []
                     }
                   ],
                   "status": "expected"
@@ -360,39 +621,28 @@
               "tags": [],
               "tests": [
                 {
-                  "timeout": 30000,
+                  "timeout": 120000,
                   "annotations": [],
                   "expectedStatus": "passed",
                   "projectId": "Desktop Firefox",
                   "projectName": "Desktop Firefox",
                   "results": [
                     {
-                      "workerIndex": 5,
-                      "parallelIndex": 5,
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 13895,
+                      "duration": 1922,
                       "errors": [],
                       "stdout": [
                         {
-                          "text": "A snapshot doesn't exist at C:\\Users\\jenishs\\OneDrive - Autodesk\\Desktop\\Test\\sjs\\Pro\\test\\Auro_Connect\\frontend\\tests\\visual\\loginpage.visual.spec.js-snapshots\\loginpage-tablet-Desktop-Firefox.png, writing actual.\n"
+                          "text": "/home/runner/work/Auro_Connect/Auro_Connect/frontend/tests/visual/loginpage.visual.spec.js-snapshots/loginpage-tablet-Desktop-Firefox.png is re-generated, writing actual.\n"
                         }
                       ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2025-08-08T02:33:26.268Z",
+                      "startTime": "2025-08-08T05:38:07.057Z",
                       "annotations": [],
-                      "attachments": [
-                        {
-                          "name": "loginpage-tablet-expected.png",
-                          "contentType": "image/png",
-                          "path": "C:\\Users\\jenishs\\OneDrive - Autodesk\\Desktop\\Test\\sjs\\Pro\\test\\Auro_Connect\\frontend\\tests\\visual\\loginpage.visual.spec.js-snapshots\\loginpage-tablet-Desktop-Firefox.png"
-                        },
-                        {
-                          "name": "loginpage-tablet-actual.png",
-                          "contentType": "image/png",
-                          "path": "C:\\Users\\jenishs\\OneDrive - Autodesk\\Desktop\\Test\\sjs\\Pro\\test\\Auro_Connect\\frontend\\visual-test-results\\artifacts\\loginpage.visual-LoginPage-ecd80-ete-LoginPage---Tablet-View-Desktop-Firefox\\loginpage-tablet-actual.png"
-                        }
-                      ]
+                      "attachments": []
                     }
                   ],
                   "status": "expected"
@@ -409,37 +659,37 @@
               "tags": [],
               "tests": [
                 {
-                  "timeout": 30000,
+                  "timeout": 120000,
                   "annotations": [],
                   "expectedStatus": "passed",
-                  "projectId": "Mobile Safari",
-                  "projectName": "Mobile Safari",
+                  "projectId": "Desktop Edge",
+                  "projectName": "Desktop Edge",
                   "results": [
                     {
-                      "workerIndex": 6,
-                      "parallelIndex": 6,
+                      "workerIndex": 2,
+                      "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 15045,
+                      "duration": 1773,
                       "errors": [],
                       "stdout": [
                         {
-                          "text": "A snapshot doesn't exist at C:\\Users\\jenishs\\OneDrive - Autodesk\\Desktop\\Test\\sjs\\Pro\\test\\Auro_Connect\\frontend\\tests\\visual\\loginpage.visual.spec.js-snapshots\\loginpage-desktop-Mobile-Safari.png, writing actual.\n"
+                          "text": "A snapshot doesn't exist at /home/runner/work/Auro_Connect/Auro_Connect/frontend/tests/visual/loginpage.visual.spec.js-snapshots/loginpage-desktop-Desktop-Edge.png, writing actual.\n"
                         }
                       ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2025-08-08T02:33:26.274Z",
+                      "startTime": "2025-08-08T05:38:10.099Z",
                       "annotations": [],
                       "attachments": [
                         {
                           "name": "loginpage-desktop-expected.png",
                           "contentType": "image/png",
-                          "path": "C:\\Users\\jenishs\\OneDrive - Autodesk\\Desktop\\Test\\sjs\\Pro\\test\\Auro_Connect\\frontend\\tests\\visual\\loginpage.visual.spec.js-snapshots\\loginpage-desktop-Mobile-Safari.png"
+                          "path": "/home/runner/work/Auro_Connect/Auro_Connect/frontend/tests/visual/loginpage.visual.spec.js-snapshots/loginpage-desktop-Desktop-Edge.png"
                         },
                         {
                           "name": "loginpage-desktop-actual.png",
                           "contentType": "image/png",
-                          "path": "C:\\Users\\jenishs\\OneDrive - Autodesk\\Desktop\\Test\\sjs\\Pro\\test\\Auro_Connect\\frontend\\visual-test-results\\artifacts\\loginpage.visual-LoginPage-53b81-te-LoginPage---Desktop-View-Mobile-Safari\\loginpage-desktop-actual.png"
+                          "path": "/home/runner/work/Auro_Connect/Auro_Connect/frontend/visual-test-results/artifacts/loginpage.visual-LoginPage-53b81-te-LoginPage---Desktop-View-Desktop-Edge/loginpage-desktop-actual.png"
                         }
                       ]
                     }
@@ -447,7 +697,7 @@
                   "status": "expected"
                 }
               ],
-              "id": "ca63f5e538ef4d8b60ec-8c10cdec942365aaa071",
+              "id": "ca63f5e538ef4d8b60ec-a305928cacec955693b3",
               "file": "loginpage.visual.spec.js",
               "line": 5,
               "column": 3
@@ -458,37 +708,37 @@
               "tags": [],
               "tests": [
                 {
-                  "timeout": 30000,
+                  "timeout": 120000,
                   "annotations": [],
                   "expectedStatus": "passed",
-                  "projectId": "Mobile Safari",
-                  "projectName": "Mobile Safari",
+                  "projectId": "Desktop Edge",
+                  "projectName": "Desktop Edge",
                   "results": [
                     {
-                      "workerIndex": 7,
-                      "parallelIndex": 7,
+                      "workerIndex": 2,
+                      "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 15146,
+                      "duration": 1703,
                       "errors": [],
                       "stdout": [
                         {
-                          "text": "A snapshot doesn't exist at C:\\Users\\jenishs\\OneDrive - Autodesk\\Desktop\\Test\\sjs\\Pro\\test\\Auro_Connect\\frontend\\tests\\visual\\loginpage.visual.spec.js-snapshots\\loginpage-mobile-Mobile-Safari.png, writing actual.\n"
+                          "text": "A snapshot doesn't exist at /home/runner/work/Auro_Connect/Auro_Connect/frontend/tests/visual/loginpage.visual.spec.js-snapshots/loginpage-mobile-Desktop-Edge.png, writing actual.\n"
                         }
                       ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2025-08-08T02:33:26.157Z",
+                      "startTime": "2025-08-08T05:38:11.973Z",
                       "annotations": [],
                       "attachments": [
                         {
                           "name": "loginpage-mobile-expected.png",
                           "contentType": "image/png",
-                          "path": "C:\\Users\\jenishs\\OneDrive - Autodesk\\Desktop\\Test\\sjs\\Pro\\test\\Auro_Connect\\frontend\\tests\\visual\\loginpage.visual.spec.js-snapshots\\loginpage-mobile-Mobile-Safari.png"
+                          "path": "/home/runner/work/Auro_Connect/Auro_Connect/frontend/tests/visual/loginpage.visual.spec.js-snapshots/loginpage-mobile-Desktop-Edge.png"
                         },
                         {
                           "name": "loginpage-mobile-actual.png",
                           "contentType": "image/png",
-                          "path": "C:\\Users\\jenishs\\OneDrive - Autodesk\\Desktop\\Test\\sjs\\Pro\\test\\Auro_Connect\\frontend\\visual-test-results\\artifacts\\loginpage.visual-LoginPage-01ddd-ete-LoginPage---Mobile-View-Mobile-Safari\\loginpage-mobile-actual.png"
+                          "path": "/home/runner/work/Auro_Connect/Auro_Connect/frontend/visual-test-results/artifacts/loginpage.visual-LoginPage-01ddd-ete-LoginPage---Mobile-View-Desktop-Edge/loginpage-mobile-actual.png"
                         }
                       ]
                     }
@@ -496,7 +746,7 @@
                   "status": "expected"
                 }
               ],
-              "id": "ca63f5e538ef4d8b60ec-17d13df28c919c26771a",
+              "id": "ca63f5e538ef4d8b60ec-5e13a08a588a63578cb6",
               "file": "loginpage.visual.spec.js",
               "line": 16,
               "column": 3
@@ -507,37 +757,37 @@
               "tags": [],
               "tests": [
                 {
-                  "timeout": 30000,
+                  "timeout": 120000,
                   "annotations": [],
                   "expectedStatus": "passed",
-                  "projectId": "Mobile Safari",
-                  "projectName": "Mobile Safari",
+                  "projectId": "Desktop Edge",
+                  "projectName": "Desktop Edge",
                   "results": [
                     {
-                      "workerIndex": 8,
-                      "parallelIndex": 8,
+                      "workerIndex": 2,
+                      "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 15338,
+                      "duration": 1673,
                       "errors": [],
                       "stdout": [
                         {
-                          "text": "A snapshot doesn't exist at C:\\Users\\jenishs\\OneDrive - Autodesk\\Desktop\\Test\\sjs\\Pro\\test\\Auro_Connect\\frontend\\tests\\visual\\loginpage.visual.spec.js-snapshots\\loginpage-tablet-Mobile-Safari.png, writing actual.\n"
+                          "text": "A snapshot doesn't exist at /home/runner/work/Auro_Connect/Auro_Connect/frontend/tests/visual/loginpage.visual.spec.js-snapshots/loginpage-tablet-Desktop-Edge.png, writing actual.\n"
                         }
                       ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2025-08-08T02:33:25.954Z",
+                      "startTime": "2025-08-08T05:38:13.681Z",
                       "annotations": [],
                       "attachments": [
                         {
                           "name": "loginpage-tablet-expected.png",
                           "contentType": "image/png",
-                          "path": "C:\\Users\\jenishs\\OneDrive - Autodesk\\Desktop\\Test\\sjs\\Pro\\test\\Auro_Connect\\frontend\\tests\\visual\\loginpage.visual.spec.js-snapshots\\loginpage-tablet-Mobile-Safari.png"
+                          "path": "/home/runner/work/Auro_Connect/Auro_Connect/frontend/tests/visual/loginpage.visual.spec.js-snapshots/loginpage-tablet-Desktop-Edge.png"
                         },
                         {
                           "name": "loginpage-tablet-actual.png",
                           "contentType": "image/png",
-                          "path": "C:\\Users\\jenishs\\OneDrive - Autodesk\\Desktop\\Test\\sjs\\Pro\\test\\Auro_Connect\\frontend\\visual-test-results\\artifacts\\loginpage.visual-LoginPage-ecd80-ete-LoginPage---Tablet-View-Mobile-Safari\\loginpage-tablet-actual.png"
+                          "path": "/home/runner/work/Auro_Connect/Auro_Connect/frontend/visual-test-results/artifacts/loginpage.visual-LoginPage-ecd80-ete-LoginPage---Tablet-View-Desktop-Edge/loginpage-tablet-actual.png"
                         }
                       ]
                     }
@@ -545,7 +795,889 @@
                   "status": "expected"
                 }
               ],
-              "id": "ca63f5e538ef4d8b60ec-e8677bda8792fd67174b",
+              "id": "ca63f5e538ef4d8b60ec-be29db05489c8b27c505",
+              "file": "loginpage.visual.spec.js",
+              "line": 27,
+              "column": 3
+            },
+            {
+              "title": "Complete LoginPage - Desktop View",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Chrome",
+                  "projectName": "Mobile Chrome",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1650,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "A snapshot doesn't exist at /home/runner/work/Auro_Connect/Auro_Connect/frontend/tests/visual/loginpage.visual.spec.js-snapshots/loginpage-desktop-Mobile-Chrome.png, writing actual.\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-08T05:38:15.972Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "loginpage-desktop-expected.png",
+                          "contentType": "image/png",
+                          "path": "/home/runner/work/Auro_Connect/Auro_Connect/frontend/tests/visual/loginpage.visual.spec.js-snapshots/loginpage-desktop-Mobile-Chrome.png"
+                        },
+                        {
+                          "name": "loginpage-desktop-actual.png",
+                          "contentType": "image/png",
+                          "path": "/home/runner/work/Auro_Connect/Auro_Connect/frontend/visual-test-results/artifacts/loginpage.visual-LoginPage-53b81-te-LoginPage---Desktop-View-Mobile-Chrome/loginpage-desktop-actual.png"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "ca63f5e538ef4d8b60ec-2a3d87c13149b3ef08a6",
+              "file": "loginpage.visual.spec.js",
+              "line": 5,
+              "column": 3
+            },
+            {
+              "title": "Complete LoginPage - Mobile View",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Chrome",
+                  "projectName": "Mobile Chrome",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1575,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "A snapshot doesn't exist at /home/runner/work/Auro_Connect/Auro_Connect/frontend/tests/visual/loginpage.visual.spec.js-snapshots/loginpage-mobile-Mobile-Chrome.png, writing actual.\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-08T05:38:17.721Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "loginpage-mobile-expected.png",
+                          "contentType": "image/png",
+                          "path": "/home/runner/work/Auro_Connect/Auro_Connect/frontend/tests/visual/loginpage.visual.spec.js-snapshots/loginpage-mobile-Mobile-Chrome.png"
+                        },
+                        {
+                          "name": "loginpage-mobile-actual.png",
+                          "contentType": "image/png",
+                          "path": "/home/runner/work/Auro_Connect/Auro_Connect/frontend/visual-test-results/artifacts/loginpage.visual-LoginPage-01ddd-ete-LoginPage---Mobile-View-Mobile-Chrome/loginpage-mobile-actual.png"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "ca63f5e538ef4d8b60ec-39abc230bd0f5e006eac",
+              "file": "loginpage.visual.spec.js",
+              "line": 16,
+              "column": 3
+            },
+            {
+              "title": "Complete LoginPage - Tablet View",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Chrome",
+                  "projectName": "Mobile Chrome",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1547,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "A snapshot doesn't exist at /home/runner/work/Auro_Connect/Auro_Connect/frontend/tests/visual/loginpage.visual.spec.js-snapshots/loginpage-tablet-Mobile-Chrome.png, writing actual.\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-08T05:38:19.302Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "loginpage-tablet-expected.png",
+                          "contentType": "image/png",
+                          "path": "/home/runner/work/Auro_Connect/Auro_Connect/frontend/tests/visual/loginpage.visual.spec.js-snapshots/loginpage-tablet-Mobile-Chrome.png"
+                        },
+                        {
+                          "name": "loginpage-tablet-actual.png",
+                          "contentType": "image/png",
+                          "path": "/home/runner/work/Auro_Connect/Auro_Connect/frontend/visual-test-results/artifacts/loginpage.visual-LoginPage-ecd80-ete-LoginPage---Tablet-View-Mobile-Chrome/loginpage-tablet-actual.png"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "ca63f5e538ef4d8b60ec-598eb4a36fac0697424b",
+              "file": "loginpage.visual.spec.js",
+              "line": 27,
+              "column": 3
+            },
+            {
+              "title": "Complete LoginPage - Desktop View",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Firefox",
+                  "projectName": "Mobile Firefox",
+                  "results": [
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2421,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "A snapshot doesn't exist at /home/runner/work/Auro_Connect/Auro_Connect/frontend/tests/visual/loginpage.visual.spec.js-snapshots/loginpage-desktop-Mobile-Firefox.png, writing actual.\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-08T05:38:21.488Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "loginpage-desktop-expected.png",
+                          "contentType": "image/png",
+                          "path": "/home/runner/work/Auro_Connect/Auro_Connect/frontend/tests/visual/loginpage.visual.spec.js-snapshots/loginpage-desktop-Mobile-Firefox.png"
+                        },
+                        {
+                          "name": "loginpage-desktop-actual.png",
+                          "contentType": "image/png",
+                          "path": "/home/runner/work/Auro_Connect/Auro_Connect/frontend/visual-test-results/artifacts/loginpage.visual-LoginPage-53b81-te-LoginPage---Desktop-View-Mobile-Firefox/loginpage-desktop-actual.png"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "ca63f5e538ef4d8b60ec-ad007996dadabf179895",
+              "file": "loginpage.visual.spec.js",
+              "line": 5,
+              "column": 3
+            },
+            {
+              "title": "Complete LoginPage - Mobile View",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Firefox",
+                  "projectName": "Mobile Firefox",
+                  "results": [
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1625,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "A snapshot doesn't exist at /home/runner/work/Auro_Connect/Auro_Connect/frontend/tests/visual/loginpage.visual.spec.js-snapshots/loginpage-mobile-Mobile-Firefox.png, writing actual.\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-08T05:38:24.271Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "loginpage-mobile-expected.png",
+                          "contentType": "image/png",
+                          "path": "/home/runner/work/Auro_Connect/Auro_Connect/frontend/tests/visual/loginpage.visual.spec.js-snapshots/loginpage-mobile-Mobile-Firefox.png"
+                        },
+                        {
+                          "name": "loginpage-mobile-actual.png",
+                          "contentType": "image/png",
+                          "path": "/home/runner/work/Auro_Connect/Auro_Connect/frontend/visual-test-results/artifacts/loginpage.visual-LoginPage-01ddd-ete-LoginPage---Mobile-View-Mobile-Firefox/loginpage-mobile-actual.png"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "ca63f5e538ef4d8b60ec-38bc601ab63ddfd1f800",
+              "file": "loginpage.visual.spec.js",
+              "line": 16,
+              "column": 3
+            },
+            {
+              "title": "Complete LoginPage - Tablet View",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Firefox",
+                  "projectName": "Mobile Firefox",
+                  "results": [
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1617,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "A snapshot doesn't exist at /home/runner/work/Auro_Connect/Auro_Connect/frontend/tests/visual/loginpage.visual.spec.js-snapshots/loginpage-tablet-Mobile-Firefox.png, writing actual.\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-08T05:38:25.903Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "loginpage-tablet-expected.png",
+                          "contentType": "image/png",
+                          "path": "/home/runner/work/Auro_Connect/Auro_Connect/frontend/tests/visual/loginpage.visual.spec.js-snapshots/loginpage-tablet-Mobile-Firefox.png"
+                        },
+                        {
+                          "name": "loginpage-tablet-actual.png",
+                          "contentType": "image/png",
+                          "path": "/home/runner/work/Auro_Connect/Auro_Connect/frontend/visual-test-results/artifacts/loginpage.visual-LoginPage-ecd80-ete-LoginPage---Tablet-View-Mobile-Firefox/loginpage-tablet-actual.png"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "ca63f5e538ef4d8b60ec-33272722824d7606ba36",
+              "file": "loginpage.visual.spec.js",
+              "line": 27,
+              "column": 3
+            },
+            {
+              "title": "Complete LoginPage - Desktop View",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Tablet Chrome",
+                  "projectName": "Tablet Chrome",
+                  "results": [
+                    {
+                      "workerIndex": 5,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1745,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "A snapshot doesn't exist at /home/runner/work/Auro_Connect/Auro_Connect/frontend/tests/visual/loginpage.visual.spec.js-snapshots/loginpage-desktop-Tablet-Chrome.png, writing actual.\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-08T05:38:28.640Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "loginpage-desktop-expected.png",
+                          "contentType": "image/png",
+                          "path": "/home/runner/work/Auro_Connect/Auro_Connect/frontend/tests/visual/loginpage.visual.spec.js-snapshots/loginpage-desktop-Tablet-Chrome.png"
+                        },
+                        {
+                          "name": "loginpage-desktop-actual.png",
+                          "contentType": "image/png",
+                          "path": "/home/runner/work/Auro_Connect/Auro_Connect/frontend/visual-test-results/artifacts/loginpage.visual-LoginPage-53b81-te-LoginPage---Desktop-View-Tablet-Chrome/loginpage-desktop-actual.png"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "ca63f5e538ef4d8b60ec-303d6b02db284827b24f",
+              "file": "loginpage.visual.spec.js",
+              "line": 5,
+              "column": 3
+            },
+            {
+              "title": "Complete LoginPage - Mobile View",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Tablet Chrome",
+                  "projectName": "Tablet Chrome",
+                  "results": [
+                    {
+                      "workerIndex": 5,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1687,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "A snapshot doesn't exist at /home/runner/work/Auro_Connect/Auro_Connect/frontend/tests/visual/loginpage.visual.spec.js-snapshots/loginpage-mobile-Tablet-Chrome.png, writing actual.\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-08T05:38:30.485Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "loginpage-mobile-expected.png",
+                          "contentType": "image/png",
+                          "path": "/home/runner/work/Auro_Connect/Auro_Connect/frontend/tests/visual/loginpage.visual.spec.js-snapshots/loginpage-mobile-Tablet-Chrome.png"
+                        },
+                        {
+                          "name": "loginpage-mobile-actual.png",
+                          "contentType": "image/png",
+                          "path": "/home/runner/work/Auro_Connect/Auro_Connect/frontend/visual-test-results/artifacts/loginpage.visual-LoginPage-01ddd-ete-LoginPage---Mobile-View-Tablet-Chrome/loginpage-mobile-actual.png"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "ca63f5e538ef4d8b60ec-bc929f93253158466ecb",
+              "file": "loginpage.visual.spec.js",
+              "line": 16,
+              "column": 3
+            },
+            {
+              "title": "Complete LoginPage - Tablet View",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Tablet Chrome",
+                  "projectName": "Tablet Chrome",
+                  "results": [
+                    {
+                      "workerIndex": 5,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1685,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "A snapshot doesn't exist at /home/runner/work/Auro_Connect/Auro_Connect/frontend/tests/visual/loginpage.visual.spec.js-snapshots/loginpage-tablet-Tablet-Chrome.png, writing actual.\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-08T05:38:32.178Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "loginpage-tablet-expected.png",
+                          "contentType": "image/png",
+                          "path": "/home/runner/work/Auro_Connect/Auro_Connect/frontend/tests/visual/loginpage.visual.spec.js-snapshots/loginpage-tablet-Tablet-Chrome.png"
+                        },
+                        {
+                          "name": "loginpage-tablet-actual.png",
+                          "contentType": "image/png",
+                          "path": "/home/runner/work/Auro_Connect/Auro_Connect/frontend/visual-test-results/artifacts/loginpage.visual-LoginPage-ecd80-ete-LoginPage---Tablet-View-Tablet-Chrome/loginpage-tablet-actual.png"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "ca63f5e538ef4d8b60ec-72533eb5925340058067",
+              "file": "loginpage.visual.spec.js",
+              "line": 27,
+              "column": 3
+            },
+            {
+              "title": "Complete LoginPage - Desktop View",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Tablet Firefox",
+                  "projectName": "Tablet Firefox",
+                  "results": [
+                    {
+                      "workerIndex": 6,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2536,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "A snapshot doesn't exist at /home/runner/work/Auro_Connect/Auro_Connect/frontend/tests/visual/loginpage.visual.spec.js-snapshots/loginpage-desktop-Tablet-Firefox.png, writing actual.\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-08T05:38:34.495Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "loginpage-desktop-expected.png",
+                          "contentType": "image/png",
+                          "path": "/home/runner/work/Auro_Connect/Auro_Connect/frontend/tests/visual/loginpage.visual.spec.js-snapshots/loginpage-desktop-Tablet-Firefox.png"
+                        },
+                        {
+                          "name": "loginpage-desktop-actual.png",
+                          "contentType": "image/png",
+                          "path": "/home/runner/work/Auro_Connect/Auro_Connect/frontend/visual-test-results/artifacts/loginpage.visual-LoginPage-53b81-te-LoginPage---Desktop-View-Tablet-Firefox/loginpage-desktop-actual.png"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "ca63f5e538ef4d8b60ec-3b9ee31ddaac94b3401b",
+              "file": "loginpage.visual.spec.js",
+              "line": 5,
+              "column": 3
+            },
+            {
+              "title": "Complete LoginPage - Mobile View",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Tablet Firefox",
+                  "projectName": "Tablet Firefox",
+                  "results": [
+                    {
+                      "workerIndex": 6,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1712,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "A snapshot doesn't exist at /home/runner/work/Auro_Connect/Auro_Connect/frontend/tests/visual/loginpage.visual.spec.js-snapshots/loginpage-mobile-Tablet-Firefox.png, writing actual.\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-08T05:38:37.388Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "loginpage-mobile-expected.png",
+                          "contentType": "image/png",
+                          "path": "/home/runner/work/Auro_Connect/Auro_Connect/frontend/tests/visual/loginpage.visual.spec.js-snapshots/loginpage-mobile-Tablet-Firefox.png"
+                        },
+                        {
+                          "name": "loginpage-mobile-actual.png",
+                          "contentType": "image/png",
+                          "path": "/home/runner/work/Auro_Connect/Auro_Connect/frontend/visual-test-results/artifacts/loginpage.visual-LoginPage-01ddd-ete-LoginPage---Mobile-View-Tablet-Firefox/loginpage-mobile-actual.png"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "ca63f5e538ef4d8b60ec-722c07f5f780b49374c2",
+              "file": "loginpage.visual.spec.js",
+              "line": 16,
+              "column": 3
+            },
+            {
+              "title": "Complete LoginPage - Tablet View",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Tablet Firefox",
+                  "projectName": "Tablet Firefox",
+                  "results": [
+                    {
+                      "workerIndex": 6,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1645,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "A snapshot doesn't exist at /home/runner/work/Auro_Connect/Auro_Connect/frontend/tests/visual/loginpage.visual.spec.js-snapshots/loginpage-tablet-Tablet-Firefox.png, writing actual.\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-08T05:38:39.106Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "loginpage-tablet-expected.png",
+                          "contentType": "image/png",
+                          "path": "/home/runner/work/Auro_Connect/Auro_Connect/frontend/tests/visual/loginpage.visual.spec.js-snapshots/loginpage-tablet-Tablet-Firefox.png"
+                        },
+                        {
+                          "name": "loginpage-tablet-actual.png",
+                          "contentType": "image/png",
+                          "path": "/home/runner/work/Auro_Connect/Auro_Connect/frontend/visual-test-results/artifacts/loginpage.visual-LoginPage-ecd80-ete-LoginPage---Tablet-View-Tablet-Firefox/loginpage-tablet-actual.png"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "ca63f5e538ef4d8b60ec-3bd23079b947f1143ab4",
+              "file": "loginpage.visual.spec.js",
+              "line": 27,
+              "column": 3
+            },
+            {
+              "title": "Complete LoginPage - Desktop View",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Large Desktop Chrome",
+                  "projectName": "Large Desktop Chrome",
+                  "results": [
+                    {
+                      "workerIndex": 7,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1975,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "A snapshot doesn't exist at /home/runner/work/Auro_Connect/Auro_Connect/frontend/tests/visual/loginpage.visual.spec.js-snapshots/loginpage-desktop-Large-Desktop-Chrome.png, writing actual.\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-08T05:38:41.879Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "loginpage-desktop-expected.png",
+                          "contentType": "image/png",
+                          "path": "/home/runner/work/Auro_Connect/Auro_Connect/frontend/tests/visual/loginpage.visual.spec.js-snapshots/loginpage-desktop-Large-Desktop-Chrome.png"
+                        },
+                        {
+                          "name": "loginpage-desktop-actual.png",
+                          "contentType": "image/png",
+                          "path": "/home/runner/work/Auro_Connect/Auro_Connect/frontend/visual-test-results/artifacts/loginpage.visual-LoginPage-53b81-te-LoginPage---Desktop-View-Large-Desktop-Chrome/loginpage-desktop-actual.png"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "ca63f5e538ef4d8b60ec-17c639f19f599c927083",
+              "file": "loginpage.visual.spec.js",
+              "line": 5,
+              "column": 3
+            },
+            {
+              "title": "Complete LoginPage - Mobile View",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Large Desktop Chrome",
+                  "projectName": "Large Desktop Chrome",
+                  "results": [
+                    {
+                      "workerIndex": 7,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1871,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "A snapshot doesn't exist at /home/runner/work/Auro_Connect/Auro_Connect/frontend/tests/visual/loginpage.visual.spec.js-snapshots/loginpage-mobile-Large-Desktop-Chrome.png, writing actual.\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-08T05:38:43.954Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "loginpage-mobile-expected.png",
+                          "contentType": "image/png",
+                          "path": "/home/runner/work/Auro_Connect/Auro_Connect/frontend/tests/visual/loginpage.visual.spec.js-snapshots/loginpage-mobile-Large-Desktop-Chrome.png"
+                        },
+                        {
+                          "name": "loginpage-mobile-actual.png",
+                          "contentType": "image/png",
+                          "path": "/home/runner/work/Auro_Connect/Auro_Connect/frontend/visual-test-results/artifacts/loginpage.visual-LoginPage-01ddd-ete-LoginPage---Mobile-View-Large-Desktop-Chrome/loginpage-mobile-actual.png"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "ca63f5e538ef4d8b60ec-1a4c7e0d7df1c84e2f59",
+              "file": "loginpage.visual.spec.js",
+              "line": 16,
+              "column": 3
+            },
+            {
+              "title": "Complete LoginPage - Tablet View",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Large Desktop Chrome",
+                  "projectName": "Large Desktop Chrome",
+                  "results": [
+                    {
+                      "workerIndex": 7,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1876,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "A snapshot doesn't exist at /home/runner/work/Auro_Connect/Auro_Connect/frontend/tests/visual/loginpage.visual.spec.js-snapshots/loginpage-tablet-Large-Desktop-Chrome.png, writing actual.\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-08T05:38:45.835Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "loginpage-tablet-expected.png",
+                          "contentType": "image/png",
+                          "path": "/home/runner/work/Auro_Connect/Auro_Connect/frontend/tests/visual/loginpage.visual.spec.js-snapshots/loginpage-tablet-Large-Desktop-Chrome.png"
+                        },
+                        {
+                          "name": "loginpage-tablet-actual.png",
+                          "contentType": "image/png",
+                          "path": "/home/runner/work/Auro_Connect/Auro_Connect/frontend/visual-test-results/artifacts/loginpage.visual-LoginPage-ecd80-ete-LoginPage---Tablet-View-Large-Desktop-Chrome/loginpage-tablet-actual.png"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "ca63f5e538ef4d8b60ec-b26ba9f2aabfde5d8707",
+              "file": "loginpage.visual.spec.js",
+              "line": 27,
+              "column": 3
+            },
+            {
+              "title": "Complete LoginPage - Desktop View",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Small Desktop Chrome",
+                  "projectName": "Small Desktop Chrome",
+                  "results": [
+                    {
+                      "workerIndex": 8,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1836,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "A snapshot doesn't exist at /home/runner/work/Auro_Connect/Auro_Connect/frontend/tests/visual/loginpage.visual.spec.js-snapshots/loginpage-desktop-Small-Desktop-Chrome.png, writing actual.\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-08T05:38:48.336Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "loginpage-desktop-expected.png",
+                          "contentType": "image/png",
+                          "path": "/home/runner/work/Auro_Connect/Auro_Connect/frontend/tests/visual/loginpage.visual.spec.js-snapshots/loginpage-desktop-Small-Desktop-Chrome.png"
+                        },
+                        {
+                          "name": "loginpage-desktop-actual.png",
+                          "contentType": "image/png",
+                          "path": "/home/runner/work/Auro_Connect/Auro_Connect/frontend/visual-test-results/artifacts/loginpage.visual-LoginPage-53b81-te-LoginPage---Desktop-View-Small-Desktop-Chrome/loginpage-desktop-actual.png"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "ca63f5e538ef4d8b60ec-ac2f14cd10db351d0e38",
+              "file": "loginpage.visual.spec.js",
+              "line": 5,
+              "column": 3
+            },
+            {
+              "title": "Complete LoginPage - Mobile View",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Small Desktop Chrome",
+                  "projectName": "Small Desktop Chrome",
+                  "results": [
+                    {
+                      "workerIndex": 8,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1696,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "A snapshot doesn't exist at /home/runner/work/Auro_Connect/Auro_Connect/frontend/tests/visual/loginpage.visual.spec.js-snapshots/loginpage-mobile-Small-Desktop-Chrome.png, writing actual.\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-08T05:38:50.271Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "loginpage-mobile-expected.png",
+                          "contentType": "image/png",
+                          "path": "/home/runner/work/Auro_Connect/Auro_Connect/frontend/tests/visual/loginpage.visual.spec.js-snapshots/loginpage-mobile-Small-Desktop-Chrome.png"
+                        },
+                        {
+                          "name": "loginpage-mobile-actual.png",
+                          "contentType": "image/png",
+                          "path": "/home/runner/work/Auro_Connect/Auro_Connect/frontend/visual-test-results/artifacts/loginpage.visual-LoginPage-01ddd-ete-LoginPage---Mobile-View-Small-Desktop-Chrome/loginpage-mobile-actual.png"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "ca63f5e538ef4d8b60ec-8a8017e8eb1fb4ae38f3",
+              "file": "loginpage.visual.spec.js",
+              "line": 16,
+              "column": 3
+            },
+            {
+              "title": "Complete LoginPage - Tablet View",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Small Desktop Chrome",
+                  "projectName": "Small Desktop Chrome",
+                  "results": [
+                    {
+                      "workerIndex": 8,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1725,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "A snapshot doesn't exist at /home/runner/work/Auro_Connect/Auro_Connect/frontend/tests/visual/loginpage.visual.spec.js-snapshots/loginpage-tablet-Small-Desktop-Chrome.png, writing actual.\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-08T05:38:51.972Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "loginpage-tablet-expected.png",
+                          "contentType": "image/png",
+                          "path": "/home/runner/work/Auro_Connect/Auro_Connect/frontend/tests/visual/loginpage.visual.spec.js-snapshots/loginpage-tablet-Small-Desktop-Chrome.png"
+                        },
+                        {
+                          "name": "loginpage-tablet-actual.png",
+                          "contentType": "image/png",
+                          "path": "/home/runner/work/Auro_Connect/Auro_Connect/frontend/visual-test-results/artifacts/loginpage.visual-LoginPage-ecd80-ete-LoginPage---Tablet-View-Small-Desktop-Chrome/loginpage-tablet-actual.png"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "ca63f5e538ef4d8b60ec-ac804b9d3f89f161f184",
               "file": "loginpage.visual.spec.js",
               "line": 27,
               "column": 3
@@ -557,9 +1689,9 @@
   ],
   "errors": [],
   "stats": {
-    "startTime": "2025-08-08T02:33:18.522Z",
-    "duration": 30039.783000000003,
-    "expected": 9,
+    "startTime": "2025-08-08T05:37:49.371Z",
+    "duration": 64377.195,
+    "expected": 27,
     "skipped": 0,
     "unexpected": 0,
     "flaky": 0
