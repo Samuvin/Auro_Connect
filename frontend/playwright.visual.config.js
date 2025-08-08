@@ -6,6 +6,7 @@ export default defineConfig({
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
   workers: process.env.CI ? 1 : undefined,
+  timeout: 120000, // 2 minutes per test (increased for mobile)
   reporter: [
     ['html', { outputFolder: 'visual-test-results/html-report' }],
     ['json', { outputFile: 'visual-test-results/reports/test-results.json' }]
@@ -17,6 +18,8 @@ export default defineConfig({
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',
+    actionTimeout: 30000, // 30 seconds for actions
+    navigationTimeout: 60000, // 1 minute for navigation
   },
 
   expect: {
@@ -25,12 +28,14 @@ export default defineConfig({
       threshold: 0.2, // 20% threshold for visual differences (more lenient)
       maxDiffPixels: 2000,
       animations: 'disabled',
-      mode: 'rgb'
+      mode: 'rgb',
+      timeout: 30000, // 30 seconds for screenshot comparison
     },
     toMatchSnapshot: {
       threshold: 0.2,
       maxDiffPixels: 2000,
-      animations: 'disabled'
+      animations: 'disabled',
+      timeout: 30000, // 30 seconds for snapshot comparison
     }
   },
 
@@ -56,6 +61,9 @@ export default defineConfig({
       name: 'Mobile Safari',
       use: { 
         ...devices['iPhone 12'],
+        // Increased timeouts specifically for mobile
+        actionTimeout: 45000, // 45 seconds for mobile actions
+        navigationTimeout: 90000, // 1.5 minutes for mobile navigation
       },
     },
   ],
@@ -64,6 +72,6 @@ export default defineConfig({
     command: 'echo "Using existing Storybook Docker container"',
     url: 'http://localhost:6006',
     reuseExistingServer: true,
-    timeout: 10000,
+    timeout: 30000, // 30 seconds to wait for server
   },
 }); 
