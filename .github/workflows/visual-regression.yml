@@ -131,12 +131,7 @@ jobs:
             git checkout -b "$BRANCH_NAME"
             
             # Add and commit the changes
-            if find frontend/tests/visual -name "*-snapshots" -type d | head -1 | grep -q .; then
-              git add frontend/tests/visual/**/*-snapshots/*
-            else
-              echo "⚠️ No snapshot directories found to commit"
-              exit 0
-            fi
+            git add .
             git commit -m "📸 Update visual regression snapshots
 
             Updated by GitHub Action workflow: ${{ github.workflow }}
