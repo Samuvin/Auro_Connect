@@ -1,5 +1,5 @@
 # Multi-stage build for better caching and smaller final image
-FROM node:20-alpine as dependencies
+FROM mcr.microsoft.com/playwright:v1.48.0-jammy as dependencies
 
 # Set working directory
 WORKDIR /app
@@ -13,7 +13,7 @@ RUN npm ci --only=production && npm cache clean --force
 RUN npm ci --prefix frontend --only=production && npm cache clean --force
 
 # Development dependencies stage
-FROM node:20-alpine as dev-dependencies
+FROM mcr.microsoft.com/playwright:v1.48.0-jammy as dev-dependencies
 
 WORKDIR /app
 
@@ -26,10 +26,10 @@ RUN npm ci && npm cache clean --force
 RUN npm ci --prefix frontend && npm cache clean --force
 
 # Final stage
-FROM node:20-alpine as runtime
+FROM mcr.microsoft.com/playwright:v1.48.0-jammy as runtime
 
 # Install dumb-init for proper signal handling
-RUN apk add --no-cache dumb-init curl
+RUN apt-get update && apt-get install -y dumb-init curl && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 

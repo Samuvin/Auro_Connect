@@ -53,6 +53,4 @@ runs:
       if: inputs.include-playwright == 'true' && steps.cache-deps.outputs.cache-hit != 'true'
       shell: bash
       working-directory: frontend
-      run: |
-        npx playwright install
-        npx playwright install-deps 
+      run: npx playwright install-deps 
