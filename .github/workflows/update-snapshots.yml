@@ -1,0 +1,29 @@
+name: 📸 Update Visual Snapshots
+
+on:
+  workflow_dispatch:
+    inputs:
+      playwright-browsers:
+        description: 'Browsers to test'
+        required: false
+        default: 'all'
+        type: choice
+        options:
+          - all
+          - chromium
+          - firefox
+          - webkit
+
+env:
+  NODE_VERSION: '18'
+
+jobs:
+  update-snapshots:
+    name: 📸 Update Visual Snapshots
+    uses: ./.github/workflows/visual-regression.yml
+    with:
+      node-version: '18'
+      skip-visual-tests: false
+      playwright-workers: '1'
+      playwright-browsers: ${{ github.event.inputs.playwright-browsers || 'all' }}
+      update-snapshots: true 

@@ -17,11 +17,6 @@ on:
         required: false
         default: false
         type: boolean
-      skip_snapshot_tests:
-        description: 'Skip Snapshot Tests'
-        required: false
-        default: false
-        type: boolean
       skip_performance_tests:
         description: 'Skip Performance Tests'
         required: false
@@ -34,6 +29,11 @@ on:
         type: boolean
       skip_integration_tests:
         description: 'Skip Integration Tests'
+        required: false
+        default: false
+        type: boolean
+      update_visual_snapshots:
+        description: 'Update Visual Snapshots'
         required: false
         default: false
         type: boolean
@@ -93,7 +93,6 @@ jobs:
       node-version: '18'
       skip-unit-tests: ${{ github.event.inputs.skip_unit_tests == 'true' }}
       skip-integration-tests: ${{ github.event.inputs.skip_integration_tests == 'true' }}
-      skip-snapshot-tests: ${{ github.event.inputs.skip_snapshot_tests == 'true' }}
       
   visual_regression:
     name: 👁️ Visual Regression
@@ -105,7 +104,7 @@ jobs:
       skip-visual-tests: false
       playwright-workers: '1'
       playwright-browsers: ${{ github.event.inputs.playwright_browsers || 'all' }}
-      update-snapshots: false
+      update-snapshots: ${{ github.event.inputs.update_visual_snapshots == 'true' }}
         
   performance:
     name: ⚡ Performance & E2E
