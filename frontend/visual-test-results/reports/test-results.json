@@ -125,22 +125,22 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 27152,
+                      "duration": 19440,
                       "errors": [],
                       "stdout": [
                         {
-                          "text": "A snapshot doesn't exist at C:\\Users\\jenishs\\OneDrive - Autodesk\\Desktop\\Test\\sjs\\Pro\\test\\Auro_Connect\\frontend\\tests\\visual\\loginpage.visual.spec.js-snapshots\\loginpage-desktop-Desktop-Chrome-win32.png, writing actual.\n"
+                          "text": "A snapshot doesn't exist at C:\\Users\\jenishs\\OneDrive - Autodesk\\Desktop\\Test\\sjs\\Pro\\test\\Auro_Connect\\frontend\\tests\\visual\\loginpage.visual.spec.js-snapshots\\loginpage-desktop-Desktop-Chrome.png, writing actual.\n"
                         }
                       ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2025-08-07T20:21:34.252Z",
+                      "startTime": "2025-08-08T02:33:26.100Z",
                       "annotations": [],
                       "attachments": [
                         {
                           "name": "loginpage-desktop-expected.png",
                           "contentType": "image/png",
-                          "path": "C:\\Users\\jenishs\\OneDrive - Autodesk\\Desktop\\Test\\sjs\\Pro\\test\\Auro_Connect\\frontend\\tests\\visual\\loginpage.visual.spec.js-snapshots\\loginpage-desktop-Desktop-Chrome-win32.png"
+                          "path": "C:\\Users\\jenishs\\OneDrive - Autodesk\\Desktop\\Test\\sjs\\Pro\\test\\Auro_Connect\\frontend\\tests\\visual\\loginpage.visual.spec.js-snapshots\\loginpage-desktop-Desktop-Chrome.png"
                         },
                         {
                           "name": "loginpage-desktop-actual.png",
@@ -174,22 +174,22 @@
                       "workerIndex": 1,
                       "parallelIndex": 1,
                       "status": "passed",
-                      "duration": 28106,
+                      "duration": 19590,
                       "errors": [],
                       "stdout": [
                         {
-                          "text": "A snapshot doesn't exist at C:\\Users\\jenishs\\OneDrive - Autodesk\\Desktop\\Test\\sjs\\Pro\\test\\Auro_Connect\\frontend\\tests\\visual\\loginpage.visual.spec.js-snapshots\\loginpage-mobile-Desktop-Chrome-win32.png, writing actual.\n"
+                          "text": "A snapshot doesn't exist at C:\\Users\\jenishs\\OneDrive - Autodesk\\Desktop\\Test\\sjs\\Pro\\test\\Auro_Connect\\frontend\\tests\\visual\\loginpage.visual.spec.js-snapshots\\loginpage-mobile-Desktop-Chrome.png, writing actual.\n"
                         }
                       ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2025-08-07T20:21:34.610Z",
+                      "startTime": "2025-08-08T02:33:25.395Z",
                       "annotations": [],
                       "attachments": [
                         {
                           "name": "loginpage-mobile-expected.png",
                           "contentType": "image/png",
-                          "path": "C:\\Users\\jenishs\\OneDrive - Autodesk\\Desktop\\Test\\sjs\\Pro\\test\\Auro_Connect\\frontend\\tests\\visual\\loginpage.visual.spec.js-snapshots\\loginpage-mobile-Desktop-Chrome-win32.png"
+                          "path": "C:\\Users\\jenishs\\OneDrive - Autodesk\\Desktop\\Test\\sjs\\Pro\\test\\Auro_Connect\\frontend\\tests\\visual\\loginpage.visual.spec.js-snapshots\\loginpage-mobile-Desktop-Chrome.png"
                         },
                         {
                           "name": "loginpage-mobile-actual.png",
@@ -223,22 +223,22 @@
                       "workerIndex": 2,
                       "parallelIndex": 2,
                       "status": "passed",
-                      "duration": 26391,
+                      "duration": 19557,
                       "errors": [],
                       "stdout": [
                         {
-                          "text": "A snapshot doesn't exist at C:\\Users\\jenishs\\OneDrive - Autodesk\\Desktop\\Test\\sjs\\Pro\\test\\Auro_Connect\\frontend\\tests\\visual\\loginpage.visual.spec.js-snapshots\\loginpage-tablet-Desktop-Chrome-win32.png, writing actual.\n"
+                          "text": "A snapshot doesn't exist at C:\\Users\\jenishs\\OneDrive - Autodesk\\Desktop\\Test\\sjs\\Pro\\test\\Auro_Connect\\frontend\\tests\\visual\\loginpage.visual.spec.js-snapshots\\loginpage-tablet-Desktop-Chrome.png, writing actual.\n"
                         }
                       ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2025-08-07T20:21:35.195Z",
+                      "startTime": "2025-08-08T02:33:25.734Z",
                       "annotations": [],
                       "attachments": [
                         {
                           "name": "loginpage-tablet-expected.png",
                           "contentType": "image/png",
-                          "path": "C:\\Users\\jenishs\\OneDrive - Autodesk\\Desktop\\Test\\sjs\\Pro\\test\\Auro_Connect\\frontend\\tests\\visual\\loginpage.visual.spec.js-snapshots\\loginpage-tablet-Desktop-Chrome-win32.png"
+                          "path": "C:\\Users\\jenishs\\OneDrive - Autodesk\\Desktop\\Test\\sjs\\Pro\\test\\Auro_Connect\\frontend\\tests\\visual\\loginpage.visual.spec.js-snapshots\\loginpage-tablet-Desktop-Chrome.png"
                         },
                         {
                           "name": "loginpage-tablet-actual.png",
@@ -272,22 +272,22 @@
                       "workerIndex": 3,
                       "parallelIndex": 3,
                       "status": "passed",
-                      "duration": 14760,
+                      "duration": 11941,
                       "errors": [],
                       "stdout": [
                         {
-                          "text": "A snapshot doesn't exist at C:\\Users\\jenishs\\OneDrive - Autodesk\\Desktop\\Test\\sjs\\Pro\\test\\Auro_Connect\\frontend\\tests\\visual\\loginpage.visual.spec.js-snapshots\\loginpage-desktop-Desktop-Firefox-win32.png, writing actual.\n"
+                          "text": "A snapshot doesn't exist at C:\\Users\\jenishs\\OneDrive - Autodesk\\Desktop\\Test\\sjs\\Pro\\test\\Auro_Connect\\frontend\\tests\\visual\\loginpage.visual.spec.js-snapshots\\loginpage-desktop-Desktop-Firefox.png, writing actual.\n"
                         }
                       ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2025-08-07T20:21:34.953Z",
+                      "startTime": "2025-08-08T02:33:25.779Z",
                       "annotations": [],
                       "attachments": [
                         {
                           "name": "loginpage-desktop-expected.png",
                           "contentType": "image/png",
-                          "path": "C:\\Users\\jenishs\\OneDrive - Autodesk\\Desktop\\Test\\sjs\\Pro\\test\\Auro_Connect\\frontend\\tests\\visual\\loginpage.visual.spec.js-snapshots\\loginpage-desktop-Desktop-Firefox-win32.png"
+                          "path": "C:\\Users\\jenishs\\OneDrive - Autodesk\\Desktop\\Test\\sjs\\Pro\\test\\Auro_Connect\\frontend\\tests\\visual\\loginpage.visual.spec.js-snapshots\\loginpage-desktop-Desktop-Firefox.png"
                         },
                         {
                           "name": "loginpage-desktop-actual.png",
@@ -321,22 +321,22 @@
                       "workerIndex": 4,
                       "parallelIndex": 4,
                       "status": "passed",
-                      "duration": 12868,
+                      "duration": 15439,
                       "errors": [],
                       "stdout": [
                         {
-                          "text": "A snapshot doesn't exist at C:\\Users\\jenishs\\OneDrive - Autodesk\\Desktop\\Test\\sjs\\Pro\\test\\Auro_Connect\\frontend\\tests\\visual\\loginpage.visual.spec.js-snapshots\\loginpage-mobile-Desktop-Firefox-win32.png, writing actual.\n"
+                          "text": "A snapshot doesn't exist at C:\\Users\\jenishs\\OneDrive - Autodesk\\Desktop\\Test\\sjs\\Pro\\test\\Auro_Connect\\frontend\\tests\\visual\\loginpage.visual.spec.js-snapshots\\loginpage-mobile-Desktop-Firefox.png, writing actual.\n"
                         }
                       ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2025-08-07T20:21:35.563Z",
+                      "startTime": "2025-08-08T02:33:26.268Z",
                       "annotations": [],
                       "attachments": [
                         {
                           "name": "loginpage-mobile-expected.png",
                           "contentType": "image/png",
-                          "path": "C:\\Users\\jenishs\\OneDrive - Autodesk\\Desktop\\Test\\sjs\\Pro\\test\\Auro_Connect\\frontend\\tests\\visual\\loginpage.visual.spec.js-snapshots\\loginpage-mobile-Desktop-Firefox-win32.png"
+                          "path": "C:\\Users\\jenishs\\OneDrive - Autodesk\\Desktop\\Test\\sjs\\Pro\\test\\Auro_Connect\\frontend\\tests\\visual\\loginpage.visual.spec.js-snapshots\\loginpage-mobile-Desktop-Firefox.png"
                         },
                         {
                           "name": "loginpage-mobile-actual.png",
@@ -370,22 +370,22 @@
                       "workerIndex": 5,
                       "parallelIndex": 5,
                       "status": "passed",
-                      "duration": 12587,
+                      "duration": 13895,
                       "errors": [],
                       "stdout": [
                         {
-                          "text": "A snapshot doesn't exist at C:\\Users\\jenishs\\OneDrive - Autodesk\\Desktop\\Test\\sjs\\Pro\\test\\Auro_Connect\\frontend\\tests\\visual\\loginpage.visual.spec.js-snapshots\\loginpage-tablet-Desktop-Firefox-win32.png, writing actual.\n"
+                          "text": "A snapshot doesn't exist at C:\\Users\\jenishs\\OneDrive - Autodesk\\Desktop\\Test\\sjs\\Pro\\test\\Auro_Connect\\frontend\\tests\\visual\\loginpage.visual.spec.js-snapshots\\loginpage-tablet-Desktop-Firefox.png, writing actual.\n"
                         }
                       ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2025-08-07T20:21:36.473Z",
+                      "startTime": "2025-08-08T02:33:26.268Z",
                       "annotations": [],
                       "attachments": [
                         {
                           "name": "loginpage-tablet-expected.png",
                           "contentType": "image/png",
-                          "path": "C:\\Users\\jenishs\\OneDrive - Autodesk\\Desktop\\Test\\sjs\\Pro\\test\\Auro_Connect\\frontend\\tests\\visual\\loginpage.visual.spec.js-snapshots\\loginpage-tablet-Desktop-Firefox-win32.png"
+                          "path": "C:\\Users\\jenishs\\OneDrive - Autodesk\\Desktop\\Test\\sjs\\Pro\\test\\Auro_Connect\\frontend\\tests\\visual\\loginpage.visual.spec.js-snapshots\\loginpage-tablet-Desktop-Firefox.png"
                         },
                         {
                           "name": "loginpage-tablet-actual.png",
@@ -419,22 +419,22 @@
                       "workerIndex": 6,
                       "parallelIndex": 6,
                       "status": "passed",
-                      "duration": 10329,
+                      "duration": 15045,
                       "errors": [],
                       "stdout": [
                         {
-                          "text": "A snapshot doesn't exist at C:\\Users\\jenishs\\OneDrive - Autodesk\\Desktop\\Test\\sjs\\Pro\\test\\Auro_Connect\\frontend\\tests\\visual\\loginpage.visual.spec.js-snapshots\\loginpage-desktop-Mobile-Safari-win32.png, writing actual.\n"
+                          "text": "A snapshot doesn't exist at C:\\Users\\jenishs\\OneDrive - Autodesk\\Desktop\\Test\\sjs\\Pro\\test\\Auro_Connect\\frontend\\tests\\visual\\loginpage.visual.spec.js-snapshots\\loginpage-desktop-Mobile-Safari.png, writing actual.\n"
                         }
                       ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2025-08-07T20:21:36.286Z",
+                      "startTime": "2025-08-08T02:33:26.274Z",
                       "annotations": [],
                       "attachments": [
                         {
                           "name": "loginpage-desktop-expected.png",
                           "contentType": "image/png",
-                          "path": "C:\\Users\\jenishs\\OneDrive - Autodesk\\Desktop\\Test\\sjs\\Pro\\test\\Auro_Connect\\frontend\\tests\\visual\\loginpage.visual.spec.js-snapshots\\loginpage-desktop-Mobile-Safari-win32.png"
+                          "path": "C:\\Users\\jenishs\\OneDrive - Autodesk\\Desktop\\Test\\sjs\\Pro\\test\\Auro_Connect\\frontend\\tests\\visual\\loginpage.visual.spec.js-snapshots\\loginpage-desktop-Mobile-Safari.png"
                         },
                         {
                           "name": "loginpage-desktop-actual.png",
@@ -468,22 +468,22 @@
                       "workerIndex": 7,
                       "parallelIndex": 7,
                       "status": "passed",
-                      "duration": 8855,
+                      "duration": 15146,
                       "errors": [],
                       "stdout": [
                         {
-                          "text": "A snapshot doesn't exist at C:\\Users\\jenishs\\OneDrive - Autodesk\\Desktop\\Test\\sjs\\Pro\\test\\Auro_Connect\\frontend\\tests\\visual\\loginpage.visual.spec.js-snapshots\\loginpage-mobile-Mobile-Safari-win32.png, writing actual.\n"
+                          "text": "A snapshot doesn't exist at C:\\Users\\jenishs\\OneDrive - Autodesk\\Desktop\\Test\\sjs\\Pro\\test\\Auro_Connect\\frontend\\tests\\visual\\loginpage.visual.spec.js-snapshots\\loginpage-mobile-Mobile-Safari.png, writing actual.\n"
                         }
                       ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2025-08-07T20:21:35.244Z",
+                      "startTime": "2025-08-08T02:33:26.157Z",
                       "annotations": [],
                       "attachments": [
                         {
                           "name": "loginpage-mobile-expected.png",
                           "contentType": "image/png",
-                          "path": "C:\\Users\\jenishs\\OneDrive - Autodesk\\Desktop\\Test\\sjs\\Pro\\test\\Auro_Connect\\frontend\\tests\\visual\\loginpage.visual.spec.js-snapshots\\loginpage-mobile-Mobile-Safari-win32.png"
+                          "path": "C:\\Users\\jenishs\\OneDrive - Autodesk\\Desktop\\Test\\sjs\\Pro\\test\\Auro_Connect\\frontend\\tests\\visual\\loginpage.visual.spec.js-snapshots\\loginpage-mobile-Mobile-Safari.png"
                         },
                         {
                           "name": "loginpage-mobile-actual.png",
@@ -517,22 +517,22 @@
                       "workerIndex": 8,
                       "parallelIndex": 8,
                       "status": "passed",
-                      "duration": 10200,
+                      "duration": 15338,
                       "errors": [],
                       "stdout": [
                         {
-                          "text": "A snapshot doesn't exist at C:\\Users\\jenishs\\OneDrive - Autodesk\\Desktop\\Test\\sjs\\Pro\\test\\Auro_Connect\\frontend\\tests\\visual\\loginpage.visual.spec.js-snapshots\\loginpage-tablet-Mobile-Safari-win32.png, writing actual.\n"
+                          "text": "A snapshot doesn't exist at C:\\Users\\jenishs\\OneDrive - Autodesk\\Desktop\\Test\\sjs\\Pro\\test\\Auro_Connect\\frontend\\tests\\visual\\loginpage.visual.spec.js-snapshots\\loginpage-tablet-Mobile-Safari.png, writing actual.\n"
                         }
                       ],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2025-08-07T20:21:36.599Z",
+                      "startTime": "2025-08-08T02:33:25.954Z",
                       "annotations": [],
                       "attachments": [
                         {
                           "name": "loginpage-tablet-expected.png",
                           "contentType": "image/png",
-                          "path": "C:\\Users\\jenishs\\OneDrive - Autodesk\\Desktop\\Test\\sjs\\Pro\\test\\Auro_Connect\\frontend\\tests\\visual\\loginpage.visual.spec.js-snapshots\\loginpage-tablet-Mobile-Safari-win32.png"
+                          "path": "C:\\Users\\jenishs\\OneDrive - Autodesk\\Desktop\\Test\\sjs\\Pro\\test\\Auro_Connect\\frontend\\tests\\visual\\loginpage.visual.spec.js-snapshots\\loginpage-tablet-Mobile-Safari.png"
                         },
                         {
                           "name": "loginpage-tablet-actual.png",
@@ -557,8 +557,8 @@
   ],
   "errors": [],
   "stats": {
-    "startTime": "2025-08-07T20:21:24.483Z",
-    "duration": 45139.577,
+    "startTime": "2025-08-08T02:33:18.522Z",
+    "duration": 30039.783000000003,
     "expected": 9,
     "skipped": 0,
     "unexpected": 0,

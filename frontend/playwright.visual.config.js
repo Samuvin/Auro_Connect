@@ -34,6 +34,9 @@ export default defineConfig({
     }
   },
 
+  // Make snapshots platform-agnostic (remove OS suffix)
+  snapshotPathTemplate: '{testDir}/{testFileDir}/{testFileName}-snapshots/{arg}-{projectName}{ext}',
+
   projects: [
     {
       name: 'Desktop Chrome',
