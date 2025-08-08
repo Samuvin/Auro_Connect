@@ -94,22 +94,14 @@ jobs:
             npm run test:visual
           fi
           
-      - name: 📤 Upload Visual Test Results
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: visual-test-results
-          path: |
-            frontend/visual-test-results/
-            frontend/tests/visual/**/*-snapshots/
-          retention-days: 30
-          
-      - name: 📊 Upload Visual Test Report
+      - name: 📤 Upload Visual Test Results & Report
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: visual-regression-report
-          path: frontend/visual-test-results/html-report/
+          path: |
+            frontend/visual-test-results/
+            frontend/tests/visual/**/*-snapshots/
           retention-days: 30
           
       - name: 💬 Comment on PR with Visual Changes
