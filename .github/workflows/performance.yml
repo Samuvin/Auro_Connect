@@ -45,7 +45,7 @@ jobs:
     if: ${{ !inputs.skip-performance-tests }}
     steps:
       - name: 📥 Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         
       - uses: ./.github/actions/setup-test-env
         with:
@@ -82,7 +82,7 @@ jobs:
     if: ${{ !inputs.skip-e2e-tests }}
     steps:
       - name: 📥 Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         
       - uses: ./.github/actions/setup-test-env
         with:

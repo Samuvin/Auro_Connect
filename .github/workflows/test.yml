@@ -33,7 +33,7 @@ jobs:
         component: [frontend, backend]
     steps:
       - name: 📥 Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         
       - uses: ./.github/actions/setup-test-env
         with:
@@ -67,7 +67,7 @@ jobs:
         component: [frontend, backend]
     steps:
       - name: 📥 Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         
       - uses: ./.github/actions/setup-test-env
         with:
@@ -98,7 +98,7 @@ jobs:
         component: [frontend, backend]
     steps:
       - name: 📥 Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         
       - uses: ./.github/actions/setup-test-env
         with:
@@ -113,7 +113,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: 📥 Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         
       - uses: ./.github/actions/setup-test-env
         with:
