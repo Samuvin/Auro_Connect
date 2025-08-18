@@ -15,7 +15,7 @@ jobs:
       cache-hit: ${{ steps.cache-deps.outputs.cache-hit }}
     steps:
       - name: 📥 Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: 🔧 Setup Node.js
         uses: actions/setup-node@v4
